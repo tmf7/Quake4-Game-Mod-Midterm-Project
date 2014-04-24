@@ -590,6 +590,8 @@ bool idItem::GiveToPlayer( idPlayer *player ) {
 		return false;
 	}
 
+	player->Drink(10);
+
 	if ( spawnArgs.GetBool( "inv_carry" ) ) {
 		return player->GiveInventoryItem( &spawnArgs );
 	} 

@@ -9181,6 +9181,7 @@ idMultiplayerGame::IsBuyingAllowedInTheCurrentGameMode
 ================
 */
 bool idMultiplayerGame::IsBuyingAllowedInTheCurrentGameMode( void ) {
+	return true; // DJ
 	if ( !gameLocal.isMultiplayer ) {
 		return false;
 	}
@@ -9200,6 +9201,7 @@ idMultiplayerGame::IsBuyingAllowedRightNow
 */
 bool idMultiplayerGame::IsBuyingAllowedRightNow( void )
 {
+	return true; // DJ
 	return ( IsBuyingAllowedInTheCurrentGameMode() && isBuyingAllowedRightNow );
 }
 

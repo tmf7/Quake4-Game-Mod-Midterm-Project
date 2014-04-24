@@ -742,32 +742,60 @@ void idPlayerView::RenderPlayerView( idUserInterface *hud ) {
 		return;
 	}
 
-	const renderView_t *view = player->GetRenderView();
+	renderView_t *view = player->GetRenderView();
 	if ( !view ) {
 		return;
 	}
 	
 	bool guiRendered = false;
 
+/*
+	player->rollingBAL[2] = player->rollingBAL[1];
+	player->rollingBAL[1] = player->rollingBAL[0];
+
+	if ( player->GetBAL() > 1)
+	{
+		player->rollingBAL[0] = gameLocal.random.CRandomFloat() * (player->GetBAL() * 0.5);
+	}
+	else
+	{
+		player->rollingBAL[0] = 0;
+	}
+	idVec3 forward, right, up;
+	player->viewAngles.ToVectors(&forward,&right,&up);
+	float avg = (player->rollingBAL[0] + player->rollingBAL[1] + player->rollingBAL[2])/3.0;
+	if (avg)
+	{
+		view->viewaxis.RotateArbitrary(forward, avg);
+		view->viewaxis.RotateArbitrary(right, avg);
+		view->viewaxis.RotateArbitrary(up, avg);
+	}*/
+
 	// place the sound origin for the player
 	soundSystem->PlaceListener( view->vieworg, view->viewaxis, player->entityNumber + 1, gameLocal.time, "Undefined" );
-
+	InfluenceVision( hud, view );
 	if ( g_skipViewEffects.GetBool() ) {
+		common->Printf("Influence Vision 1");
 		SingleView( hud, view );
 	} else {
+
 		if ( player->GetInfluenceMaterial() || player->GetInfluenceEntity() ) {
 			InfluenceVision( hud, view );
 			guiRendered = true;
+			common->Printf("Influence Vision 2");
 		} else if ( g_doubleVision.GetBool() && gameLocal.time < dvFinishTime ) {
 			DoubleVision( hud, view, dvFinishTime - gameLocal.time );
 			guiRendered = false;
+			common->Printf("Influence Vision 3");
 		} else {
 			SingleView( hud, view, RF_NO_GUI | RF_PRIMARY_VIEW );
+			common->Printf("Influence Vision 4");
 		}
 
 		// Now draw GUI's.
 		if ( !guiRendered ) {
 			SingleView( hud, view, RF_GUI_ONLY );
+			common->Printf("Influence Vision 5");
 		}
 
 		ScreenFade();

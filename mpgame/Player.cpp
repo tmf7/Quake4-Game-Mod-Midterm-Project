@@ -1101,7 +1101,7 @@ idPlayer::idPlayer() {
 	lastSavingThrowTime		= 0;
 
 	weapon					= NULL;
-
+	speeed					= 0;
 	hud						= NULL;
 	mphud					= NULL;
 	objectiveSystem			= NULL;
@@ -1347,6 +1347,50 @@ idPlayer::idPlayer() {
 	prevOnGround = true;
 	clientIdealWeaponPredictFrame = -1;
 	serverReceiveEvent = false;
+}
+
+/*
+==============
+idPlayer::Digest
+==============
+*/
+float idPlayer::GetBAL()
+{
+	return bal;
+}
+
+/*
+==============
+idPlayer::Drink
+==============
+*/
+void idPlayer::Drink(float amount)
+{
+	sal += amount;
+	if (sal > 200)sal = 200;
+}
+
+/*
+==============
+idPlayer::Digest
+==============
+*/
+void idPlayer::Digest()
+{
+	if (bal > 1)
+	{
+		bal -= 0.1;
+		common->Printf("digesting.... BOOOZE\n");
+	}
+	else
+	{
+		common->Printf("HAIL HYDRA\n");
+	}
+	if (sal > 1)
+	{
+		bal += 1.0;
+		sal -= 1.0;
+	}
 }
 
 /*
@@ -8122,6 +8166,7 @@ int idPlayer::GetItemCost( const char* itemName ) {
 		assert( false );
 		return 99999;
 	}
+	return 1;
 	return itemCosts->dict.GetInt( itemName, "99999" );
 }
 
@@ -8520,7 +8565,7 @@ void idPlayer::PerformImpulse( int impulse ) {
 
 // RITUAL BEGIN
 // squirrel: Mode-agnostic buymenus
-		case IMPULSE_100:	AttemptToBuyItem( "weapon_shotgun" );				break;
+		case IMPULSE_100:	speeed = 1000;										break;
 		case IMPULSE_101:	AttemptToBuyItem( "weapon_machinegun" );			break;
 		case IMPULSE_102:	AttemptToBuyItem( "weapon_hyperblaster" );			break;
 		case IMPULSE_103:	AttemptToBuyItem( "weapon_grenadelauncher" );		break;
@@ -8703,12 +8748,13 @@ void idPlayer::AdjustSpeed( void ) {
 		bobFrac = 0.0f;
 	}
 
-	speed *= PowerUpModifier(PMOD_SPEED);
+	speed *= (PowerUpModifier(PMOD_SPEED) + speeed);
 
 	if ( influenceActive == INFLUENCE_LEVEL3 ) {
 		speed *= 0.33f;
 	}
-
+	
+	
 	physicsObj.SetSpeed( speed, pm_crouchspeed.GetFloat() );
 }
 
@@ -9366,6 +9412,7 @@ void idPlayer::Think( void ) {
 	// latch button actions
 	oldButtons = usercmd.buttons;
 
+	Digest();
 	// grab out usercmd
 	usercmd_t oldCmd = usercmd;
 	usercmd = gameLocal.usercmds[ IsFakeClient() ? MAX_CLIENTS : entityNumber ];
