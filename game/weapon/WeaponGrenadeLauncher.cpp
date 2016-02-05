@@ -15,6 +15,11 @@ public:
 	void					PreSave				( void );
 	void					PostSave			( void );
 
+protected:
+
+	bool				UpdateFlashlight	( void );
+	void				Flashlight			( bool on );
+
 #ifdef _XENON
 	virtual bool		AllowAutoAim			( void ) const { return false; }
 #endif
@@ -24,6 +29,7 @@ private:
 	stateResult_t		State_Idle		( const stateParms_t& parms );
 	stateResult_t		State_Fire		( const stateParms_t& parms );
 	stateResult_t		State_Reload	( const stateParms_t& parms );
+	stateResult_t		State_Flashlight		( const stateParms_t& parms );
 
 	const char*			GetFireAnim() const { return (!AmmoInClip()) ? "fire_empty" : "fire"; }
 	const char*			GetIdleAnim() const { return (!AmmoInClip()) ? "idle_empty" : "idle"; }
@@ -44,11 +50,43 @@ rvWeaponGrenadeLauncher::rvWeaponGrenadeLauncher ( void ) {
 
 /*
 ================
+rvWeaponBlaster::UpdateFlashlight
+================
+*/
+bool rvWeaponGrenadeLauncher::UpdateFlashlight ( void ) {
+	if ( !wsfl.flashlight ) {
+		return false;
+	}
+	
+	SetState ( "Flashlight", 0 );
+	return true;		
+}
+
+/*
+================
+rvWeaponBlaster::Flashlight
+================
+*/
+void rvWeaponGrenadeLauncher::Flashlight ( bool on ) {
+	owner->Flashlight ( on );
+	
+	if ( on ) {
+		worldModel->ShowSurface ( "models/weapons/blaster/flare" );
+		viewModel->ShowSurface ( "models/weapons/blaster/flare" );
+	} else {
+		worldModel->HideSurface ( "models/weapons/blaster/flare" );
+		viewModel->HideSurface ( "models/weapons/blaster/flare" );
+	}
+}
+
+/*
+================
 rvWeaponGrenadeLauncher::Spawn
 ================
 */
 void rvWeaponGrenadeLauncher::Spawn ( void ) {
 	SetState ( "Raise", 0 );	
+	Flashlight ( owner->IsFlashlightOn() );
 }
 
 /*
@@ -79,6 +117,7 @@ CLASS_STATES_DECLARATION ( rvWeaponGrenadeLauncher )
 	STATE ( "Idle",		rvWeaponGrenadeLauncher::State_Idle)
 	STATE ( "Fire",		rvWeaponGrenadeLauncher::State_Fire )
 	STATE ( "Reload",	rvWeaponGrenadeLauncher::State_Reload )
+	STATE ( "Flashlight",					rvWeaponGrenadeLauncher::State_Flashlight )
 END_CLASS_STATES
 
 /*
@@ -106,7 +145,10 @@ stateResult_t rvWeaponGrenadeLauncher::State_Idle( const stateParms_t& parms ) {
 			if ( wsfl.lowerWeapon ) {
 				SetState ( "Lower", 4 );
 				return SRESULT_DONE;
-			}		
+			}	
+			if ( UpdateFlashlight ( ) ) { 
+				return SRESULT_DONE;
+			}
 			if ( !clipSize ) {
 				if ( wsfl.attack && AmmoAvailable ( ) ) {
 					SetState ( "Fire", 0 );
@@ -152,6 +194,9 @@ stateResult_t rvWeaponGrenadeLauncher::State_Fire ( const stateParms_t& parms ) 
 		case STAGE_WAIT:		
 			if ( wsfl.attack && gameLocal.time >= nextAttackTime && AmmoInClip() && !wsfl.lowerWeapon ) {
 				SetState ( "Fire", 0 );
+				return SRESULT_DONE;
+			}
+			if ( UpdateFlashlight ( ) ) {
 				return SRESULT_DONE;
 			}
 			if ( AnimDone ( ANIMCHANNEL_ALL, 0 ) ) {
@@ -200,3 +245,36 @@ stateResult_t rvWeaponGrenadeLauncher::State_Reload ( const stateParms_t& parms 
 	return SRESULT_ERROR;
 }
 			
+/*
+================
+rvWeaponGrenadeLauncher::State_Flashlight
+================
+*/
+stateResult_t rvWeaponGrenadeLauncher::State_Flashlight ( const stateParms_t& parms ) {
+	enum {
+		FLASHLIGHT_INIT,
+		FLASHLIGHT_WAIT,
+	};	
+	switch ( parms.stage ) {
+		case FLASHLIGHT_INIT:			
+			SetStatus ( WP_FLASHLIGHT );
+			// Wait for the flashlight anim to play		
+			PlayAnim( ANIMCHANNEL_ALL, "flashlight", 0 );
+			return SRESULT_STAGE ( FLASHLIGHT_WAIT );
+			
+		case FLASHLIGHT_WAIT:
+			if ( !AnimDone ( ANIMCHANNEL_ALL, 4 ) ) {
+				return SRESULT_WAIT;
+			}
+			
+			if ( owner->IsFlashlightOn() ) {
+				Flashlight ( false );
+			} else {
+				Flashlight ( true );
+			}
+			
+			SetState ( "Idle", 4 );
+			return SRESULT_DONE;
+	}
+	return SRESULT_ERROR;
+}
