@@ -8754,7 +8754,7 @@ void idPlayer::AdjustSpeed( void ) {
 	if ( influenceActive == INFLUENCE_LEVEL3 ) {
 		speed *= 0.33f;
 	}
-	
+
 	physicsObj.SetSpeed( speed, pm_crouchspeed.GetFloat() );
 }
 

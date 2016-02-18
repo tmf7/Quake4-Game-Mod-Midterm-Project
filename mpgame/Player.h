@@ -265,7 +265,6 @@ public:
 //	idList<rvDatabaseEntry>	database;
 	
 	int						secretAreasDiscovered;
-
 };
 
 class idPlayer : public idActor {
@@ -413,10 +412,6 @@ public:
 	float					buyMenuCash;
 
 	float					handicap; // multiplier for damage/health
-
-	float					rollingBAL[3];
-
-	float					speeed; // DJ
 
 public:
 	CLASS_PROTOTYPE( idPlayer );
@@ -780,10 +775,6 @@ public:
 	bool					IsSpectatedClient( void ) const;
 	bool					IsWaitingForPredictAck( void ) const;
 
-	float					GetBAL();
-	void					Drink(float amount);
-	void					Digest();
-
 protected:
 	void					SetupHead( const char* modelKeyName = "", idVec3 headOffset = idVec3(0, 0, 0) );
 
@@ -1004,9 +995,6 @@ private:
 
 	// flags when server is processing entity events, for acknowledge replies
 	bool					serverReceiveEvent;
-
-	float					bal;	// blood alcohol level
-	float					sal;	// stomach alcohol level
 
 	bool					WantSmoothing( void ) const;
 	void					PredictionErrorDecay( void );

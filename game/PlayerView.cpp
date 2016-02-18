@@ -752,7 +752,7 @@ void idPlayerView::RenderPlayerView( idUserInterface *hud ) {
 
 	// place the sound origin for the player
 	soundSystem->PlaceListener( view->vieworg, view->viewaxis, player->entityNumber + 1, gameLocal.time, "Undefined" );
-	InfluenceVision( hud, view );
+
 	if ( g_skipViewEffects.GetBool() ) {
 		SingleView( hud, view );
 	} else {
