@@ -40,19 +40,16 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../$(Platform)/$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)</IntDir>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</IgnoreImportLibrary>
@@ -61,7 +58,7 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">$(OutDir)</IntDir>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">true</IgnoreImportLibrary>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Release\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../$(Platform)/$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)</IntDir>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</IgnoreImportLibrary>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
@@ -107,9 +104,6 @@
       <StackCommitSize>16000000</StackCommitSize>
       <LargeAddressAware>true</LargeAddressAware>
       <BaseAddress>0x20000000</BaseAddress>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
@@ -138,9 +132,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>Default</CompileAs>
     </ClCompile>
-    <ResourceCompile>
-      <ShowProgress>true</ShowProgress>
-    </ResourceCompile>
     <Link>
       <AdditionalDependencies>$(IntDir)idLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(IntDir)$(ProjectName)x86.dll</OutputFile>
@@ -158,11 +149,11 @@
       <StackCommitSize>16000000</StackCommitSize>
       <LargeAddressAware>true</LargeAddressAware>
       <BaseAddress>0x20000000</BaseAddress>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <ResourceCompile>
+      <ShowProgress>true</ShowProgress>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -196,6 +187,7 @@
     <Link>
       <AdditionalOptions>/MACHINE:I386 /fixed:no %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>$(IntDir)idLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(IntDir)$(ProjectName)x86.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ModuleDefinitionFile>.\mpgame\mpgame.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -211,9 +203,6 @@
       <EntryPointSymbol>
       </EntryPointSymbol>
       <BaseAddress>0x20000000</BaseAddress>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
@@ -240,7 +229,6 @@
     <ClCompile Include="mpgame\IK.cpp" />
     <ClCompile Include="mpgame\Instance.cpp" />
     <ClCompile Include="mpgame\Item.cpp" />
-    <ClCompile Include="mpgame\Lagometer.cpp" />
     <ClCompile Include="mpgame\Light.cpp" />
     <ClCompile Include="mpgame\LipSync.cpp" />
     <ClCompile Include="mpgame\Misc.cpp" />
@@ -258,6 +246,7 @@
     <ClCompile Include="mpgame\TramGate.cpp" />
     <ClCompile Include="mpgame\Trigger.cpp" />
     <ClCompile Include="mpgame\WorldSpawn.cpp" />
+    <ClCompile Include="mpgame\Lagometer.cpp" />
     <ClCompile Include="mpgame\ai\AAS.cpp" />
     <ClCompile Include="mpgame\ai\AAS_debug.cpp" />
     <ClCompile Include="mpgame\ai\AAS_Find.cpp" />
@@ -305,6 +294,10 @@
     <ClCompile Include="mpgame\ai\Monster_TurretFlying.cpp" />
     <ClCompile Include="mpgame\spawner.cpp" />
     <ClCompile Include="mpgame\ai\VehicleAI.cpp" />
+    <ClCompile Include="mpgame\anim\Anim.cpp" />
+    <ClCompile Include="mpgame\anim\Anim_Blend.cpp" />
+    <ClCompile Include="mpgame\anim\Anim_Import.cpp" />
+    <ClCompile Include="mpgame\anim\Anim_Testmodel.cpp" />
     <ClCompile Include="mpgame\client\ClientAFEntity.cpp" />
     <ClCompile Include="mpgame\client\ClientEffect.cpp" />
     <ClCompile Include="mpgame\client\ClientEntity.cpp" />
@@ -377,10 +370,6 @@
     <ClCompile Include="mpgame\mp\stats\StatEvent.cpp" />
     <ClCompile Include="mpgame\mp\stats\StatManager.cpp" />
     <ClCompile Include="mpgame\mp\stats\StatWindow.cpp" />
-    <ClCompile Include="mpgame\anim\Anim.cpp" />
-    <ClCompile Include="mpgame\anim\Anim_Blend.cpp" />
-    <ClCompile Include="mpgame\anim\Anim_Import.cpp" />
-    <ClCompile Include="mpgame\anim\Anim_Testmodel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mpgame\Actor.h" />
@@ -401,7 +390,6 @@
     <ClInclude Include="mpgame\IK.h" />
     <ClInclude Include="mpgame\Instance.h" />
     <ClInclude Include="mpgame\Item.h" />
-    <ClInclude Include="mpgame\Lagometer.h" />
     <ClInclude Include="mpgame\Light.h" />
     <ClInclude Include="mpgame\LipSync.h" />
     <ClInclude Include="mpgame\Misc.h" />
@@ -417,6 +405,7 @@
     <ClInclude Include="mpgame\TramGate.h" />
     <ClInclude Include="mpgame\Trigger.h" />
     <ClInclude Include="mpgame\WorldSpawn.h" />
+    <ClInclude Include="mpgame\Lagometer.h" />
     <ClInclude Include="mpgame\ai\AAS.h" />
     <ClInclude Include="mpgame\ai\AAS_Find.h" />
     <ClInclude Include="mpgame\ai\AAS_local.h" />
@@ -429,6 +418,8 @@
     <ClInclude Include="mpgame\ai\AI_Util.h" />
     <ClInclude Include="mpgame\spawner.h" />
     <ClInclude Include="mpgame\ai\VehicleAI.h" />
+    <ClInclude Include="mpgame\anim\Anim.h" />
+    <ClInclude Include="mpgame\anim\Anim_Testmodel.h" />
     <ClInclude Include="mpgame\client\ClientAFEntity.h" />
     <ClInclude Include="mpgame\client\ClientEffect.h" />
     <ClInclude Include="mpgame\client\ClientEntity.h" />
@@ -484,8 +475,6 @@
     <ClInclude Include="mpgame\mp\stats\StatEvent.h" />
     <ClInclude Include="mpgame\mp\stats\StatManager.h" />
     <ClInclude Include="mpgame\mp\stats\StatWindow.h" />
-    <ClInclude Include="mpgame\anim\Anim.h" />
-    <ClInclude Include="mpgame\anim\Anim_Testmodel.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="mpgame\Game.def" />
