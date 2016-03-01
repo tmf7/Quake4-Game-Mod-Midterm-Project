@@ -189,7 +189,11 @@ bool rvWeaponMachinegun::Check_OtherPlayers( void )
 		//pfl.weaponFired is only set to true when a player's weapon has ALREADY called the Attack function
 		//pfl.attackHeld is set true immedialty PRIOR to the FireWeapon() function call in weapon.cpp
 		//both work, but I'd like to call this function prior to ANY "attack" type calls
-		if ( ( player->weapon->IsType( rvWeaponMachinegun::GetClassType() ) ) && player->pfl.attackHeld ) { return true; }
+		if ( ( player->weapon->IsType( rvWeaponMachinegun::GetClassType() ) ) && player->pfl.attackHeld ) 
+		{
+			statManager->GiveInGameAward( IGA_HOLY_SHIT, owner->entityNumber );
+			return true; 
+		}
 	}
 	return false;
 }
