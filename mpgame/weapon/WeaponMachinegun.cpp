@@ -32,7 +32,9 @@ private:
 	stateResult_t		State_Fire			( const stateParms_t& parms );
 	stateResult_t		State_Reload		( const stateParms_t& parms );
 	stateResult_t		State_Flashlight	( const stateParms_t& parms );
-
+//TMF7 BEGIN
+	bool				Check_OtherPlayers	( void );
+//TMF7 END
 	CLASS_STATES_PROTOTYPE ( rvWeaponMachinegun );
 };
 
@@ -157,6 +159,44 @@ CLASS_STATES_DECLARATION ( rvWeaponMachinegun )
 	STATE ( "Flashlight",		rvWeaponMachinegun::State_Flashlight )
 END_CLASS_STATES
 
+
+//TMF7 BEGIN
+/*
+================
+rvWeaponMachinegun::Check_OtherPlayers
+================
+*/
+//OUTPUT: returns TRUE if the player weilding this machine gun is attempting to fire while any other player is holding their fire button
+//AND that firing player is weilding a machine gun, otherwise returns FALSE
+bool rvWeaponMachinegun::Check_OtherPlayers( void )
+{
+	idEntity* ent = NULL;
+	//FUNNY BUG: because this loop checks the players in order, if both players are holding the fire button then the player that
+	//appears earliest in the entity list will be the one allowed to break out (but it'll take a few frames)
+	for ( int i = 0; i < gameLocal.numClients; i++ ) 
+	{
+		ent = gameLocal.entities[ i ];
+		
+		//make sure the entity is a player
+		if ( !ent || !ent->IsType( idPlayer::GetClassType() ) )	{continue;}
+		
+		//cast the entity
+		idPlayer* player = (idPlayer*)ent;
+
+		//make sure the player being checked isn't the one trying to fire
+		if ( player == owner ) {continue;}
+		
+		//pfl.weaponFired is only set to true when a player's weapon has ALREADY called the Attack function
+		//pfl.attackHeld is set true immedialty PRIOR to the FireWeapon() function call in weapon.cpp
+		//both work, but I'd like to call this function prior to ANY "attack" type calls
+		if ( ( player->weapon->IsType( rvWeaponMachinegun::GetClassType() ) ) && player->pfl.attackHeld ) { return true; }
+	}
+	return false;
+}
+//TMF7 END
+
+
+
 /*
 ================
 rvWeaponMachinegun::State_Idle
@@ -191,12 +231,16 @@ stateResult_t rvWeaponMachinegun::State_Idle( const stateParms_t& parms ) {
 				fireHeld = false;
 			}
 			if ( !clipSize ) {
-				if ( !fireHeld && gameLocal.time > nextAttackTime && wsfl.attack && AmmoAvailable ( ) ) {
+				//TMF7 BEGIN
+				if ( !fireHeld && gameLocal.time > nextAttackTime && wsfl.attack && AmmoAvailable ( ) && !Check_OtherPlayers() ) {
+				//TMF7 END
 					SetState ( "Fire", 0 );
 					return SRESULT_DONE;
 				}
 			} else {
-				if ( !fireHeld && gameLocal.time > nextAttackTime && wsfl.attack && AmmoInClip ( ) ) {
+				//TMF7 BEGIN
+				if ( !fireHeld && gameLocal.time > nextAttackTime && wsfl.attack && AmmoInClip ( ) && !Check_OtherPlayers() ) {
+				//TMF7 END
 					SetState ( "Fire", 0 );
 					return SRESULT_DONE;
 				}  
@@ -237,8 +281,10 @@ stateResult_t rvWeaponMachinegun::State_Fire ( const stateParms_t& parms ) {
 			PlayAnim ( ANIMCHANNEL_ALL, "fire", 0 );	
 			return SRESULT_STAGE ( STAGE_WAIT );
 	
-		case STAGE_WAIT:		
-			if ( !fireHeld && wsfl.attack && gameLocal.time >= nextAttackTime && AmmoInClip() && !wsfl.lowerWeapon ) {
+		case STAGE_WAIT:	
+			//TMF7 BEGIN
+			if ( !fireHeld && wsfl.attack && gameLocal.time >= nextAttackTime && AmmoInClip() && !wsfl.lowerWeapon && !Check_OtherPlayers()) {
+			//TMF7 END	
 				SetState ( "Fire", 0 );
 				return SRESULT_DONE;
 			}

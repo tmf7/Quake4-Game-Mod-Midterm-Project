@@ -328,7 +328,7 @@ public:
 		bool		objectiveFailed	:1;
 		bool		noFallingDamage :1;
 	} pfl;
-		
+
 	// inventory
 	idInventory				inventory;
 
