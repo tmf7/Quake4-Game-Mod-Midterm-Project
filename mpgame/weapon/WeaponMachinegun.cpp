@@ -166,13 +166,20 @@ END_CLASS_STATES
 rvWeaponMachinegun::Check_OtherPlayers
 ================
 */
-//OUTPUT: returns TRUE if the player weilding this machine gun is attempting to fire while any other player is holding their fire button
-//AND that firing player is weilding a machine gun, otherwise returns FALSE
+/*
+OUTPUT:			Returns TRUE if the player weilding this machine gun is attempting to fire while any other player is holding their fire button
+				AND that firing player is weilding a machine gun, otherwise returns FALSE
+
+IMPROVEMENTS:	(1) modify the state call to make the gun do an out of ammo animation; 
+				(2) allow the FIRST player to hold the fire button to lockout all others (instead of the current stalemate lockout)
+				(3) only award the holy shit award once every time a second player tries
+					to fire while the primary gunner is firing (ie NOT every frame while the trigger is held down)
+				(4) display a console message for the list of people firing [1 = firing; 0 = cant fire], or at least the current gunner
+FINISHED 2/29/2016 11:56pm
+*/
 bool rvWeaponMachinegun::Check_OtherPlayers( void )
 {
 	idEntity* ent = NULL;
-	//FUNNY BUG: because this loop checks the players in order, if both players are holding the fire button then the player that
-	//appears earliest in the entity list will be the one allowed to break out (but it'll take a few frames)
 	for ( int i = 0; i < gameLocal.numClients; i++ ) 
 	{
 		ent = gameLocal.entities[ i ];
@@ -180,7 +187,7 @@ bool rvWeaponMachinegun::Check_OtherPlayers( void )
 		//make sure the entity is a player
 		if ( !ent || !ent->IsType( idPlayer::GetClassType() ) )	{continue;}
 		
-		//cast the entity
+		//cast the entity that's been verified as an idPlayer
 		idPlayer* player = (idPlayer*)ent;
 
 		//make sure the player being checked isn't the one trying to fire
@@ -191,6 +198,7 @@ bool rvWeaponMachinegun::Check_OtherPlayers( void )
 		//both work, but I'd like to call this function prior to ANY "attack" type calls
 		if ( ( player->weapon->IsType( rvWeaponMachinegun::GetClassType() ) ) && player->pfl.attackHeld ) 
 		{
+			//make a fun noise/award when guns lockout...each GD frame...whatever
 			statManager->GiveInGameAward( IGA_HOLY_SHIT, owner->entityNumber );
 			return true; 
 		}
@@ -198,8 +206,6 @@ bool rvWeaponMachinegun::Check_OtherPlayers( void )
 	return false;
 }
 //TMF7 END
-
-
 
 /*
 ================
