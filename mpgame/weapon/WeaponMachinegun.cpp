@@ -182,18 +182,18 @@ IMPROVED 3/1/2016 10:40pm
 bool rvWeaponMachinegun::Check_OtherPlayers( void )
 {
 	idEntity* ent = NULL;
-	for ( int i = 0; i < gameLocal.numClients; i++ ) 
-	{
+
+	for ( int i = 0; i < gameLocal.numClients; i++ ) {
 		ent = gameLocal.entities[ i ];
 		
-		//make sure the entity is a player
+		//make sure there is an entity at the index and that it is a player
 		if ( !ent || !ent->IsType( idPlayer::GetClassType() ) )	{continue;}
 		
 		//cast the entity that's been verified as an idPlayer
 		idPlayer* player = (idPlayer*)ent;
 
-		//make sure the player being checked isn't the one trying to fire
-		if ( player == owner ) {continue;}
+		//make sure the player being checked isn't the one trying to fire, and that the other player has a spawned weapon
+		if ( player == owner || !player->weapon ) {continue;}
 		
 		//all of these flags work more or less the same for this check
 		//pfl.weaponFired is only set to true when a player's weapon has ALREADY called the Attack function
@@ -209,15 +209,16 @@ bool rvWeaponMachinegun::Check_OtherPlayers( void )
 				//ODD: "reload" animation with blendFrames set to the usual 4 skips the rest of this function
 				//but using blendFrames at 0 works just fine i think
 				PlayAnim ( ANIMCHANNEL_ALL, "reload", 0 );
-				//the person  attempting to fire (owner) gets the award
+				//the person  attempting to fire (owner) gets the 
 				statManager->GiveInGameAward( IGA_HOLY_SHIT, owner->entityNumber );
 				//print a chat message to the owner of who stopped them from firing (in a disgustingly ineffecient way)
-				//BUG: for some reason this prints twice for the second player being blocked by the first player
-				//or just a client being blocked by the server-client, but it behaves as expected for the server-client
+				//BUG: for some reason this prints twice for a client being blocked by the server-client, 
+				//but it behaves as expected for the server-client (only that person seeing the message)
 				idStr msg = player->GetName();
 				msg.Append( " stopped ");
 				msg.Append( owner->GetName() );
 				msg.Append( " from firing.");
+				//seems like this passes through the server as well as directly to the client (hence the double-print for a client)
 				gameLocal.mpGame.PrintMessage( owner->entityNumber, msg.c_str() );
 			}
 			return true; 
