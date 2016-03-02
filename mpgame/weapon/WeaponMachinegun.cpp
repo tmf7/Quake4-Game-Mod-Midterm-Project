@@ -206,14 +206,19 @@ bool rvWeaponMachinegun::Check_OtherPlayers( void )
 			if( !(owner->oldButtons & BUTTON_ATTACK) )
 			{	
 				//owner "fumbles" with its gun
-				//ODD: If changed to the "reload" animation with blendFrames set to the usual 4 it skips the rest of this function
-				PlayAnim ( ANIMCHANNEL_ALL, "flashlight", 0 );
+				//ODD: "reload" animation with blendFrames set to the usual 4 skips the rest of this function
+				//but using blendFrames at 0 works just fine i think
+				PlayAnim ( ANIMCHANNEL_ALL, "reload", 0 );
 				//the person  attempting to fire (owner) gets the award
 				statManager->GiveInGameAward( IGA_HOLY_SHIT, owner->entityNumber );
-				//print a chat message to the owner of who stopped them from firing
+				//print a chat message to the owner of who stopped them from firing (in a disgustingly ineffecient way)
 				//BUG: for some reason this prints twice for the second player being blocked by the first player
-				//or just a client being blocked by the server-client
-				gameLocal.mpGame.PrintMessage( owner->entityNumber, player->GetName() );
+				//or just a client being blocked by the server-client, but it behaves as expected for the server-client
+				idStr msg = player->GetName();
+				msg.Append( " stopped ");
+				msg.Append( owner->GetName() );
+				msg.Append( " from firing.");
+				gameLocal.mpGame.PrintMessage( owner->entityNumber, msg.c_str() );
 			}
 			return true; 
 		}
