@@ -1,0 +1,16 @@
+weaponNailgun.cpp lines 347, and 384 to 387 sets the guideEnt based on a trace range from the player based on the nailgun's range
+
+collisionModel.h has a class member that streamlines collision detection with traces, that basically identifies everything about what is being contacts (the point of contact, the material, the entityNum that the contact point is part of, etc)
+	struct contactInfo_t
+
+a sticky grenade isn't guided, but there is certainly collision detection, does it use a trace? the "guided" part just leads me towards the function that allows me to bind the movement of two physics objects/models
+
+idPhysics_Monster::CheckGround
+	the original collision trace is set via passing by reference to this:
+	gameLocal.Translation( self, groundTrace, state.origin, down, clipModel, clipModel->GetAxis(), clipMask, self );
+	which basically just calls idClip::Translation and more turtles
+	then the collide function is called (self is the entity using the physics simulation object)
+	self->Collide( groundTrace, state.velocity );
+
+rvPhysics_Particle::DropToFloorAndRest has a function call to Link(...)???
+ I think it just links the clipModel to the physics object

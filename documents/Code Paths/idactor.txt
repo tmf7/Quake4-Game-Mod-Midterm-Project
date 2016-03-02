@@ -1,0 +1,1 @@
+idActor seems to handle most of the animations and sounds for an entitiy

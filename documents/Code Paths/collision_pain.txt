@@ -1,0 +1,16 @@
+idProjectile::Collide eventually calls idEntity::Damage, as well as performing push physics, etc (also checks for [head] joint shots), and a lot of other important stuff regarding damage calls and damage def files, as well as determinint the two impacting entities and the owner, and some trace stuff
+
+
+idEntity::Damage puts the damage into the entity then calls idEntity::Killed or idEntity::Pain
+	
+idEntity::Pain (virtual general) (idAI, and monsters themselves) determine what "team" (strogg/other) the pain came from and forces some actions (breaking cover) if a pain/damage threshold is exceeded (the pain taken is equivalent to the sum of the damage (idActor::Pain plays sounds and animations, then idAI::Pain determines the behavior from that pain (including momentarily exposing the attacker to the AI via UpdateEnemyPosition ( true );)
+---------------------
+when rvWeaponGreneadeLauncher::Spawn is called it simply SetState(raise,...) which is rvWeapon::State_Raise, which eventually SetState("Idle", 4);
+
+As rvWeaponGrenadeLauncher::State_Idle continually executes each frame given the entity's state, it eventually SetState("Fire", 0)
+
+why 4?-->it doesn't matter
+rvWeapon::SetState( const char *statename, int blendFrames ) accesses the particular thread and passes the function call along to rvStateThread::SetState, which Clear() the current states and PostState(...) the new state 
+
+****idGameLocal::RunFrame*****
+rvWeapon::Think executes the current StateThread() for a weapon each frame, and updates the GUI, as well as some light handling, AND(?) AlertMonsters()

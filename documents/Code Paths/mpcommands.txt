@@ -1,0 +1,65 @@
+1-entity data: create an entity
+2-ask the server to change server info, have the server track it (how??)
+3-client data
+4-cvars (client variables: info differs from one client to the next, eg: ping rate)
+5-the world (move the coordinates of the entire map)
+
+
+cliententity.cpp
+statmanager.cpp
+rvStatManager::SetupStatWindow( idUserInterface* statHud )
+
+rvStatManager::WeaponFired(...)
+
+in rvStatManager
+rvPlayerStat playerStats[ MAX_CLIENTS ];
+player->entityNumber (coresponds to the index in the player stats array)
+
+rvWeaponMachineGun::State_Idle lines 190 to 202 checks if theres ammo (AND OTHER STUFF) and sets the state to fire/reload/wait (default action)
+fireHeld = false;*******
+
+idPlayer.cpp idPlayer::StopFiring(
+pfl.weaponFired = false;*********
+
+rvWeapon::Attack(...)
+	statManager->WeaponFired( owner, weaponIndex, num_attacks );
+only called AFTER the weapon has actually been fired....useless
+
+weapon has the statManager object, use that because reasons???
+who has a list of players/clinets that can be searched to determine if their weapon is firing...specifically the machine gun
+
+idGameLocal has a list of idEntity* which includes a jumbled bunch that are idPlayers/clients..find their entityNumbers
+playerStats[ player->entityNumber ].weaponShots[ weapon ] += num;
+
+idGameLocal::ServerProcessReliableMessage (but actually in Game_network.cpp)
+statManager->SendStat( clientNum, client );
+
+Game_network.cpp lines 100 to 106
+eg: localClientNum = clientNum; (each new client/PLAYER gets a clinetNum)
+
+MultiplayerGame.cpp has an idList<idPlayer*> unrankedPlayers that gets initialized by going through all the entities in the local game, line 556:
+
+for ( int i = 0; i < gameLocal.numClients; i++ ) {
+		ent = gameLocal.entities[ i ];
+		
+		if ( !ent || !ent->IsType( idPlayer::GetClassType() ) ) {
+			continue;
+		}
+	idPlayer* player = (idPlayer*)ent;
+
+the question is if a gameLocal variable only holds one idPlayer and a bunch of other entities that are identical copies across mutiple gameLocals********
+PROBABLY NOT because A)thats a waste of network resources (i think) and B) gameLocal has a varible called numClients
+
+every weapon has an "owner" which is an idPlayer*
+every idPlayer has an "entityNumber"
+
+idPlayer line 6135 seems to determine if a player is holding the bound firing button
+if ( !influenceActive ) {
+ 		if ( ( usercmd.buttons & BUTTON_ATTACK ) && !weaponGone ) {
+ 			FireWeapon();
+
+SO:
+every time a weapon is ABOUT to be set to State_Fire, check all other players on the client, if ANY of them is firing, set State_Idle (or for more of a visceral effect, set it to animate as if firing on empty/out of ammo)
+
+OR:
+every time a weapon is BEING fired, disable other weapons from firing, then re-enable them after the current clinet is done

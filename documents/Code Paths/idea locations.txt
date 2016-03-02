@@ -1,0 +1,20 @@
+the grenade is a projectile
+
+modify what happens when it explodes (change the enemy to a follower that fights with you)
+
+AI_states sets the state of an enemy to agressive or passive
+
+damageDefName = spawnArgs.GetString ( "def_damage" );
+actualHitEnt (in projectile)
+
+projectiles and/or entities do have a "sticky" member variable, but its never used in the code of vanilla quake...use collide?
+
+Think function
+Monster.cpp
+camera.cpp
+player.cpp/h
+
+check/change what the Save function for a class does to see whats easiest to modify
+
+does the player.cpp need to know how much light is on its model?
+how does the monster detect the player

@@ -1,0 +1,17 @@
+weapongrenadelauncher.cpp, SOMETHING calls the function ::State_Fire with the parms.stage set to stage_init (=0), which checks the gamelocal time and rate of fire then calls rvWeapon::Attack
+
+::Attack decreases the ammo clip, **alerts the AI of a sound propogation**, determines the muzzle position, time of firing, if its essentially a single player game, and counts the number of shots fired (for stats) then calls rvWeapon::LaunchProjectiles
+
+::LauchProjectiles determines the launch vector, spawns the entity (pulling from the def file into spawnArgs/dict) (if it doesn't exist yet, if it does then it shows it), positions it at the muzzle position, then calls Projectile::Launch
+
+::Launch gets all the physics and most of the behavior of the projectile and puts it into local variables, which are then transferred into a raw physics object, SOME MYSTERY TURTLE LOOPING (involves an event stack using PostEventSec(&EV_FIZZLE)), then if the fuse has run out then that frame calls the Projectile::Event_Explode, which basically just calls Projectile::Explode
+
+::Explode determines some collisions for the direction of explosion, plays some sounds and graphics, **alerts the AI of another sound (made by the owner)**, then calls Projectile::Event_RadiusDamage (explosions only do splash damage, projectile direct collision damage are handled by Projectile::Collide), which basically calls idGameLocal::RadiusDamage
+
+
+::RadiusDamage reads more of the def file for damage and push, then uses ClipModelsTouchingBounds to determine ALL the entities within the splash radius, it then ignores damaging the projectile itself, undamagable objects,entities which the function is explicitly told to ignore, and entities behind cover, then calculates the radius from the source of the explosion and scales the damage accordingly, then pushes and damages them (this function also tracks the owner/inflictor/attacker/etc)
+------------------------------------
+
+
+	
+
