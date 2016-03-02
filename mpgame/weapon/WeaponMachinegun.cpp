@@ -167,15 +167,17 @@ rvWeaponMachinegun::Check_OtherPlayers
 ================
 */
 /*
+PRECONDITION:	This function is only called when a player is attempting to go from State_Idle to State_Fire (not if already State_Fire)
 OUTPUT:			Returns TRUE if the player weilding this machine gun is attempting to fire while any other player is holding their fire button
 				AND that firing player is weilding a machine gun, otherwise returns FALSE
 
-IMPROVEMENTS:	(1) modify the state call to make the gun do an out of ammo animation; 
-				(2) allow the FIRST player to hold the fire button to lockout all others (instead of the current stalemate lockout)
+IMPROVEMENTS:	(1) Fire failure does an animation
+				(2) The FIRST player to hold the fire button locks out all others (instead of a stalemate lockout)
 				(3) only award the holy shit award once every time a second player tries
 					to fire while the primary gunner is firing (ie NOT every frame while the trigger is held down)
-				(4) display a console message for the list of people firing [1 = firing; 0 = cant fire], or at least the current gunner
+				(4) display a direct chat message for whose stopping the owner's firing attempt
 FINISHED 2/29/2016 11:56pm
+IMPROVED 3/1/2016 10:40pm
 */
 bool rvWeaponMachinegun::Check_OtherPlayers( void )
 {
@@ -193,13 +195,26 @@ bool rvWeaponMachinegun::Check_OtherPlayers( void )
 		//make sure the player being checked isn't the one trying to fire
 		if ( player == owner ) {continue;}
 		
+		//all of these flags work more or less the same for this check
 		//pfl.weaponFired is only set to true when a player's weapon has ALREADY called the Attack function
 		//pfl.attackHeld is set true immedialty PRIOR to the FireWeapon() function call in weapon.cpp
-		//both work, but I'd like to call this function prior to ANY "attack" type calls
+		//wsfl.attack is set to true the instant an attack is initiated in rvWeapon::BeginAttack()
 		if ( ( player->weapon->IsType( rvWeaponMachinegun::GetClassType() ) ) && player->pfl.attackHeld ) 
 		{
-			//make a fun noise/award when guns lockout...each GD frame...whatever
-			statManager->GiveInGameAward( IGA_HOLY_SHIT, owner->entityNumber );
+			//make a fun noise/award when it turns out someone else is firing
+			//If the owner is still holding the attack button on a NEW frame, then dont provide any awards/animations
+			if( !(owner->oldButtons & BUTTON_ATTACK) )
+			{	
+				//owner "fumbles" with its gun
+				//ODD: If changed to the "reload" animation with blendFrames set to the usual 4 it skips the rest of this function
+				PlayAnim ( ANIMCHANNEL_ALL, "flashlight", 0 );
+				//the person  attempting to fire (owner) gets the award
+				statManager->GiveInGameAward( IGA_HOLY_SHIT, owner->entityNumber );
+				//print a chat message to the owner of who stopped them from firing
+				//BUG: for some reason this prints twice for the second player being blocked by the first player
+				//or just a client being blocked by the server-client
+				gameLocal.mpGame.PrintMessage( owner->entityNumber, player->GetName() );
+			}
 			return true; 
 		}
 	}
@@ -292,9 +307,7 @@ stateResult_t rvWeaponMachinegun::State_Fire ( const stateParms_t& parms ) {
 			return SRESULT_STAGE ( STAGE_WAIT );
 	
 		case STAGE_WAIT:	
-			//TMF7 BEGIN
-			if ( !fireHeld && wsfl.attack && gameLocal.time >= nextAttackTime && AmmoInClip() && !wsfl.lowerWeapon && !Check_OtherPlayers()) {
-			//TMF7 END	
+			if ( !fireHeld && wsfl.attack && gameLocal.time >= nextAttackTime && AmmoInClip() && !wsfl.lowerWeapon ) {
 				SetState ( "Fire", 0 );
 				return SRESULT_DONE;
 			}
