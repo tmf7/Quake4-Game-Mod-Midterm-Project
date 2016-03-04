@@ -102,6 +102,9 @@ void idProjectile::Spawn( void ) {
 	prePredictTime = spawnArgs.GetInt( "predictTime", "0" );
 	syncPhysics = spawnArgs.GetBool( "net_syncPhysics", "0" );
 
+	projectileFlags.stick_on_impact		= spawnArgs.GetBool( "stick_on_impact" , "0" );		//TMF7
+	sticky = false;
+
 	if ( gameLocal.isClient ) {
 		Hide();
 	}
@@ -230,7 +233,7 @@ void idProjectile::SetSpeed( float s, int accelTime ) {
 	}
 
 	// Update the velocity to match the direction we are facing and include any accelerations
-	physicsObj.SetLinearVelocity( speed.GetCurrentValue( gameLocal.time ) * vel );			
+	physicsObj.SetLinearVelocity( speed.GetCurrentValue( gameLocal.time ) * vel );	
 }
 
 /*
@@ -635,7 +638,11 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
  	bool		canDamage;
  	
  	hitTeleporter = false;
-
+//TMF7 BEGIN
+	if ( projectileFlags.stick_on_impact ) {
+		sticky = true;
+	} 
+//TMF7 END
 	if ( state == EXPLODED || state == FIZZLED ) {
 		return true;
 	}
@@ -833,12 +840,20 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
 					idVec3 dir = velocity;
 					dir.Normalize();
 					actualHitEnt->Damage( this, owner, dir, damageDefName, damagePower, CLIPMODEL_ID_TO_JOINT_HANDLE( collision.c.id ) );
+//TMF7 BEGIN
+					if ( sticky ) {		//TMF7
+						//this->physicsObj;
+						//int hitJoint = CLIPMODEL_ID_TO_JOINT_HANDLE(collision.c.id);
+						//BindToJoint(actualHitEnt, CLIPMODEL_ID_TO_JOINT_HANDLE( collision.c.id ), true);		//TMF7
+					}
+//TMF7 END
 				}
 			}
+			BindToJoint( ent, CLIPMODEL_ID_TO_JOINT_HANDLE( collision.c.id ), true );			//TMF7
 			return false;		
 		}
 	}
-
+	BindToJoint(ent, CLIPMODEL_ID_TO_JOINT_HANDLE( collision.c.id ), true);		//TMF7
 	SetOrigin( collision.endpos );
 //	SetAxis( collision.endAxis );
 

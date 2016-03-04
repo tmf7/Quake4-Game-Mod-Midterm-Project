@@ -75,6 +75,7 @@ protected:
 		bool				detonate_on_world			: 1;
 		bool				detonate_on_actor			: 1;
 		bool				detonate_on_bounce			: 1;		// Detonate if hit a bounce surface
+		bool				stick_on_impact				: 1;		//TMF7
 		bool				randomShaderSpin			: 1;
 		bool				isTracer					: 1;
 	} projectileFlags;
@@ -102,7 +103,7 @@ protected:
 	float					flyEffectAttenuateSpeed;
 
 	int						bounceCount;
-	bool					sticky;
+//	bool					sticky;			//MOVED to private TMF7
 	
 	idStr					impactEntity;
 	int						numImpactEntities;
@@ -139,6 +140,8 @@ private:
 	void					Event_Touch				( idEntity *other, trace_t *trace );
 
 	bool					syncPhysics;
+
+	bool					sticky;		//TMF7
 
 	// cheap linear client side projectiles
 	// transmitted in snapshot

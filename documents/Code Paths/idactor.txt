@@ -1,1 +1,17 @@
 idActor seems to handle most of the animations and sounds for an entitiy
+
+an entity can be "bound" to an Actor, so does that mean that an entity can be as simple as a joint ON an entity
+
+an actor is an entity and an AI is an actor...ie entity->actor->ai
+
+idAI seems to indicate a "range" of hearing, which seems to me that sound propogation is determined based on point and radius and if anything is within that radius then it hears the noise. NOT based on "sound intensity"...although range is still important.
+
+idAI::Spawn()
+	// create combat collision hull for exact collision detection
+	SetCombatModel();
+
+	// calculate joint positions on attack frames so we can do proper "can hit" tests
+	CalculateAttackOffsets();
+
+
+idEntity::Event_SpawnBind (binds to joints)

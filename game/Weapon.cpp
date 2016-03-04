@@ -1101,7 +1101,10 @@ rvWeapon::InitWorldModel
 void rvWeapon::InitWorldModel( void ) {
 	idEntity *ent;
 
-	ent = worldModel;
+	ent = worldModel;		//TMF7 the world model is set according to rvWeapon::Init(); at _owner->GetWeaponWorldModel( );
+	// which is defined by the md5mesh info pulled from the def file during weaponidPlayer::SetupWeaponEntity
+	//note that ent here is of type idAnimatedEntity
+
 	if ( !ent ) {
 		gameLocal.Warning ( "InitWorldModel failed due to missing entity" );
 		return;

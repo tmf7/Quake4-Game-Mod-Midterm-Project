@@ -6329,7 +6329,7 @@ void idPlayer::UpdateWeapon( void ) {
  		dragEntity.Update( this );
 		return;
 	} else if ( focusType == FOCUS_CHARACTER) {
-		flagCanFire = false;
+		flagCanFire = false;		//TMF7 (I didn't change this, but its a fun flag to shoot NPCs)
 		Weapon_NPC();
 	} else if ( focusType == FOCUS_VEHICLE ) {
 		flagCanFire = false;

@@ -1,5 +1,7 @@
 weaponNailgun.cpp lines 347, and 384 to 387 sets the guideEnt based on a trace range from the player based on the nailgun's range
 
+make a regular grenade projectile behave the same EXCEPT when it collides with something => find the ususal behavior of a grenade (or whatever projectile) that bounces and change THAT code**************
+
 collisionModel.h has a class member that streamlines collision detection with traces, that basically identifies everything about what is being contacts (the point of contact, the material, the entityNum that the contact point is part of, etc)
 	struct contactInfo_t
 
@@ -14,3 +16,16 @@ idPhysics_Monster::CheckGround
 
 rvPhysics_Particle::DropToFloorAndRest has a function call to Link(...)???
  I think it just links the clipModel to the physics object
+
+
+idPlayer::SetWeapon (the current weapon is literally deleted and a new one is linked to the player)
+
+rvWeapon::InitWorldModel
+if ( model[0] && attach[0] ) {
+		ent->Show();
+		ent->SetModel( model );
+		ent->GetPhysics()->SetContents( 0 );
+		ent->GetPhysics()->SetClipModel( NULL, 1.0f );
+		ent->BindToJoint( owner, attach, true );
+		ent->GetPhysics()->SetOrigin( vec3_origin );
+		ent->GetPhysics()->SetAxis( mat3_identity );
