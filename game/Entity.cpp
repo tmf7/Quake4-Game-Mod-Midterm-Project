@@ -3597,7 +3597,6 @@ bool idEntity::CanDamage( const idVec3 &origin, idVec3 &damagePoint, idEntity* i
 		damagePoint = tr.endpos;
 		return true;
 	}
-
 	return false;
 }
 

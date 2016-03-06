@@ -64,7 +64,7 @@ public :
 	virtual void			ReadFromSnapshot( const idBitMsgDelta &msg );
 
 	virtual bool			ClientStale( void );
-	
+
 protected:
 	void					SpawnImpactEntities(const trace_t& collision, const idVec3 projectileDirection);
 
@@ -103,7 +103,7 @@ protected:
 	float					flyEffectAttenuateSpeed;
 
 	int						bounceCount;
-//	bool					sticky;			//MOVED to private TMF7
+	bool					sticky;
 	
 	idStr					impactEntity;
 	int						numImpactEntities;
@@ -140,8 +140,6 @@ private:
 	void					Event_Touch				( idEntity *other, trace_t *trace );
 
 	bool					syncPhysics;
-
-	bool					sticky;		//TMF7
 
 	// cheap linear client side projectiles
 	// transmitted in snapshot

@@ -18,3 +18,9 @@ check/change what the Save function for a class does to see whats easiest to mod
 
 does the player.cpp need to know how much light is on its model?
 how does the monster detect the player
+
+
+//debug console printout
+gameLocal.Printf( "Spawn id %d: %d\n", i, gameLocal.spawnIds[ i ] );
+
+g_debugDamage is a idCVar

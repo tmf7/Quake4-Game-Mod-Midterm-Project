@@ -1,0 +1,12 @@
+IN MAINMENU.GUI (trying to find what the mod button does once a user has selected a mod)
+pop_mods
+loadmod
+
+set "cmd" "play main_menu_selection loadmod"
+find 
+
+pak10 scrips directory:
+
+events.script is useful comments on MANY of the function  in the source (EG: SetWorldOrigin ( vector ))
+
+doom_defs.script defines  ALOT of the bit masks for button presses and such

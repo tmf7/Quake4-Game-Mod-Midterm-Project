@@ -910,6 +910,8 @@ public:
 	void					ServerSetMinSpawnIndex( void );
 	void					ServerSetEntityIndexWatermark( int instanceID );
 
+	bool					tmfDebug;					//TMF7 DELETE
+
 private:
 // RAVEN BEGIN
 // ddynerman: multiple instance for MP

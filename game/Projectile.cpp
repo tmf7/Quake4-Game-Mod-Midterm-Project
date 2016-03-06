@@ -103,7 +103,6 @@ void idProjectile::Spawn( void ) {
 	syncPhysics = spawnArgs.GetBool( "net_syncPhysics", "0" );
 
 	projectileFlags.stick_on_impact		= spawnArgs.GetBool( "stick_on_impact" , "0" );		//TMF7
-	sticky = false;
 
 	if ( gameLocal.isClient ) {
 		Hide();
@@ -638,11 +637,7 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
  	bool		canDamage;
  	
  	hitTeleporter = false;
-//TMF7 BEGIN
-	if ( projectileFlags.stick_on_impact ) {
-		sticky = true;
-	} 
-//TMF7 END
+
 	if ( state == EXPLODED || state == FIZZLED ) {
 		return true;
 	}
@@ -742,7 +737,7 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
 
 	// Can the projectile damage?  
 	canDamage = ent->fl.takedamage && !(( collision.c.material != NULL ) && ( collision.c.material->GetSurfaceFlags() & SURF_NODAMAGE ));
-  
+ 
  	// direction of projectile
  	dir = velocity;
  	dir.Normalize();
@@ -765,7 +760,7 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
  		}
 	}
 // RAVEN END
- 
+
 	//Spawn any impact entities if necessary.
 	SpawnImpactEntities(collision, velocity);
 
@@ -776,6 +771,24 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
 	if ( gameLocal.isMultiplayer && ent->IsType( idDoor::GetClassType() ) && !static_cast< idDoor * >(ent)->IsOpen() && !ent->spawnArgs.GetBool( "no_touch" ) ) {
 		ent->ProcessEvent( &EV_Activate , this );
 	}
+
+//TMF7 BEGIN
+	//sticks to friends, enemies, most  objects, except the "world"
+	//loses its damaging effects if bound
+	//still plays trail effect, glow, and explosion effect
+	//still collides and bumps around when bound (throws around ragdoll but not alive enemies)
+	if ( projectileFlags.stick_on_impact ) {
+		gameLocal.tmfDebug = true;
+		oldClipWorld = clipWorld;
+		gameLocal.Printf("%s damage %s that was hit.\n", canDamage ? "Can" : "Cannot", ent->GetName() );
+		if ( bindMaster ) { gameLocal.Printf("BOUND to %s.\n", GetBindMaster()->GetName() ); }
+		BindToJoint( ent, CLIPMODEL_ID_TO_JOINT_HANDLE( collision.c.id ), true);
+		if ( bindMaster ) { gameLocal.Printf("REBOUND to %s.\n", GetBindMaster()->GetName() ); }
+		physicsObj.PutToRest();
+		PostEventSec( &EV_Explode, this->spawnArgs.GetFloat("fuse") );
+		return true;
+	}
+//TMF7 END
 
 	// If the projectile hits water then we need to let the projectile keep going
 	if ( ent->GetPhysics()->GetContents() & CONTENTS_WATER ) {
@@ -801,7 +814,9 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
 		if ( !bounce && collision.c.material && (collision.c.material->GetSurfaceFlags() & SURF_BOUNCE) ) {
 			bounce = !projectileFlags.detonate_on_bounce;
 		}
-		
+
+		if ( gameLocal.tmfDebug ) { gameLocal.Printf( "%s bounce.\n", bounce ? "Will" : "Will Not" );	}	//TMF7
+
 		if ( bounce ) {
 			if ( bounceCount != -1 ) {
 				bounceCount--;
@@ -839,21 +854,14 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
  				if ( damageDefName[0] != '\0' ) {
 					idVec3 dir = velocity;
 					dir.Normalize();
+					if ( gameLocal.tmfDebug ) { gameLocal.Printf("Applying bounce damage to %s.\n", actualHitEnt->GetName() );	}	//TMF7
 					actualHitEnt->Damage( this, owner, dir, damageDefName, damagePower, CLIPMODEL_ID_TO_JOINT_HANDLE( collision.c.id ) );
-//TMF7 BEGIN
-					if ( sticky ) {		//TMF7
-						//this->physicsObj;
-						//int hitJoint = CLIPMODEL_ID_TO_JOINT_HANDLE(collision.c.id);
-						//BindToJoint(actualHitEnt, CLIPMODEL_ID_TO_JOINT_HANDLE( collision.c.id ), true);		//TMF7
-					}
-//TMF7 END
 				}
 			}
-			BindToJoint( ent, CLIPMODEL_ID_TO_JOINT_HANDLE( collision.c.id ), true );			//TMF7
 			return false;		
 		}
 	}
-	BindToJoint(ent, CLIPMODEL_ID_TO_JOINT_HANDLE( collision.c.id ), true);		//TMF7
+
 	SetOrigin( collision.endpos );
 //	SetAxis( collision.endAxis );
 
@@ -883,6 +891,8 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
 
 // RAVEN END
 
+	if ( projectileFlags.stick_on_impact ) { gameLocal.Printf("Past bounce but before grenade_direct in Collide"); }	//TMF7
+
 	// if the hit entity takes damage
 	if ( canDamage ) {
 
@@ -906,6 +916,7 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
 				}
 			}	
 // RAVEN END
+				if ( projectileFlags.stick_on_impact ) { gameLocal.Printf("%s taking %s damage.\n", ent->GetName(), damageDefName ); }	//TMF7
  			ent->Damage( this, owner, dir, damageDefName, damagePower, hitJoint );
 			
 			if( owner && owner->IsType( idPlayer::GetClassType() ) && ent->IsType( idActor::GetClassType() ) ) {
@@ -947,6 +958,7 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
 		return true;
 	}
 
+	if ( projectileFlags.stick_on_impact ) { gameLocal.Printf("Calling Explode from idProjectile::Collide.\n" ); } //TMF7
 	Explode( &collision, false, ignore );
 
 	return true;
@@ -1073,6 +1085,7 @@ idProjectile::Killed
 */
 void idProjectile::Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location ) {
 	if ( spawnArgs.GetBool( "detonate_on_death" ) ) {
+		if ( projectileFlags.stick_on_impact ) { gameLocal.Printf("Calling Explode from idProjectile::Killed.\n" ); } //TMF7
 		Explode( NULL, true );
 		physicsObj.ClearContacts();
 		physicsObj.PutToRest();
@@ -1325,6 +1338,7 @@ void idProjectile::Event_Explode( void ) {
 	// events are processed outside of the think loop, so set the current thinking ent appropriately
 	idEntity* think = gameLocal.currentThinkingEntity;
 	gameLocal.currentThinkingEntity = this;
+	if ( projectileFlags.stick_on_impact ) { gameLocal.Printf("Calling Explode from idProjectile::Event_Explode.\n" ); } //TMF7
 	Explode( NULL, true );
 	gameLocal.currentThinkingEntity = think;
 }
@@ -1361,6 +1375,7 @@ void idProjectile::Event_Touch( idEntity *other, trace_t *trace ) {
 		collision.c.point = GetPhysics()->GetOrigin();
 		collision.c.normal.Set( 0, 0, 1 );
 		DefaultDamageEffect( collision, collision.c.normal, NULL );
+		if ( projectileFlags.stick_on_impact ) { gameLocal.Printf("Calling Explode from idProjectile::Event_Touch.\n" ); } //TMF7
 		Explode( NULL, true );
 
 		gameLocal.currentThinkingEntity = think;

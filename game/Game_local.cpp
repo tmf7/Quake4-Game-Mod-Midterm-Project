@@ -5709,9 +5709,22 @@ void idGameLocal::RadiusDamage( const idVec3 &origin, idEntity *inflictor, idEnt
 		radius = 1;
 	}
 
-
 // ddynerman: multiple clip worlds
+//TMF7 BEGIN
+	//THIS SEEMS TO BE THE CRITICAL PIECE THAT NERFS THE BOUND EXPLOSION
+	//PROBLEM #2of2 ClipModelsTouchingBounds REJECTS SOMETHING IT SHOULDN'T (despite the fact that the clip model is unlinked anyway
+	if ( gameLocal.tmfDebug ) {
+		gameLocal.Printf("%s will use %s for %d base damage.\n", inflictor->GetName(), damageDefName, damage);
+		if ( inflictor->GetBindMaster() ) {
+			gameLocal.Printf("In RadiusDamage UNBINDING %s.\n", inflictor->GetBindMaster()->GetName() );
+			inflictor->Unbind();
+		}
+		inflictor->SetClipWorld( inflictor->GetOldClipWorld() );
+	}
+//TMF7 END
+
 	numListedClipModels = ClipModelsTouchingBounds( inflictor, idBounds(origin).Expand(radius), MASK_ALL, clipModelList, MAX_GENTITIES );
+
 	if( numListedClipModels > 0 ) {
 		//Sort list by unique entities for easier searching
 		qsort( clipModelList, numListedClipModels, sizeof(clipModelList[0]), SortClipModelsByEntity );
@@ -5726,6 +5739,8 @@ void idGameLocal::RadiusDamage( const idVec3 &origin, idEntity *inflictor, idEnt
 	if ( ignoreDamage ) {
 		ignoreDamage = ignoreDamage->GetDamageEntity ( );
 	}
+
+	if ( gameLocal.tmfDebug ) { gameLocal.Printf( "Whittling down %d proper targets...\n", numListedClipModels ); }	//TMF7
 
 	for( int c = 0; c < numListedClipModels; ++c ) {
 		clipModel = clipModelList[ c ];
@@ -5795,6 +5810,9 @@ void idGameLocal::RadiusDamage( const idVec3 &origin, idEntity *inflictor, idEnt
 			}
 
 			dir.Normalize();
+
+			if ( gameLocal.tmfDebug ) { gameLocal.Printf( "Damaging %s for %f points of splash.\n", ent->GetName(), damageScale); }		//TMF7
+
 			ent->Damage( inflictor, attacker, dir, damageDefName, damageScale, CLIPMODEL_ID_TO_JOINT_HANDLE(ent->GetPhysics()->GetClipModel()->GetId()) );
 
 			// for stats, count the first 
@@ -5806,6 +5824,8 @@ void idGameLocal::RadiusDamage( const idVec3 &origin, idEntity *inflictor, idEnt
 			}
 		} 
 	}
+
+	if ( tmfDebug ) { gameLocal.Printf("****RESET for next projectile****.\n" ); tmfDebug = false; }		//TMF7
 }
 // RAVEN END
 
