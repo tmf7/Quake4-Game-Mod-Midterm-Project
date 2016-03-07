@@ -720,7 +720,7 @@ void idClipModel::Link( void ) {
 	for( x = coords[ 0 ]; x < coords[ 2 ]; x++ ) {
 		for( y = coords[ 1 ]; y < coords[ 3 ]; y++ ) {
 			clipSector_t* sector = &clp->clipSectors[ x + ( y << CLIPSECTOR_DEPTH ) ];
-
+			
 			sector->dynamicContents |= GetContents();
 
 			clipLink_t* link = clipLinkAllocator.Alloc();
@@ -955,7 +955,7 @@ int idClip::ClipModelsTouchingBounds( const idBounds &bounds, int contentMask, i
 	for( x = coords[ 0 ]; x < coords[ 2 ]; x++ ) {
 		for( y = coords[ 1 ]; y < coords[ 3 ]; y++ ) {
 			clipSector_t* sector = &clipSectors[ x + ( y << CLIPSECTOR_DEPTH ) ];
-
+		
 			if( !( sector->dynamicContents & contentMask ) ) {
 				continue;
 			}

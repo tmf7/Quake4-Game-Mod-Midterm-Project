@@ -911,6 +911,7 @@ public:
 	void					ServerSetEntityIndexWatermark( int instanceID );
 
 	bool					tmfDebug;					//TMF7 DELETE
+	bool					tmfDebugLink;				//TMF7 DELETE
 
 private:
 // RAVEN BEGIN

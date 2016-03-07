@@ -514,7 +514,6 @@ public:
 	virtual int				GetInstance( void ) const;
 // ddynerman: multiple clip world support
 	virtual int				GetClipWorld( void ) const;
-	virtual int				GetOldClipWorld ( void ) const;			//TMF7
 	virtual void			SetClipWorld( int newCW );
 // scork: accessors so sound editor can indicate current-highlit ent
 	virtual int				GetRefSoundShaderFlags( void ) const;
@@ -550,7 +549,6 @@ protected:
 	int						instance;
 // ddynerman: multiple collision worlds
 	int						clipWorld;
-	int						oldClipWorld;		//TMF7
 // RAVEN END
 
 // RAVEN BEGIN
@@ -839,12 +837,6 @@ ID_INLINE int idEntity::GetInstance( void ) const {
 ID_INLINE int idEntity::GetClipWorld( void ) const {
 	return clipWorld;
 }
-
-//TMF7 BEGIN
-ID_INLINE int idEntity::GetOldClipWorld( void ) const {
-	return oldClipWorld;
-}
-//TMF7 END
 
 ID_INLINE void idEntity::SetClipWorld( int newCW ) {
 	clipWorld = newCW;
