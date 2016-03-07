@@ -1,0 +1,25 @@
+
+idWorldSpawn
+gameLocal.world
+physicsObj.PutToRest();
+______________________________________________
+
+idClip::Link() sets the dynamicContents of all its clipSectors[] according to the contents of the clipModel it ...somthing
+A clipmodel has a mask and contents, the mask includes type flags (projectile, etc), the content includes the material (solid, body, etc)
+
+A clipmodel can be linked to sectors via clipLinks:
+	radius damage gathers all the sectors in the bounds of the explosion radius (from the origination point)
+	checks all the cliplinks for each sector to determine their validity (already checked, enabled, empty contents)
+	THEN it checks to ensure the bounding boxes of each model actually does overlap the bounding box of the explosion
+
+
+A sector's dynamicContents would be zero if nothing were linked to it OR if the clipLinks' clipmodels had 0 content when originally linked
+
+__________________________________________________________
+
+idProjectile::Collide --> BindToJoint --> FinishBind --> rvPhysics_Particle::SetMaster --> idPhysics_Base::ClearContacts
+
+rvPhysics_Particle::SetClipModel
+
+idProjectile::Launch(...)
+

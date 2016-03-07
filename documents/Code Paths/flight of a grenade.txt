@@ -12,6 +12,8 @@ weapongrenadelauncher.cpp, SOMETHING calls the function ::State_Fire with the pa
 ::RadiusDamage reads more of the def file for damage and push, then uses ClipModelsTouchingBounds to determine ALL the entities within the splash radius, it then ignores damaging the projectile itself, undamagable objects,entities which the function is explicitly told to ignore, and entities behind cover, then calculates the radius from the source of the explosion and scales the damage accordingly, then pushes and damages them (this function also tracks the owner/inflictor/attacker/etc)
 ------------------------------------
 
+::Collide is also used for the projectile bouncing around (or not)
+
 
 	
 

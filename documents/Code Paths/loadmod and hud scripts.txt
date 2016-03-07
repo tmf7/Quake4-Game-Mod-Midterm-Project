@@ -3,10 +3,32 @@ pop_mods
 loadmod
 
 set "cmd" "play main_menu_selection loadmod"
-find 
+find this fucking thing to enable starting the game with mod preloaded (maybe)
+
+to map new key presses search for (in player.cpp)
+usercmd.impulse
+
 
 pak10 scrips directory:
 
 events.script is useful comments on MANY of the function  in the source (EG: SetWorldOrigin ( vector ))
 
 doom_defs.script defines  ALOT of the bit masks for button presses and such
+
+
+For character lighting(?):
+
+// Gets the value of the specified shader parm.
+scriptEvent	float	getShaderParm( float parm );
+
+// Sets the value of the specified shader parm.
+scriptEvent	void 	setShaderParm( float parm, float value );
+
+// Sets shader parms Parm0, Parm1, Parm2, and Parm3 (red, green, blue, and alpha respectively).
+scriptEvent	void 	setShaderParms( float parm0, float parm1, float parm2, float parm3 );
+
+// Sets the RGB color of this entity (shader parms Parm0, Parm1, Parm2).
+scriptEvent	void 	setColor( float red, float green, float blue );
+
+// Gets the color of this entity (shader parms Parm0, Parm1, Parm2).
+scriptEvent	vector	getColor();

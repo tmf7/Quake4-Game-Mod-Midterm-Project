@@ -452,7 +452,7 @@ void idProjectile::Launch( const idVec3 &start, const idVec3 &dir, const idVec3 
 	physicsObj.SetAxis( dir.ToMat3() );
 
 	if ( !gameLocal.isClient ) {
-		if ( fuse <= 0 ) {
+		if ( fuse <= 0 && !projectileFlags.stick_on_impact ) {		//TMF7
 			// run physics for 1 second
 			RunPhysics();
 			PostEventMS( &EV_Remove, spawnArgs.GetInt( "remove_time", "1500" ) );
@@ -520,7 +520,7 @@ idProjectile::Think
 */
 void idProjectile::Think( void ) {
 	// run physics
-	if ( thinkFlags & TH_PHYSICS ) {
+	if ( thinkFlags & TH_PHYSICS ) { //START HERE 3_7_16 TMF7 MUST ALLOW PHYSICS TO CONTINUE ONCE IT COMES TO REST
 
 		// Update the velocity to match the changing speed
 		if ( updateVelocity ) {
@@ -534,9 +534,32 @@ void idProjectile::Think( void ) {
 		}
 		
 		RunPhysics();
-		
-		// If we werent at rest and are now then start the atrest fuse
+
+		// If we werent at rest and are now then start the atrest fuse (TMF7 and check if the user has hit the remote detonate)
 		if ( physicsObj.IsAtRest( ) ) {
+//TMF7 BEGIN
+			if ( projectileFlags.stick_on_impact && owner.GetEntity() && owner.GetEntity()->IsType( idPlayer::GetClassType() ) ) {
+				idPlayer *player = static_cast<idPlayer *>( owner.GetEntity() );
+	
+				//The impulse flag isnt toggling perfectly yet because I AM calling it WAY out of place
+				//the player thinks first, which means it processes the impulse flag then sets the oldFlags, this misses that
+				
+				//a projectile points to an owner (player) (uses the address space)...is that useful???
+
+				//PERHAPS: force the usercmd.flags to cancel the impulse? then reset after another check?
+				//I dont want it to land and immediatly explode, a user must either be holding the button or actively press
+				//the button once at rest
+
+				//also prevent the bomb from fizzling/&EV_Remove
+				if ( !player->pfl.dead && player->usercmd.flags & UCF_IMPULSE_SEQUENCE ) {
+					bool remoteBomb = spawnArgs.GetBool( "detonate_on_remote", "0" );
+					if ( remoteBomb && (const int)(player->usercmd.impulse) == IMPULSE_23) { 
+						//CancelEvents( &EV_Explode );			//necessary???
+						PostEventSec( &EV_Explode, 0.0f );
+					}
+				}
+			} 
+//TMF7 END
 			float fuse = spawnArgs.GetFloat( "fuse_atrest" );
 			if ( fuse > 0.0f ) {
 				if ( spawnArgs.GetBool( "detonate_on_fuse" ) ) {
@@ -779,7 +802,7 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
 	if ( projectileFlags.stick_on_impact ) {
 		BindToJoint( ent, CLIPMODEL_ID_TO_JOINT_HANDLE( collision.c.id ), true);
 		physicsObj.PutToRest();
-		PostEventSec( &EV_Explode, this->spawnArgs.GetFloat("fuse") );		//GAME BREAKING???
+		//PostEventSec( &EV_Explode, this->spawnArgs.GetFloat("fuse") );		//GAME BREAKING???
 		return true;
 	}
 //TMF7 END

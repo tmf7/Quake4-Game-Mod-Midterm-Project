@@ -3477,7 +3477,7 @@ idGameLocal::RunFrame
 		// set the user commands for this frame
 		usercmds = clientCmds;
 
-		if ( player ) {
+		if ( player ) {		//TMF7 player always thinks first
 			// ddynerman: save the current thinking entity for instance-dependent
 			currentThinkingEntity = player;
 			player->Think();
@@ -3533,7 +3533,7 @@ TIME_THIS_SCOPE("idGameLocal::RunFrame - gameDebug.BeginFrame()");
 		timer_misc.Start();
 		
 		// set the user commands for this frame
-		usercmds = clientCmds;
+		usercmds = clientCmds;		//TMF7 this could give projectile another shot at using the initial usercmds?
 
 		// create a merged pvs for all players
 		// do this before we process events, which may rely on PVS info
@@ -3576,7 +3576,7 @@ TIME_THIS_SCOPE("idGameLocal::RunFrame - gameDebug.BeginFrame()");
 
 			num = 0;
 
-			for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() ) {
+			for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() ) {  //TMF7 this overall func determines think order
 				if ( g_cinematic.GetBool() && inCinematic && !ent->cinematic ) {
 					ent->GetPhysics()->UpdateTime( time );
 					continue;

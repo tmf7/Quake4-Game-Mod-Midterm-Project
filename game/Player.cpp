@@ -6165,7 +6165,7 @@ idPlayer::Weapon_NPC
 */
 void idPlayer::Weapon_NPC( void ) {
 
-	flagCanFire = false;
+	flagCanFire = true;		//TMF7 originally false, the real effect
 
 	if ( idealWeapon != currentWeapon ) {
 		Weapon_Combat();
@@ -6329,7 +6329,7 @@ void idPlayer::UpdateWeapon( void ) {
  		dragEntity.Update( this );
 		return;
 	} else if ( focusType == FOCUS_CHARACTER) {
-		flagCanFire = true;		//TMF7 originally false
+		flagCanFire = false;				//TMF7 originally false (and redundant)
 		Weapon_NPC();
 	} else if ( focusType == FOCUS_VEHICLE ) {
 		flagCanFire = false;
@@ -8547,7 +8547,7 @@ void idPlayer::PerformImpulse( int impulse ) {
    			}
    			break;
    		}
-				
+
 		case IMPULSE_28: {
  			if ( gameLocal.isClient || entityNumber == gameLocal.localClientNum ) {
  				gameLocal.mpGame.CastVote( gameLocal.localClientNum, true );
