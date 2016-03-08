@@ -6329,7 +6329,7 @@ void idPlayer::UpdateWeapon( void ) {
  		dragEntity.Update( this );
 		return;
 	} else if ( focusType == FOCUS_CHARACTER) {
-		flagCanFire = false;				//TMF7 originally false (and redundant)
+		flagCanFire = true;				//TMF7 originally false (and redundant)
 		Weapon_NPC();
 	} else if ( focusType == FOCUS_VEHICLE ) {
 		flagCanFire = false;
@@ -8547,7 +8547,34 @@ void idPlayer::PerformImpulse( int impulse ) {
    			}
    			break;
    		}
+//TMF7 BEGIN
+		case IMPULSE_23: {
 
+			//Run through the list of gameLocal entities and check their type, and owner to see if they should explode now
+			for ( int index = 0; index < gameLocal.num_entities; index++) {
+				idEntity*  ent = gameLocal.entities[ index ];
+
+				if ( ent && ent->IsType( idProjectile::GetClassType() ) ) {
+					idProjectile *proj = static_cast<idProjectile *>( ent );
+
+					if ( proj->spawnArgs.GetBool( "stick_on_impact" ) && proj->GetOwner() && proj->GetOwner()->IsType( idPlayer::GetClassType() ) ) {
+						idPlayer *owner = static_cast<idPlayer *>( proj->GetOwner() );
+
+						//dont blow up someone else's bombs
+						if ( owner == gameLocal.GetLocalPlayer() ) {
+
+							if ( !owner->pfl.dead && proj->spawnArgs.GetBool( "detonate_on_remote" ) ) { 
+								gameLocal.Printf( "BOOM!\n" );
+								proj->Explode( NULL, true );
+							}			
+						}
+					}
+				
+				}
+			}
+   			break;
+   		}
+//TMF7 END
 		case IMPULSE_28: {
  			if ( gameLocal.isClient || entityNumber == gameLocal.localClientNum ) {
  				gameLocal.mpGame.CastVote( gameLocal.localClientNum, true );

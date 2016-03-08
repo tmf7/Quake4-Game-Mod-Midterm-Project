@@ -89,8 +89,8 @@ entityDef weapon_grenadelauncher
 	"weaponname"				"Grenade Launcher"
 	"def_projectile"			"projectile_grenade"
 	"ammoType"					"ammo_grenadelauncher"
-	"clipSize"					"0"				//TMF7
-	"ammoRequired"				"0"				//TMF7
+	"clipSize"					"0"				//TMF7 was 8
+	"ammoRequired"				"0"				//TMF7 was 1
 	"mtr_icon"					"gfx/guis/hud/icons/gun_grenadelauncher"
 
 	"ammoRegenStep"				"1"
@@ -251,17 +251,18 @@ entityDef projectile_grenade
 	"linear_friction"			"0"
 	"angular_friction"			"0"
 	"contact_friction"			"10"
-	"bounce"					"0"		//TMF7 original .65
+	"bounce"					"0"		//TMF7 was .65
 	"gravity"					"1"
-	"fuse"						"2.5"
+//	"fuse"						"2.5"	//TMF7 uncomment
 								
-	"detonate_on_fuse"			"1"
+	"detonate_on_fuse"			"0"			//TMF7 was 1
 	"detonate_on_death"			"0"
 	"detonate_on_world"			"0"
-	"detonate_on_actor"			"0"			//TMF7
-	"detonateTestGroundMaterial"	"0"		//TMF7
+	"detonate_on_actor"			"0"			//TMF7 was 1
+	"detonateTestGroundMaterial"	"0"		//TMF7 was 1
 
-	"stick_on_impact"			"1"			//TMF7
+	"stick_on_impact"			"1"			//TMF7 new
+	"detonate_on_remote"		"1"			//TMF7 new
 								
 	"impact_gib"				"1"								
 	"decal_size"				"75"

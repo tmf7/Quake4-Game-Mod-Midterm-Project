@@ -1,0 +1,39 @@
+put a variable in player (remote_trigger_signal) that checks if 'b' "impulse23" has been pressed (process impulse) and sets it (reset the remote_trigger_signal in projectile's THINK) 
+
+Architecture for remote detonate of multiple sticky (fuseless) grenades 
+
+in cfg:
+bind "b" "_impulse23"
+
+Player.h
+add detonateSignal bool to pfl (default ???)
+
+idPlayer::PerformImpulse ( int )
+add case: IMPULSE_23 which sets the pfl.detonateSignal = true
+(note that PerfomImpulse is only called from the Player's Think() function)
+
+idProjectile::Think()
+-add a condition that checks if the projectile is a stick_on_impact (and ensure the projectile has an owner and that owner is an idPlayer)
+-check if the player is dead, and if the player's detonateSignal is set
+...and possibly ( && player->usercmd.flags & UCF_IMPULSE_SEQUENCE )
+-check that the projectile is a detonate_on_remote...and possibly  && (const int)(player->usercmd.impulse) == IMPULSE_23
+
+idProjectile::Launch()
+-disable the fuse checks using projectileFlags.stick_on_impact
+
+idGameLocal::RunFrame
+-in the ENTITY think loop ( after the player Think() )set gameLocal.GetLocalPlayer()->pfl.detonateSignal = false;
+
+//current issue is that pfl.detonateSignal is set false again BEFORE any entities think (also: EvaluateControls() occurs in idPlayer::Think)
+
+
+__________________________________-
+ALTERNATE BETTER/CHEAPER
+just have the Perfom inpulse go through all the entities in the game and Explode() them if they meet the sticky bomb criteria*****
+
+PutToRest deactivates an entity (probably)
+
+
+
+
+

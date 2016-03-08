@@ -451,8 +451,8 @@ void idProjectile::Launch( const idVec3 &start, const idVec3 &dir, const idVec3 
 	physicsObj.SetOrigin( start );
 	physicsObj.SetAxis( dir.ToMat3() );
 
-	if ( !gameLocal.isClient ) {
-		if ( fuse <= 0 && !projectileFlags.stick_on_impact ) {		//TMF7
+	if ( !gameLocal.isClient && !projectileFlags.stick_on_impact) {			//TMF7 disable fuses for stick_on_impact (for now)
+		if ( fuse <= 0  ) {		
 			// run physics for 1 second
 			RunPhysics();
 			PostEventMS( &EV_Remove, spawnArgs.GetInt( "remove_time", "1500" ) );
@@ -537,7 +537,8 @@ void idProjectile::Think( void ) {
 
 		// If we werent at rest and are now then start the atrest fuse (TMF7 and check if the user has hit the remote detonate)
 		if ( physicsObj.IsAtRest( ) ) {
-//TMF7 BEGIN
+//TMF7 BEGIN MOVE THIS TO idPlayer PerformImpulse ( int impulse )
+/*
 			if ( projectileFlags.stick_on_impact && owner.GetEntity() && owner.GetEntity()->IsType( idPlayer::GetClassType() ) ) {
 				idPlayer *player = static_cast<idPlayer *>( owner.GetEntity() );
 	
@@ -559,6 +560,7 @@ void idProjectile::Think( void ) {
 					}
 				}
 			} 
+*/
 //TMF7 END
 			float fuse = spawnArgs.GetFloat( "fuse_atrest" );
 			if ( fuse > 0.0f ) {
@@ -796,14 +798,19 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
 	}
 
 //TMF7 BEGIN
-	//sticks to friends, enemies, map objects, and world
+	//permanently sticks to friends, enemies, map objects, and world
 	//IMPORTANT: loses its damaging effects if left bound through Explode()
-	//Collide() is called repetedly on moving enemies Bound to (imperfect but effective) (throws around ragdoll but not alive enemies)
-	if ( projectileFlags.stick_on_impact ) {
+	if ( projectileFlags.stick_on_impact && !IsBound() ) {
 		BindToJoint( ent, CLIPMODEL_ID_TO_JOINT_HANDLE( collision.c.id ), true);
 		physicsObj.PutToRest();
-		//PostEventSec( &EV_Explode, this->spawnArgs.GetFloat("fuse") );		//GAME BREAKING???
-		return true;
+
+		StartSound( "snd_ricochet", SND_CHANNEL_ITEM, 0, true, NULL );
+		gameLocal.PlayEffect( 
+			gameLocal.GetEffect(spawnArgs,"fx_bounce",collision.c.materialType), 
+			collision.c.point, collision.c.normal.ToMat3(), 
+			false, vec3_origin, true );
+
+		return true;		//find some water to test grenades in...and is the explosion sound level nerfed?
 	}
 //TMF7 END
 
