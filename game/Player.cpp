@@ -6165,7 +6165,7 @@ idPlayer::Weapon_NPC
 */
 void idPlayer::Weapon_NPC( void ) {
 
-	flagCanFire = true;		//TMF7 originally false, the real effect
+	flagCanFire = false;
 
 	if ( idealWeapon != currentWeapon ) {
 		Weapon_Combat();
@@ -6328,10 +6328,10 @@ void idPlayer::UpdateWeapon( void ) {
  		}
  		dragEntity.Update( this );
 		return;
-	} else if ( focusType == FOCUS_CHARACTER) {
-		flagCanFire = true;				//TMF7 originally false (and redundant)
+	} /*else if ( focusType == FOCUS_CHARACTER) {		//TMF7 SHOOT FRIENDLIES
+		flagCanFire = false;
 		Weapon_NPC();
-	} else if ( focusType == FOCUS_VEHICLE ) {
+	} */else if ( focusType == FOCUS_VEHICLE ) {
 		flagCanFire = false;
 		Weapon_Vehicle();
 	} else if ( focusType == FOCUS_USABLE || focusType == FOCUS_USABLE_VEHICLE ) {
@@ -7042,6 +7042,8 @@ void idPlayer::UpdateFocus( void ) {
 // mekberg: allowFocus removed
 		if ( focusLength < (g_crosshairCharInfoFar.GetBool()?256.0f:80.0f) ) {
 // RAVEN END
+
+/*	//TMF7 SHOOT FRIENDLIES
 			if ( ent->IsType( idAFAttachment::GetClassType() ) ) {
 				idEntity *body = static_cast<idAFAttachment *>( ent )->GetBody();
 				if ( body && body->IsType( idAI::GetClassType() ) && ( static_cast<idAI *>( body )->GetTalkState() >= TALK_OK ) ) {
@@ -7078,6 +7080,7 @@ void idPlayer::UpdateFocus( void ) {
 				}
 				continue;
 			}
+*/	//TMF7
 		}
 
 		if ( focusLength < 80.0f ) {
@@ -7374,12 +7377,17 @@ void idPlayer::SetFocus ( playerFocus_t newType, int _focusTime, idEntity* newEn
 	//jshepard: the medic/tech crosshair won't update unless handleNamedEvent is called. I moved this outside
 	//of the switch below because the focus type is the same when moving directly from marine to marine, but the
 	//medic/tech status may change.
+
+/*	//TMF7 SHOOT FRIENDLIES
 	if ( newType == FOCUS_CHARACTER ) {
 		if ( newEnt != focusEnt ) {
 			UpdateFocusCharacter( newEnt );
 			cursor->HandleNamedEvent ( "showCrossTalk" );
 		}
 	}
+*/  //TMF7
+
+
 	// Show the appropriate cursor for the current focus type
 	if ( cursor && ( focusType != newType ) ) {
 		switch ( newType ) {
@@ -7396,12 +7404,14 @@ void idPlayer::SetFocus ( playerFocus_t newType, int _focusTime, idEntity* newEn
 			case FOCUS_GUI:
 				cursor->HandleNamedEvent ( "showCrossGui" );
 				break;
+/* //TMF7 SHOOT FRIENDLIES
 			case FOCUS_CHARACTER:
 				if ( newEnt != focusEnt ) {
 					UpdateFocusCharacter( newEnt );
 				}
 				cursor->HandleNamedEvent ( "showCrossTalk" );
 				break;
+*/	//TMF7
 			default:
 				// Make sure the weapon is shown in the default state
 // RAVEN BEGIN
@@ -8550,21 +8560,20 @@ void idPlayer::PerformImpulse( int impulse ) {
 //TMF7 BEGIN
 		case IMPULSE_23: {
 
-			//Run through the list of gameLocal entities and check their type, and owner to see if they should explode now
+			//Run through the list of gameLocal entities and perform checks prior to calling Explode()
 			for ( int index = 0; index < gameLocal.num_entities; index++) {
 				idEntity*  ent = gameLocal.entities[ index ];
 
 				if ( ent && ent->IsType( idProjectile::GetClassType() ) ) {
 					idProjectile *proj = static_cast<idProjectile *>( ent );
 
+					//possibly get rid of the stick_on_impact qualifier because this is the remote detonate impulse regardless of stickyness
 					if ( proj->spawnArgs.GetBool( "stick_on_impact" ) && proj->GetOwner() && proj->GetOwner()->IsType( idPlayer::GetClassType() ) ) {
 						idPlayer *owner = static_cast<idPlayer *>( proj->GetOwner() );
 
 						//dont blow up someone else's bombs
 						if ( owner == gameLocal.GetLocalPlayer() ) {
-
 							if ( !owner->pfl.dead && proj->spawnArgs.GetBool( "detonate_on_remote" ) ) { 
-								gameLocal.Printf( "BOOM!\n" );
 								proj->Explode( NULL, true );
 							}			
 						}

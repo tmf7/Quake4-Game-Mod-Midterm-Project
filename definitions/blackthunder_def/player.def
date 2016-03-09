@@ -692,10 +692,10 @@ entityDef player_marine
 	// default weapons
 	// seperate multiple weapons with commas (no spaces).
 	// NOTE: default ammo must be specified explicitly.
-	"weapon"						"weapon_grenadelauncher"		//TMF7
-	"current_weapon"					"4"
+	"weapon"						"weapon_grenadelauncher,weapon_rocketlauncher"		//TMF7
+	"current_weapon"					"6"
 
-//	"pm_thirdperson"					"1"						//TMF7
+//	"pm_thirdperson"					"1"						//TMF7 uncomment this for demo
 
 	"pm_jumpheight"						"48"
 	"pm_stepsize"						"16"
@@ -737,8 +737,8 @@ entityDef player_marine
 	"ammo_blaster"						"-1"
 	"ammo_shotgun"						"0"
 	"ammo_hyperblaster"					"0"
-	"ammo_rocketlauncher"					"0"
-	"ammo_grenadelauncher"					"-1"		//TMF7
+	"ammo_rocketlauncher"					"-1"		//TMF7 was 0
+	"ammo_grenadelauncher"					"-1"		//TMF7 was 0
 	"ammo_lightninggun"					"0"
 	"ammo_none"						"-1"
 
@@ -749,8 +749,8 @@ entityDef player_marine
 	"max_ammo_shotgun"					"50"
 	"max_ammo_hyperblaster"					"400"
 	"max_ammo_napalmgun"					"40"
-	"max_ammo_rocketlauncher"				"40"
-	"max_ammo_grenadelauncher"				"-1"			//TMF7
+	"max_ammo_rocketlauncher"				"-1"			//TMF7 was 40
+	"max_ammo_grenadelauncher"				"-1"			//TMF7 was ???
 	"max_ammo_lightninggun"					"400"
 	"max_ammo_dmg"						"25"
 	"max_ammo_none"						"-1"

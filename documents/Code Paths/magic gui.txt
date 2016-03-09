@@ -1,0 +1,18 @@
+boss health bar display during boss blattle (modify that box and its linked variable)
+idPlayer::StartBossBattle
+
+player.cpp
+	// FIXME: this is temp to allow the sound meter to show up in the hud
+	// it should be commented out before shipping but the code can remain
+	// for mod developers to enable for the same functionality
+	_hud->SetStateInt( "s_debug", cvarSystem->GetCVarInteger( "s_showLevelMeter" ) );
+
+printing a message to the console???
+from projectile.cpp
+common->DPrintf( "Projectile collision no impact\n" );
+
+
+
+
+idPlayer::Weapon_Combat updates the hud information and fires the weapon based on player BUTTON_ATTACK
+also use EvaluateControls in the idPlayer::Think()

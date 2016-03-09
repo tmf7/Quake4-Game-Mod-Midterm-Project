@@ -3533,7 +3533,7 @@ TIME_THIS_SCOPE("idGameLocal::RunFrame - gameDebug.BeginFrame()");
 		timer_misc.Start();
 		
 		// set the user commands for this frame
-		usercmds = clientCmds;		//TMF7 this could give projectile another shot at using the initial usercmds?
+		usercmds = clientCmds;
 
 		// create a merged pvs for all players
 		// do this before we process events, which may rely on PVS info
@@ -5793,7 +5793,61 @@ void idGameLocal::RadiusDamage( const idVec3 &origin, idEntity *inflictor, idEnt
 			if ( ent == attacker ) {
 				damageScale *= attackerDamageScale;
 			}
+//TMF7 BEGIN
+			// TMF7 IMPORTANT NOTE: add a check here to verify NPCs ( search FOCUS_CHARACTER focusType ) ???
+			//dont ragdoll players (although still able to aim and fire, a player does not snap back to normal..proll cause no THINK())
+			if ( inflictor && inflictor->IsType( idProjectile::GetClassType() ) && ent->IsType( idAI::GetClassType() ) && !ent->IsType( idPlayer::GetClassType() ) ) { 
+				idProjectile *proj = static_cast<idProjectile *>( inflictor );
+				idAI *monster = static_cast<idAI *>( ent );
+				
+				//Check if the monster is on the same "team" as the player || the AF Isloaded() || GetName() == monster_*?
+				//if ( monster->is ) {}
 
+				if (proj->spawnArgs.GetBool( "paralysis_cloud" ) ) { 
+					monster->StartRagdoll();
+					monster->ProcessEvent( &AI_BecomePassive, true );
+					//monster->physicsObj.LinkClip();		//MIGHT allow followers to target monsters properly...not alone anyway
+					//monster->DormantBegin();			//Removes monstor OR player from an enemy list...also doesn't stop the search
+					//monster->BecomeInactive( TH_THINK );	//stop doing think(), but still run physics and animations
+					//AI_DisableMovement
+					
+					//OBSERVATIONS while ragdolled:
+					//1) when a monster is ragdolled, player teammates/followers cannot target monsters properly
+							//BECAUSE: the clipmodel/physics object is unlinked from the AF/mesh movement
+							//this also explains why monsters will snap back to a different position/float
+							//SUB-ISSUE: a dead+ragdolled monster will unRagdoll in its original position AND orientation
+							//instead of staying dead/splayed on the ground
+							//INTERESTING: when vanilla-killed one can still applyImpulse to the ragdoll
+					// FIXED 2) a monster can still target and attack me 
+					//3) FIXED when un-ragdolled an NPC will go to a manequine state (though active it seems) 
+						//UNTIL its next scripted animation OR its next follower Think()
+						//the same goes for enemies
+					//4) FIXED a jumping (or something) moster will essentially freeze in midair instead of falling to the ground
+					//5) NOT AN ISSUE (see 7)a crouching/prone NPC will simply twitch and be unable to move instead of splaying (NBD)
+					//6) FIXED monsters can still be killed and still evaporate as normal while ragdolled
+					//7) when ANYTHING is in a predefined animation (except the first two guys) then they freeze in space
+							//along their intended path...sometimes
+					//8) FIXED a grenade jointBound grenade continually ApplyImulse eachc collide...ragdoll wild bounce
+					//9) FIXED disabling the Think() function prevents the monstor from evaporating when it dies (they still die though)
+					//10) FIXED? (test more) re-animated monstors will occasionally run around floating
+
+					//SEE WHAT THESE DO:
+					//(in AI_events.cpp) AI_DisableGravity, AI_DisableTarget, AI_DisableMovement, AI_StopThinking, 
+					//(in AI_events.cpp) AI_AllowHiddenMovement (for selective invisibility), AI_BecomePassive, AI_SetEnemy, AI_SetLeader, EV_Activate, EV_Touch
+					//(in Actor.h) AI_PlayAnim, AI_IdleAnim, AI_OverrideAnim, EV_JointCrawlEffect, AI_SetLeader
+					
+					//SOLUTIONS(?):
+					//1) edit the StopRagdoll to FORCE the entity to Think() or get back on track with its script
+							//check exactly what StartRagdoll() does
+
+					float duration = proj->spawnArgs.GetFloat( "paralyze_duration" );
+					monster->PostEventSec( &AI_StopRagdoll, duration );
+					//monster->physicsObj.Activate();
+					//monster->physicsObj.LinkClip(); //needs to happen when the stopragdoll happens NOT RIGHT NOW
+					monster->PostEventSec( &AI_BecomeAggressive, duration + 0.25f );
+				}
+			}
+//TMF7 END
 			dir.Normalize();
 			ent->Damage( inflictor, attacker, dir, damageDefName, damageScale, CLIPMODEL_ID_TO_JOINT_HANDLE(ent->GetPhysics()->GetClipModel()->GetId()) );
 

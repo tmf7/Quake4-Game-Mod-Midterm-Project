@@ -1,0 +1,18 @@
+(in AI_events.cpp) 
+AI_DisableGravity, 
+AI_DisableTarget, 
+AI_DisableMovement, 
+AI_StopThinking, 
+AI_AllowHiddenMovement (for selective invisibility), 
+AI_BecomePassive, 
+AI_SetEnemy, 
+AI_SetLeader, 
+EV_Activate, 
+EV_Touch
+
+(in Actor.h) 
+AI_PlayAnim, 
+AI_IdleAnim, 
+AI_OverrideAnim, 
+EV_JointCrawlEffect, 
+AI_SetLeader

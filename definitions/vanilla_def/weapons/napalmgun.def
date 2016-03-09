@@ -60,7 +60,7 @@ entityDef weapon_napalmgun
   	"model_world"				"weapon_napalmgun_world"
 	"model"						"models/weapons/napalmgun/w_flamegun.ase"
 	"def_dropItem"				"weapon_napalmgun"
-	"mtr_crosshair"				"gfx/guis/crosshairs/crosshair_napalm"
+	"mtr_crosshair"				"gfx/guis/crosshairs/crosshair_rocketlauncher"
 
 	"joint_attach"				"RKT_ATTACHER"
 	"joint_view_flash"			"muzzle_flash"
@@ -160,7 +160,6 @@ entityDef weapon_napalmgun_mp
 	"clipSize"			"0"
 	"inv_icon"			"gfx/guis/hud/icons/item_fire_colored"
 	"mtr_simple_icon"	"gfx/guis/hud/simpleicons/item_napalmgun"
-	"simple_icon_scale"		"32.0"
 
 	"ammoRegenStep"             "1"
 	"ammoRegenTime"             "2500"
@@ -284,7 +283,6 @@ entityDef projectile_napalm
 	"airBurst_desc"				"midair_"
 
 	"fx_fly"					"effects/weapons/napalmgun/flyburn.fx"
-	"fx_fly_mp_low"				"effects/weapons/napalmgun/flyburn_mp_low.fx"
 	"fx_impact_water"			"effects/ambient/splash_med.fx"
 
 	"snd_ricochet"				"weapon_napalmgun_bounce"
@@ -295,8 +293,8 @@ entityDef projectile_napalm
 	//"fx_impact_actor"			"effects/weapons/napalmgun/actorimpact"
 	
 	"fx_impact_actor"			"effects/weapons/rocketlauncher/detonate.fx"
+	"fx_detonate"				"effects/weapons/napalmgun/detonate.fx"
 	"fx_impact"					"effects/weapons/napalmgun/impact.fx"
-	"fx_detonate"					"effects/weapons/napalmgun/detonate.fx"
 
 	//"delay_residual"				"1.5"
 	//"residual_time"					"6"
@@ -311,53 +309,43 @@ entityDef projectile_napalm
 	"ieSlicePercentage"			"1.00"
 	
 	"net_syncPhysics"			"1"
-
-	"fx_teleport_enter"			"effects/mp/item_teleport.fx"
-	"fx_teleport"				"effects/mp/item_teleport.fx"
-
-	"no_impact_prediction"		"1"
 }
 
 entityDef impact_napalm_projectile
 {
 	//"inherit"	"projectile_grenade"
 	"spawnclass"				"idProjectile"
-	"size"						"1 1 1"
-	"noshadows"					"1"
-	"clipmask_largeshot"		"0"
-	"no_contents"				"0"
+	"mins"							"-16 -16 -16"
+	"maxs"							"16 16 16"
+	"no_contents"	"1"
 
-	"model"						"models/weapons/napalmgun/flame_gun_globsmall.ase"
+	"fuse"							"1.0"
+	"fuse_random"					"0.4"
+	"velocity"						"0"
+	"speed"							"0"
+	"gravity"						"1.3"
 	
-	"fuse"						"6.0"
-	"fuse_random"				"0.4"
-	"speed"						"1"
-	"gravity"					"1.2"
-	"remove_time"				"100"
+	"detonate_on_fuse"				"1"
+	"detonate_on_death"				"0"
+	"detonate_on_world"				"1"
+	"detonate_on_actor"				"1"
 
-	"angular_velocity"			"-10 5 1"
+		
+	"fx_impact"					"effects/weapons/napalmgun/globburn.fx"
+	//"fx_impact_actor"				"effects/monsters/light_tank/plasma_impact_actor"
+	"fx_detonate"					"effects/weapons/napalmgun/detonate.fx"
+	//"fx_fly"						""
 
-	"linear_friction"			"0"
-	"angular_friction"			"0"
-	"contact_friction"			"10"
+	"delay_residual"				"0.75"
+	"residual_time"					"6"
+	"def_residual_damage"			"damage_lightTank_residualPlasma"	
 	
-	"detonate_on_fuse"			"0"
-	"detonate_on_death"			"0"
-	"detonate_on_world"			"0"
-	"detonate_on_actor"			"0"
-	"detonate_on_bounce"		"0"
-
-	"flyEffectAttenuateSpeed"	"200"
-	"fx_launch"					"effects/weapons/napalmgun/globburn.fx"
-	"fx_fly"					"effects/weapons/napalmgun/flyburn.fx"
-
-	"delay_emit_damage"			"0.75"
-	"def_emit_damage"			"damage_napalmGlobEmit"
-
-	"fx_teleport_enter"			"effects/mp/item_teleport.fx"
-	"fx_teleport"				"effects/mp/item_teleport.fx"
-
-	"net_syncPhysics"			"1"
+	
+	"def_damage"					"damage_napalmGlobDirect"
+	"def_splash_damage"				"damage_napalmGlobSplash"
+	"model"							"models/weapons/napalmgun/flame_gun_globsmall.ase"
+	
+	"net_syncPhysics"				"1"
 }
 
 //--------------------------------------------------------------------------------------------------------------------
@@ -366,7 +354,7 @@ entityDef impact_napalm_projectile
 
 entityDef damage_napalmDirect 
 {
-	"damage"					"70"
+	"damage"					"80"
 	"gib"						"1"
 	"knockback"					"60"
 	"deathPush"					"200"
@@ -376,9 +364,8 @@ entityDef damage_napalmDirect
 
 entityDef damage_napalmSplash
 {
-	"damage"					"70"
-	"radius"					"140"
-	"attackerDamageScale"		"1.0"
+	"damage"					"80"
+	"radius"					"180"
 	"knockback"					"60"
 	"gib"						"0"
 	"deathPush"					"100"
@@ -386,11 +373,20 @@ entityDef damage_napalmSplash
 	"deathPushMax"				"5000 3000"
 }
 
-entityDef damage_napalmGlobEmit
+entityDef damage_napalmGlobDirect
 {
-	"damage"					"15"
-	"radius"					"140"
-	"attackerDamageScale"		"1.0"
+	"damage"					"5"
+	"gib"						"1"
+	"knockback"					"0"
+	"deathPush"					"200"
+	"deathPushMin"				"3000 2000"
+	"deathPushMax"				"5000 3000"
+}
+
+entityDef damage_napalmGlobSplash
+{
+	"damage"					"5"
+	"radius"					"100"
 	"knockback"					"0"
 	"gib"						"0"
 	"deathPush"					"100"

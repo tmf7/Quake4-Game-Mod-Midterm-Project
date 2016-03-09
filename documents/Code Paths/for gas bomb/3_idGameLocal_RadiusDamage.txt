@@ -1,0 +1,136 @@
+/*
+============
+idGameLocal::RadiusDamage
+Returns the number of actors damaged
+============
+*/
+// abahr: changed to work with deathPush
+void idGameLocal::RadiusDamage( const idVec3 &origin, idEntity *inflictor, idEntity *attacker, idEntity *ignoreDamage, idEntity *ignorePush, const char *damageDefName, float dmgPower, int* hitCount ) {
+	float		dist, damageScale, attackerDamageScale, attackerPushScale;
+	idEntity*	ent = NULL;
+	idEntity*	lastEnt = NULL;
+	idClipModel* clipModel = NULL;
+	idClipModel* clipModelList[ MAX_GENTITIES ];
+	int			numListedClipModels;
+	modelTrace_t	result;
+	idVec3 		v, damagePoint, dir;
+	int			i, damage, radius, push;
+
+	const idDict *damageDef = FindEntityDefDict( damageDefName, false );
+	if ( !damageDef ) {
+		Warning( "Unknown damageDef '%s'", damageDefName );
+		return;
+	}
+
+	damageDef->GetInt( "damage", "20", damage );
+	damageDef->GetInt( "radius", "50", radius );
+	damageDef->GetInt( "push", va( "%d", damage * 100 ), push );
+	damageDef->GetFloat( "attackerDamageScale", "0.5", attackerDamageScale );
+	if( gameLocal.isMultiplayer ) {
+		damageDef->GetFloat( "attackerPushScale", "2", attackerPushScale );
+	} else {
+		damageDef->GetFloat( "attackerPushScale", "0", attackerPushScale );
+	}
+
+	if ( radius < 1 ) {
+		radius = 1;
+	}
+
+// ddynerman: multiple clip worlds
+	numListedClipModels = ClipModelsTouchingBounds( inflictor, idBounds(origin).Expand(radius), MASK_ALL, clipModelList, MAX_GENTITIES );
+
+	if( numListedClipModels > 0 ) {
+		//Sort list by unique entities for easier searching
+		qsort( clipModelList, numListedClipModels, sizeof(clipModelList[0]), SortClipModelsByEntity );
+	}
+
+	if ( inflictor ) {
+		inflictor = inflictor->GetDamageEntity ( );
+	}
+	if ( attacker ) {
+		attacker = attacker->GetDamageEntity ( );
+	}
+	if ( ignoreDamage ) {
+		ignoreDamage = ignoreDamage->GetDamageEntity ( );
+	}
+
+	for( int c = 0; c < numListedClipModels; ++c ) {
+		clipModel = clipModelList[ c ];
+		assert( clipModel );
+
+		ent = clipModel->GetEntity();
+		
+		// Skip all entitys that arent primary damage entities
+		if ( !ent || ent != ent->GetDamageEntity ( ) ) {
+			continue;
+		}
+
+		// Dont damage inflictor or the ignore entity
+		if( ent == inflictor || ent == ignoreDamage ) {
+			continue;
+		}
+
+		idBounds absBounds = clipModel->GetAbsBounds();
+
+		// find the distance from the edge of the bounding box
+		for ( i = 0; i < 3; i++ ) {
+			if ( origin[ i ] < absBounds[0][ i ] ) {
+				v[ i ] = absBounds[0][ i ] - origin[ i ];
+			} else if ( origin[ i ] > absBounds[1][ i ] ) {
+				v[ i ] = origin[ i ] - absBounds[1][ i ];
+			} else {
+				v[ i ] = 0;
+			}
+		}
+
+		dist = v.Length();
+		if ( dist >= radius ) {
+			continue;
+		}
+
+		if( gameRenderWorld->FastWorldTrace(result, origin, absBounds.GetCenter()) ) {
+			continue;
+		}
+		
+		RadiusPushClipModel ( inflictor, origin, push, clipModel );
+
+		// Only damage unique entities.  This works because we have a sorted list
+		if( lastEnt == ent ) {
+			continue;
+		}
+
+		lastEnt = ent;
+
+		if ( ent->CanDamage( origin, damagePoint, ignoreDamage ) ) {						
+			// push the center of mass higher than the origin so players
+			// get knocked into the air more
+			if( gameLocal.isMultiplayer ) {
+				// fudge the direction in MP to account for player height difference and origin shift
+				// 31.875 = origin is 23.875 units lower in Q4 than Q3 + player is 8 units taller in Q4
+				dir = ( ent->GetPhysics()->GetOrigin() + idVec3( 0.0f, 0.0f, 31.875f ) ) - origin;
+			} else {
+				dir = ent->GetPhysics()->GetOrigin() - origin;
+			}		
+			
+			dir[2] += 24;
+ 
+ 			// get the damage scale
+			damageScale = dmgPower * ( 1.0f - dist / radius );
+			
+			if ( ent == attacker ) {
+				damageScale *= attackerDamageScale;
+			}
+
+			dir.Normalize();
+			ent->Damage( inflictor, attacker, dir, damageDefName, damageScale, CLIPMODEL_ID_TO_JOINT_HANDLE(ent->GetPhysics()->GetClipModel()->GetId()) );
+
+			// for stats, count the first 
+			if( attacker && attacker->IsType( idPlayer::GetClassType() ) && inflictor && inflictor->IsType( idProjectile::GetClassType() ) && ent->IsType( idPlayer::GetClassType() ) && hitCount ) {
+				// with splash damage projectiles, one projectile fire can damage multiple people.  If anyone is hit, 
+				// the shot counts as a hit but only report accuracy on the first one to avoid accuracies > 100%
+				statManager->WeaponHit( (const idActor*)attacker, ent, ((idProjectile*)inflictor)->methodOfDeath, (*hitCount) == 0 );
+				(*hitCount)++;
+			}
+		} 
+	}
+}

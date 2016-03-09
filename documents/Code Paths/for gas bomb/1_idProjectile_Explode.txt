@@ -1,0 +1,101 @@
+/*
+================
+idProjectile::Explode
+================
+*/
+void idProjectile::Explode( const trace_t *collision, const bool showExplodeFX, idEntity *ignore, const char *sndExplode ) {
+	idVec3		normal, endpos;
+	int			removeTime;
+
+	if ( projectileFlags.stick_on_impact ) { Unbind(); }		//TMF7 CRITICAL to allow damage effects of projectile if bound to enemy
+
+	if ( state == EXPLODED || state == FIZZLED ) {
+		return;
+	}
+
+	if ( spawnArgs.GetVector( "detonation_axis", "", normal ) ) {
+		GetPhysics()->SetAxis( normal.ToMat3() );
+	} else {
+		normal = collision ? collision->c.normal : idVec3( 0, 0, 1 );
+	}
+	endpos = ( collision ) ? collision->endpos : GetPhysics()->GetOrigin();
+
+	removeTime = spawnArgs.GetInt( "remove_time", "1500" );
+
+//TMF7 DONT play the sound (its a stealth weapon)
+	// play sound
+	StopSound( SND_CHANNEL_BODY, false );
+	StartSound( sndExplode, SND_CHANNEL_BODY, 0, false, NULL );
+
+//TMF7 STILL show the FX, and slow it down somehow*********
+	if ( showExplodeFX ) {
+		idVec3 fxDir;
+		if ( physicsObj.GetGravityNormal( ) != vec3_zero ) {
+			fxDir = -physicsObj.GetGravityNormal( );
+		} else { 
+			fxDir = -physicsObj.GetLinearVelocity( );
+			fxDir.Normalize( );
+		}
+		// FIXME: This should be done in a better way
+		PlayDetonateEffect( endpos, fxDir.ToMat3() );
+	}
+
+	// Stop the fly effect without destroying particles to ensure the trail within can persist.
+	StopEffect( "fx_fly" );	
+	if( flyEffect)	{
+		//flyEffect->Event_Remove();
+	}
+	
+	// Stop the remaining particles
+	StopAllEffects( );
+
+	Hide();
+	FreeLightDef();
+
+	GetPhysics()->SetOrigin( GetPhysics()->GetOrigin() + 8.0f * normal );
+
+	fl.takedamage = false;
+	physicsObj.SetContents( 0 );
+	physicsObj.PutToRest();
+
+	state = EXPLODED;
+
+	if ( gameLocal.isClient ) {
+		return;
+	}
+//TMF7 DONT ALERT THE AI ABOUT THE OWNER, just about the fact that they're gassed (NULL?)
+ 	// alert the ai
+ 	gameLocal.AlertAI( owner.GetEntity() );
+
+	// bind the projectile to the impact entity if necesary
+	if ( collision && gameLocal.entities[collision->c.entityNum] && spawnArgs.GetBool( "bindOnImpact" ) ) {
+		Bind( gameLocal.entities[collision->c.entityNum], true );
+	}
+//TMF7 ALLOW splash damage (except for a gas bomb the splash_damage_def will be different)
+	// splash damage
+	removeTime = 0;
+	float delay = spawnArgs.GetFloat( "delay_splash" );
+	if ( delay ) {
+		if ( removeTime < delay * 1000 ) {
+			removeTime = ( delay + 0.10 ) * 1000;
+		}
+		PostEventSec( &EV_RadiusDamage, delay, ignore );
+	} else {
+		Event_RadiusDamage( ignore );
+	}
+
+	// Residual damage (damage over time)
+	delay = SEC2MS ( spawnArgs.GetFloat ( "delay_residual" ) );
+	if ( delay > 0.0f ) {
+		PostEventMS ( &EV_ResidualDamage, delay, ignore );
+
+		// Keep the projectile around until the residual damage is done		
+		delay = SEC2MS ( spawnArgs.GetFloat ( "residual_time" ) );
+		if ( removeTime < delay ) {
+			removeTime = delay;
+		}
+	}
+			
+ 	CancelEvents( &EV_Explode );
+	PostEventMS( &EV_Remove, removeTime );
+}

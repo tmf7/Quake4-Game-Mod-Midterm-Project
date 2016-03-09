@@ -451,7 +451,7 @@ void idProjectile::Launch( const idVec3 &start, const idVec3 &dir, const idVec3 
 	physicsObj.SetOrigin( start );
 	physicsObj.SetAxis( dir.ToMat3() );
 
-	if ( !gameLocal.isClient && !projectileFlags.stick_on_impact) {			//TMF7 disable fuses for stick_on_impact (for now)
+	if ( !gameLocal.isClient && !spawnArgs.GetBool( "detonate_on_remote" ) ) {	//TMF7 disable fuses for remote detonated bombs
 		if ( fuse <= 0  ) {		
 			// run physics for 1 second
 			RunPhysics();
@@ -520,7 +520,7 @@ idProjectile::Think
 */
 void idProjectile::Think( void ) {
 	// run physics
-	if ( thinkFlags & TH_PHYSICS ) { //START HERE 3_7_16 TMF7 MUST ALLOW PHYSICS TO CONTINUE ONCE IT COMES TO REST
+	if ( thinkFlags & TH_PHYSICS ) {
 
 		// Update the velocity to match the changing speed
 		if ( updateVelocity ) {
@@ -535,33 +535,8 @@ void idProjectile::Think( void ) {
 		
 		RunPhysics();
 
-		// If we werent at rest and are now then start the atrest fuse (TMF7 and check if the user has hit the remote detonate)
+		// If we werent at rest and are now then start the atrest fuse
 		if ( physicsObj.IsAtRest( ) ) {
-//TMF7 BEGIN MOVE THIS TO idPlayer PerformImpulse ( int impulse )
-/*
-			if ( projectileFlags.stick_on_impact && owner.GetEntity() && owner.GetEntity()->IsType( idPlayer::GetClassType() ) ) {
-				idPlayer *player = static_cast<idPlayer *>( owner.GetEntity() );
-	
-				//The impulse flag isnt toggling perfectly yet because I AM calling it WAY out of place
-				//the player thinks first, which means it processes the impulse flag then sets the oldFlags, this misses that
-				
-				//a projectile points to an owner (player) (uses the address space)...is that useful???
-
-				//PERHAPS: force the usercmd.flags to cancel the impulse? then reset after another check?
-				//I dont want it to land and immediatly explode, a user must either be holding the button or actively press
-				//the button once at rest
-
-				//also prevent the bomb from fizzling/&EV_Remove
-				if ( !player->pfl.dead && player->usercmd.flags & UCF_IMPULSE_SEQUENCE ) {
-					bool remoteBomb = spawnArgs.GetBool( "detonate_on_remote", "0" );
-					if ( remoteBomb && (const int)(player->usercmd.impulse) == IMPULSE_23) { 
-						//CancelEvents( &EV_Explode );			//necessary???
-						PostEventSec( &EV_Explode, 0.0f );
-					}
-				}
-			} 
-*/
-//TMF7 END
 			float fuse = spawnArgs.GetFloat( "fuse_atrest" );
 			if ( fuse > 0.0f ) {
 				if ( spawnArgs.GetBool( "detonate_on_fuse" ) ) {
@@ -778,7 +753,7 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
 		damageDefName = spawnArgs.GetString ( "def_damage" );
 	}
 
-	if( damageDefName && damageDefName[0] ) {
+	if( damageDefName && damageDefName[0] && !projectileFlags.stick_on_impact ) {		//TMF7 (prevent ragdolls from flying around)
 		const idDict* dict = gameLocal.FindEntityDefDict( damageDefName, false );
 		if ( dict ) {
  			ent->ApplyImpulse( this, collision.c.id, collision.endpos, dir, dict );
@@ -810,7 +785,7 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
 			collision.c.point, collision.c.normal.ToMat3(), 
 			false, vec3_origin, true );
 
-		return true;		//find some water to test grenades in...and is the explosion sound level nerfed?
+		return true;
 	}
 //TMF7 END
 
@@ -1268,7 +1243,7 @@ void idProjectile::Explode( const trace_t *collision, const bool showExplodeFX, 
 			removeTime = delay;
 		}
 	}
-			
+	
  	CancelEvents( &EV_Explode );
 	PostEventMS( &EV_Remove, removeTime );
 }

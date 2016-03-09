@@ -170,7 +170,6 @@ entityDef weapon_dmg_mp
 	"def_projectile"			"projectile_dmg_mp"
 	"inv_icon"				"gfx/guis/hud/icons/item_darkmatter_colored"
 	"mtr_simple_icon"				"simpleicons/item_darkmatter_colored"
-	"simple_icon_scale"			"32.0"
 	"inv_start_ammo_dmg"			"3"
 	"triggerSize"				"32"
 	
@@ -417,16 +416,11 @@ entityDef projectile_dmg_mp
 	"fx_fly"					"effects/weapons/dmg/fly_mp.fx"
 	"fx_detonate"				"effects/weapons/dmg/impact_default_mp.fx"
 	"fx_impact"					"effects/weapons/dmg/impact_default_mp.fx"
-	"fx_impact_mp"				"effects/weapons/dmg/impact_default_mp.fx"
+	"fx_impact_mp"					"effects/weapons/dmg/impact_default_mp.fx"
 	"fx_impact_water"			"effects/ambient/splash_med.fx"
 
 	"snd_ricochet"				"grenade_bounce"	
 	"snd_fly"					"weapon_darkmatter_energy_loop"
 
 	"friendly_impact"			"1"
-
-	"fx_teleport_enter"			"effects/mp/item_teleport.fx"
-	"fx_teleport"				"effects/mp/item_teleport.fx"
-
-	"no_impact_prediction"		"1"
 }

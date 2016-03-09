@@ -1,0 +1,11 @@
+keep the rockets effects active after it comes to rest
+use the residual_time (total duration of extra damages) and delay_residual (delays the occurance of the next splash damage) values (as seen in naplam projectile) and def_residual_damage
+
+af.GetPhysics()->SetTimeScaleRamp( slomoStart, slomoEnd ); ( in idActor::StartRagdoll ) intended to slow the progression of events
+	could be useful for slowing an explosion???
+
+
+determine viable entities to paralyze in radius
+check if the entity is a monster (and not just a shitty ZOMBIE HUSK)
+checks the monster mass property (if a monster has something like that)
+depending on mass set: ragdoll or stagger or die

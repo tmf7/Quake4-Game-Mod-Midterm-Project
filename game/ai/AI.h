@@ -421,6 +421,11 @@ extern const idEventDef AI_EnableBlink;
 extern const idEventDef AI_DisableBlink;
 extern const idEventDef AI_EnableAutoBlink;
 extern const idEventDef AI_DisableAutoBlink;
+//TMF7 BEGIN
+extern const idEventDef AI_BecomeRagdoll;
+extern const idEventDef AI_StopRagdoll;
+//TMF7 END
+
 
 class idPathCorner;
 class idProjectile;

@@ -264,7 +264,7 @@ entityDef projectile_grenade
 	"stick_on_impact"			"1"			//TMF7 new
 	"detonate_on_remote"		"1"			//TMF7 new
 								
-	"impact_gib"				"1"								
+	"impact_gib"				"1"											
 	"decal_size"				"75"
 
 	"flyEffectAttenuateSpeed"	"200"
