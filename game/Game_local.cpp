@@ -5804,8 +5804,12 @@ void idGameLocal::RadiusDamage( const idVec3 &origin, idEntity *inflictor, idEnt
 				//if ( monster->is ) {}
 
 				if (proj->spawnArgs.GetBool( "paralysis_cloud" ) ) { 
-					monster->StartRagdoll();
+					//modify startRagdoll to allow the physicsObj (and clipmodel?) to follow the afEntity physics object (and combatmodel)
+					monster->fl.isParalyzed = true;
+					gameLocal.Printf( "%s\t%s\n", monster->GetName(), monster->fl.isParalyzed ? "IS PARALYZED" : "IS NOT PARALYZED" );
+					monster->ProcessEvent ( &AI_BecomeRagdoll ); //monster->StartRagdoll();
 					monster->ProcessEvent( &AI_BecomePassive, true );
+					//monster->ActivatePhysics( NULL );
 					//monster->physicsObj.LinkClip();		//MIGHT allow followers to target monsters properly...not alone anyway
 					//monster->DormantBegin();			//Removes monstor OR player from an enemy list...also doesn't stop the search
 					//monster->BecomeInactive( TH_THINK );	//stop doing think(), but still run physics and animations

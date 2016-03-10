@@ -183,6 +183,8 @@ public:
 		bool				quickBurn				:1;
 
 // RAVEN END
+
+		bool				isParalyzed				:1;		//TMF7 for paralysis gas bombs and StopRagdoll()
 	} fl;
 
 public:

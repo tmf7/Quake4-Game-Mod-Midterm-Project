@@ -1,0 +1,1 @@
+physicsObj.SetMass( spawnArgs.GetFloat( "mass", "100" ) );	//TMF7 add a condition for mass to either stagger or ragdoll

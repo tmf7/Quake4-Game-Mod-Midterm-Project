@@ -11,6 +11,25 @@ printing a message to the console???
 from projectile.cpp
 common->DPrintf( "Projectile collision no impact\n" );
 
+for necromancer:
+aifl.dead = false;
+idAI::CheckForTeammateEnemy( void )
+idAI::CheckForEnemy ( bool useFov, bool force )
+idAI::FindEnemy ( bool inFov, bool forceNearest, float maxDistSqr )
+	
+
+if ( ReactionTo( player ) & ATTACK_ON_ACTIVATE ) {
+	SetEnemy( player );
+}
+idAI::ReactionTo( const idEntity *ent ) //checks what team the AI is on 
+
+EXTRA: when casting magic place different color QUAD DAMAGE auras on player
+interupts the State_Dead countdown to burn
+gives the entity health
+unragdolls them (as per paralysis bombs)
+tether's them to the player as a friendly 
+marks it as an enemy of the enemies (like the NPC followers are)
+
 
 
 

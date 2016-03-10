@@ -1,0 +1,21 @@
+	af.StartFromCurrentPose( spawnArgs.GetInt( "velocityTime", "0" ) );
+
+	slomoStart = MS2SEC( gameLocal.time ) + spawnArgs.GetFloat( "ragdoll_slomoStart", "-1.6" );
+	slomoEnd = MS2SEC( gameLocal.time ) + spawnArgs.GetFloat( "ragdoll_slomoEnd", "0.8" );
+
+	// do the first part of the death in slow motion
+	af.GetPhysics()->SetTimeScaleRamp( slomoStart, slomoEnd );
+
+stateResult_t idAI::State_Dead
+	calls StopRagdoll()
+
+
+an entity/"player"/"monster"/AI has:
+a mesh (model)/animationEntity
+a physics object (for point/bounding box physics)
+a clip model	(for collision detection/sector analysis)
+an articulated figure	(for ragdolls [and manual animations?])
+	the articulated figure has:
+	joints/bodies (connection/physics points)
+	a physics object
+	a clip model (combatModel)

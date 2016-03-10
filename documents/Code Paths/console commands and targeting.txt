@@ -1,0 +1,39 @@
+*****looking for how/what my followers/team target and attack enemies********
+
+idAI::ReactionTo( const idEntity *ent )
+idAI::OnEnemyChange ( idEntity* oldEnemy )
+
+	enemy.fl.inFov		= false;
+	enemy.fl.visible	= false;
+
+idAI::CheckActions ( void )
+
+idAI::CheckAction_RangedAttack ( rvAIAction* action, int animNum )
+lastKnownPosition
+
+every AI has one enemy
+
+IK seems to be the class the manipulates an AF's bones to produce specific manual animations
+
+I want to debug show (if possible) the bounding boxes of the af physics and the ent physics
+
+________________________________________________________________________
+useful console commands thus far:
+
+spawn monster_strogg_marine
+g_dragEntity (telekinesis and possibly real-time map editing when spawn is used)
+g_showHud (make this code display for thirdperson..it currently doesnt when enabled, the hud includes the crossair)
+g_showPlayerShadow (find this code, it determines the light level and orientation probably maybe)
+[g_showDebugHud (not sure what this does because it displays a black screen and error right now, but can easily be switched to normal)]
+[g_editEntityMode (meh, cant seem to do much in this, see the code to verify)]
+[g_showGodDamage (see the code, it shoud display a hud number, but it doesn't right now, possibly magic meter help here)]
+
+g_showCollisionWorld (displays the WORLD collision objects/clipmodels)
+g_showCollisionModels (shows essentially the AI collision models be they pure bounding box or AF)
+g_showClipSectors (shows how the world is broken down for sectors and quick collision detection)
+g_showEntityInfo (if forget, not too useful I think...double check maybe)
+
+g_showTargets (shows tethers and the like)
+[g_showTriggers (meh, shows scripted events basically)]
+
+g_showEnemies (shows enemies of the player, not exactly their bounding box, but close)

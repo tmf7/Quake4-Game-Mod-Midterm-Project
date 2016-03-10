@@ -1,0 +1,1 @@
+idAI::ReactionTo( const idEntity *ent )

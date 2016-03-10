@@ -549,9 +549,14 @@ void idProjectile::Think( void ) {
 			}
 		}
 
+		if ( flyEffect && physicsObj.IsAtRest( ) && spawnArgs.GetBool( "paralysis_cloud" ) ) {
+			gameLocal.Printf( "trying...\n" );
+			flyEffect->SetGravity( -(physicsObj.GetGravity()) );		//TMF7 maybe this will make the cloud go up??? put elsewhere
+		}
+
 		// Stop the trail effect if the physics flag was removed
-		if ( flyEffect && flyEffectAttenuateSpeed > 0.0f ) {
-			if ( physicsObj.IsAtRest( ) ) {
+		if ( flyEffect && flyEffectAttenuateSpeed > 0.0f && !spawnArgs.GetBool( "paralysis_cloud" ) ) {   //TMF7
+			if ( physicsObj.IsAtRest( )  ) {	
 				flyEffect->Stop( );
 				flyEffect = NULL;				
 			} else {
@@ -706,7 +711,7 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
 	}
 
  	// remove projectile when a 'noimpact' surface is hit
- 	if ( ( collision.c.material != NULL ) && ( collision.c.material->GetSurfaceFlags() & SURF_NOIMPACT ) ) {
+	if ( ( collision.c.material != NULL ) && ( collision.c.material->GetSurfaceFlags() & SURF_NOIMPACT ) ) {
  		PostEventMS( &EV_Remove, 0 );
 		StopEffect( "fx_fly" );
 		if( flyEffect)	{
@@ -1189,7 +1194,7 @@ void idProjectile::Explode( const trace_t *collision, const bool showExplodeFX, 
 	}
 
 	// Stop the fly effect without destroying particles to ensure the trail within can persist.
-	StopEffect( "fx_fly" );	
+	StopEffect( "fx_fly" );
 	if( flyEffect)	{
 		//flyEffect->Event_Remove();
 	}

@@ -1755,7 +1755,18 @@ bool idActor::StartRagdoll( void ) {
 	UpdateModelTransform();
 
 	// disable the monster bounding box
-	GetPhysics()->DisableClip();
+//	if ( !fl.isParalyzed ) {	 //TMF7 checks if the actor has been PARALYZED to allow proper StopRagdoll()
+		//this isnt enough, because it doesn't do the actor physicsObj clipmodel unlink() WHAT DOES?
+		//the lastKnownPosition (based on the entity physicsObj) stops getting updated when ragdolled
+		//friends no longer have the new position because the physics origin stops moving on ragdoll
+		GetPhysics()->DisableClip(); 
+//	}	
+
+	if ( fl.isParalyzed ) {		//TMF7
+	//	GetPhysics()->SetContents( CONTENTS_BODY|CONTENTS_SOLID );
+	//	GetPhysics()->SetClipMask( MASK_MONSTERSOLID );
+	//	GetPhysics()->GetClipModel()->Link();
+	}
 
 	af.StartFromCurrentPose( spawnArgs.GetInt( "velocityTime", "0" ) );
 
@@ -1805,7 +1816,7 @@ bool idActor::StartRagdoll( void ) {
 	// drop any articulated figures the actor is holding
 	idAFEntity_Base::DropAFs( this, "death", NULL );
 
-	RemoveAttachments();
+	RemoveAttachments();		//TMF7 check to see if sticky bombs get dropped if bound to a joint
 
 // RAVEN BEGIN
 // bdube: evaluate one ragdoll frame
@@ -1822,6 +1833,7 @@ idActor::StopRagdoll
 */
 void idActor::StopRagdoll( void ) {
 	if ( af.IsActive() ) {
+		fl.isParalyzed = false;			//TMF7 for gas paralysis bombs and proper get-up orientation
 		af.Stop();
 	}
 }

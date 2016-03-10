@@ -187,9 +187,10 @@ model weapon_rocketlauncher_view
 	anim fire 					models/weapons/rocketlauncher/fire.md5anim	
 	{
 		rate .25
-		
-		frame 1					sound_weapon	player_rocketlauncher_fire
-		frame 1					sound_item		player_rocketlauncher_fire_stereo
+		frame 1					sound_weapon	player_grenadelauncher_fire					//TMF7 new sound
+		frame 1					sound_item		player_grenadelauncher_fire_stereo			//TMF7 new sound
+//		frame 1					sound_weapon	player_rocketlauncher_fire					//TMF7 uncomment
+//		frame 1					sound_item		player_rocketlauncher_fire_stereo			//TMF7 uncomment
 	}
 
 	anim idle_empty 			models/weapons/rocketlauncher/idle_empty.md5anim	
@@ -331,7 +332,7 @@ entityDef projectile_rocket //TMF7 CHANGE THIS ENTIRELY, DO NO DAMAGE, JUST ENAB
 	"def_splash_damage"			"damage_rocketSplash"		//TMF7 change THIS definition to some other effect
 																											
 	"speed"						"900"
-	"fuse"						"1"			//TMF7 was 6 (disable this in favor of extended duration FX and SIMULTANEOUS RadiusDamage())
+	"fuse"						"6"			//TMF7 was 6 (disable this in favor of extended duration FX and SIMULTANEOUS RadiusDamage())
 	"push"						"0"			//TMF7 was 48000
 
 //TMF7 BEGIN
@@ -376,7 +377,7 @@ entityDef projectile_rocket //TMF7 CHANGE THIS ENTIRELY, DO NO DAMAGE, JUST ENAB
 	"fx_impact_concrete"			"effects/weapons/rocketlauncher/impact_concrete.fx"
 	"fx_impact_concrete_mp"			"effects/weapons/rocketlauncher/impact_mp.fx"
 	
-	"snd_fly"				"player_rocketlauncher_fly"
+//	"snd_fly"				"player_rocketlauncher_fly"		//TMF7 uncomment
 
 	"friendly_impact"			"1"
 	

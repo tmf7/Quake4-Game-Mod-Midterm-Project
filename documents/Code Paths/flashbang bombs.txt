@@ -1,0 +1,11 @@
+idPlayer::Teleport
+	playerView.Flash( colorWhite, 140 );
+
+use larger muzzle flash for flashbank EXPLOSION (not just firing)
+
+
+	// Check to see if the player can possibly see the effect or not (bindmaster is basically whatever entity, for example idProjectile)
+	renderEffect.inConnectedArea = true;
+	if( bindMaster ) {
+		renderEffect.inConnectedArea = gameLocal.InPlayerConnectedArea( bindMaster );
+	}
