@@ -26,6 +26,7 @@ const idEventDef EV_Explode( "<explode>", NULL );
 const idEventDef EV_Fizzle( "<fizzle>", NULL );
 const idEventDef EV_RadiusDamage( "<radiusdmg>", "E" );
 const idEventDef EV_ResidualDamage ( "<residualdmg>", "E" );
+const idEventDef EV_ParalysisCloud ( "<paralysiscld>", "E" );		//TMF7
 
 CLASS_DECLARATION( idEntity, idProjectile )
 	EVENT( EV_Explode,			idProjectile::Event_Explode )
@@ -33,6 +34,7 @@ CLASS_DECLARATION( idEntity, idProjectile )
 	EVENT( EV_Touch,			idProjectile::Event_Touch )
 	EVENT( EV_RadiusDamage,		idProjectile::Event_RadiusDamage )
 	EVENT( EV_ResidualDamage,	idProjectile::Event_ResidualDamage )
+	EVENT( EV_ParalysisCloud,	idProjectile::Event_ParalysisCloud )		//TMF7
 END_CLASS
 
 /*
@@ -451,7 +453,7 @@ void idProjectile::Launch( const idVec3 &start, const idVec3 &dir, const idVec3 
 	physicsObj.SetOrigin( start );
 	physicsObj.SetAxis( dir.ToMat3() );
 
-	if ( !gameLocal.isClient && !spawnArgs.GetBool( "detonate_on_remote" ) ) {	//TMF7 disable fuses for remote detonated bombs
+	if ( !gameLocal.isClient && !spawnArgs.GetBool( "detonate_on_remote" )  && !spawnArgs.GetBool( "gas_bomb" ) ) {	//TMF7 disable fuses for remote detonated bombs
 		if ( fuse <= 0  ) {		
 			// run physics for 1 second
 			RunPhysics();
@@ -549,22 +551,26 @@ void idProjectile::Think( void ) {
 			}
 		}
 
-		if ( flyEffect && physicsObj.IsAtRest( ) && spawnArgs.GetBool( "paralysis_cloud" ) ) {
-			gameLocal.Printf( "trying...\n" );
-			flyEffect->SetGravity( -(physicsObj.GetGravity()) );		//TMF7 maybe this will make the cloud go up??? put elsewhere
-		}
-
 		// Stop the trail effect if the physics flag was removed
-		if ( flyEffect && flyEffectAttenuateSpeed > 0.0f && !spawnArgs.GetBool( "paralysis_cloud" ) ) {   //TMF7
+		if ( flyEffect && flyEffectAttenuateSpeed > 0.0f ) {
 			if ( physicsObj.IsAtRest( )  ) {	
 				flyEffect->Stop( );
-				flyEffect = NULL;				
+				flyEffect = NULL;
+
 			} else {
 				float speed;
 				speed = idMath::ClampFloat( 0, flyEffectAttenuateSpeed, physicsObj.GetLinearVelocity ( ).LengthFast ( ) );
 				flyEffect->Attenuate( speed / flyEffectAttenuateSpeed );
 			}
 		}
+
+//TMF7  BEGIN (add the NEW fx here...no, in FIZZLE, get rid of the fx_detonate)
+		if ( physicsObj.IsAtRest() && spawnArgs.GetFloat( "gas_bomb" ) ) {
+			CancelEvents( &EV_Fizzle );
+			gameLocal.Printf ( "MY THINK FIZZLE\n" );
+			PostEventMS( &EV_Fizzle, 0);		//AS opposed to ProcessEvent(...)
+		}
+//TMF7 END
 
 		UpdateVisualAngles();
 	}
@@ -777,7 +783,7 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
 		ent->ProcessEvent( &EV_Activate , this );
 	}
 
-//TMF7 BEGIN
+//TMF7 BEGIN STICKY BOMBS
 	//permanently sticks to friends, enemies, map objects, and world
 	//IMPORTANT: loses its damaging effects if left bound through Explode()
 	if ( projectileFlags.stick_on_impact && !IsBound() ) {
@@ -792,7 +798,7 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
 
 		return true;
 	}
-//TMF7 END
+//TMF7 END STICKY BOMBS
 
 	// If the projectile hits water then we need to let the projectile keep going
 	if ( ent->GetPhysics()->GetContents() & CONTENTS_WATER ) {
@@ -1122,8 +1128,32 @@ void idProjectile::Fizzle( void ) {
 
 	state = FIZZLED;
 
+//TMF7 BEGIN PARALYSIS BOMB
+	int removeTime = spawnArgs.GetInt( "remove_time", "1500" );
+
+	// Paralysis Cloud (ragdoll over time)
+	if ( spawnArgs.GetBool( "gas_bomb" ) ) {
+		gameLocal.Printf( "GAS BOMB!\n" );
+				
+		//UpdateVisuals();		//perhaps the renderEntity is oriented wrong or something else needs to be updated
+		gameLocal.Printf ( "renderEntity origin = %s\nrenderEntity axis = %s\n", 
+							renderEntity.origin.ToString(), renderEntity.axis.ToString() );
+		//smokeEffect = PlayEffect( "fx_cloud", renderEntity.origin, renderEntity.axis, true ); 
+
+		PostEventMS ( &EV_ParalysisCloud, 0, NULL );  //this is basically a loop call to RadiusDamage
+
+		// Keep the projectile around until the cloud is gone		
+		float delay = SEC2MS ( spawnArgs.GetFloat ( "cloud_time" ) );
+		if ( removeTime < delay ) {
+			removeTime = delay;
+		}
+	}
+
+	//StopEffect ( "fx_cloud" );		//test to see if this persists, then post its removal for later...somehow
+//TMF7 END PARALYSIS BOMB
+	
  	CancelEvents( &EV_Fizzle );
-	PostEventMS( &EV_Remove, spawnArgs.GetInt( "remove_time", "1500" ) );
+	PostEventMS( &EV_Remove, removeTime );
 }
 
 /*
@@ -1137,6 +1167,24 @@ void idProjectile::Event_RadiusDamage( idEntity *ignore ) {
 		gameLocal.RadiusDamage( physicsObj.GetOrigin(), this, owner, ignore, this, splash_damage, damagePower, &hitCount );
 	}
 }
+//TMF7 BEGIN
+/*
+================
+idProjectile::Event_ParalysisCloud
+================
+*/
+void idProjectile::Event_ParalysisCloud ( idEntity* ignore ) {
+	const char *paralysis_cloud = spawnArgs.GetString( "def_paralysis_cloud" );
+	if ( paralysis_cloud[0] != '\0' ) {
+		gameLocal.Printf ( "EVENT_PARALYSIS_CLOUD\n" );
+		gameLocal.RadiusDamage( physicsObj.GetOrigin(), this, owner, ignore, this, paralysis_cloud, damagePower, &hitCount );
+	}
+
+	// Keep the loop going
+	PostEventSec ( &EV_ParalysisCloud, spawnArgs.GetFloat ( "delay_ragdoll" ), ignore );
+}
+//TMF7 END
+
 
 /*
 ================

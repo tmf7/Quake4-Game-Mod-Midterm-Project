@@ -319,7 +319,7 @@ entityDef weaponmod_rocketlauncher_homing
 // Projectile
 //--------------------------------------------------------------------------------------------------------------------
 
-entityDef projectile_rocket //TMF7 CHANGE THIS ENTIRELY, DO NO DAMAGE, JUST ENABLE RAGDOLL/STAGGER
+entityDef projectile_rocket
 {
 	"spawnclass"				"idProjectile"
 	"size"						"7 7 7"
@@ -328,12 +328,12 @@ entityDef projectile_rocket //TMF7 CHANGE THIS ENTIRELY, DO NO DAMAGE, JUST ENAB
 	"clipmask_largeshot"		"1"
 								
 	"model"						"models/weapons/rocketlauncher/rocket.lwo"
-	"def_damage"				"damage_rocketDirect"		//TMF7 nerf this (but dont get rid of it)
-	"def_splash_damage"			"damage_rocketSplash"		//TMF7 change THIS definition to some other effect
+	"def_damage"				"damage_rocketDirect"		//TMF7 no longer used
+	"def_splash_damage"			"damage_rocketSplash"		//TMF7 no longer used
 																											
-	"speed"						"900"
-	"fuse"						"6"			//TMF7 was 6 (disable this in favor of extended duration FX and SIMULTANEOUS RadiusDamage())
-	"push"						"0"			//TMF7 was 48000
+	"speed"						"600"		//TMF7 was 900
+//	"fuse"						"6"			//TMF7 uncomment
+	"push"						"5000"			//TMF7 was 48000 (see if i can get a chest bounce to impulse an enemy)
 
 //TMF7 BEGIN
 	"settle_duration"			"0.08"
@@ -347,35 +347,37 @@ entityDef projectile_rocket //TMF7 CHANGE THIS ENTIRELY, DO NO DAMAGE, JUST ENAB
 	"airBurst_desc"				"midair_"
 	"snd_ricochet"				"grenade_bounce"
 
-	"paralysis_cloud"			"1"	
-	"paralyze_radius"			"20"		//TMF7 or just use the basic explosion radius
-	"paralyze_duration"			"10"	
+	"def_paralysis_cloud"		"paralysis_cloud"
+	"cloud_time"				"6"							//total duration
+	"delay_ragdoll"				"0.75"						//cycle time on paralysis pulses
+	"gas_bomb"					"1"	
 //TMF7 END
 								
-	"detonate_on_fuse"			"1"
+	"detonate_on_fuse"			"1"			//TMF7 ???get rid of???
 	"detonate_on_death"			"0"
 	"detonate_on_world"			"0"			//TMF7 was 1
 	"detonate_on_actor"			"0"			//TMF7 was 1
 	"detonate_on_bounce"		"0"			//TMF7 was 1
 
-//	"stick_on_impact"			"1"			//TMF7 new
-//	"detonate_on_remote"		"1"			//TMF7 new
 								
 	"impact_gib"				"0"			//TMF7 was 1								
 	"decal_size"				"75"
 
-	"fx_fly"				"effects/weapons/rocketlauncher/fly.fx"
+//	"fx_fly"				"effects/weapons/rocketlauncher/fly.fx"					//TMF7 uncomment
+	"fx_fly"				"effects/weapons/grenadelauncher/trail.fx"				//TMF7 looks more like a gas bomb
+	"fx_cloud"				"effects/smoke/smokestack.fx"							//TMF7 new
+
 	"fx_fly_mp"				"effects/weapons/rocketlauncher/fly_mp.fx"
 	"fx_fly_mp_low"			"effects/weapons/rocketlauncher/fly_mp_low.fx"
-	"fx_detonate"				"effects/weapons/rocketlauncher/detonate.fx"
-	"fx_detonate_mp"			"effects/weapons/rocketlauncher/detonate_mp.fx"
-	"fx_impact"				"effects/weapons/rocketlauncher/impact.fx"
-	"fx_impact_mp"				"effects/weapons/rocketlauncher/impact_mp.fx"
-	"fx_impact_water"			"effects/ambient/splash_med.fx"
-	"fx_impact_rock"			"effects/weapons/rocketlauncher/impact_concrete.fx"
-	"fx_impact_rock_mp"			"effects/weapons/rocketlauncher/impact_mp.fx"
-	"fx_impact_concrete"			"effects/weapons/rocketlauncher/impact_concrete.fx"
-	"fx_impact_concrete_mp"			"effects/weapons/rocketlauncher/impact_mp.fx"
+//	"fx_detonate"				"effects/weapons/rocketlauncher/detonate.fx"		//TMF7 uncomment (extend the duration of this/change it)
+//	"fx_detonate_mp"			"effects/weapons/rocketlauncher/detonate_mp.fx"		//TMF7 uncomment
+//	"fx_impact"				"effects/weapons/rocketlauncher/impact.fx"				//TMF7 uncomment
+//	"fx_impact_mp"				"effects/weapons/rocketlauncher/impact_mp.fx"		//TMF7 uncomment
+//	"fx_impact_water"			"effects/ambient/splash_med.fx"						//TMF7 uncomment
+//	"fx_impact_rock"			"effects/weapons/rocketlauncher/impact_concrete.fx"	//TMF7 uncomment
+//	"fx_impact_rock_mp"			"effects/weapons/rocketlauncher/impact_mp.fx"		//TMF7 uncomment
+//	"fx_impact_concrete"			"effects/weapons/rocketlauncher/impact_concrete.fx"	//TMF7 uncomment
+//	"fx_impact_concrete_mp"			"effects/weapons/rocketlauncher/impact_mp.fx"	//TMF7 uncomment
 	
 //	"snd_fly"				"player_rocketlauncher_fly"		//TMF7 uncomment
 
@@ -409,19 +411,36 @@ entityDef projectile_rocket_homing
 // Damage
 //--------------------------------------------------------------------------------------------------------------------
 
-entityDef damage_rocketDirect //TMF7 CHANGE THIS ENTIRELY, DO NO DAMAGE, JUST ENABLE RAGDOLL/STAGGER
+//TMF7 BEGIN
+entityDef paralysis_cloud
 {
-	"damage"					"10"			//TMF7 was 150
-	"push"						"10"			//TMF7 was 45000
-	"gib"						"0"				//TMF7 was 1
+	"damage"					"0"
+	"radius"					"500"
+	"knockback"					"0"
+	"push"						"0"
+	"gib"						"0"
 
-	"deathPush"					"0"				//TMF7 ws 200
+	"paralysis_duration"			"3"		//enemies will remain paralyzed at least this long (unused so far)
+
+	"pain"						"concussive"
+
+	"cower"						"1"
+}
+
+//TMF7 END
+
+entityDef damage_rocketDirect
+{
+	"damage"					"150"
+	"push"						"45000"
+	"gib"						"1"
+
+	"deathPush"					"200"
 	"deathPushMin"				"3000 2000"
 	"deathPushMax"				"5000 3000"
 	
 	"pain"						"concussive"
 	"cower"						"1"
-
 }
 
 entityDef damage_rocketDirect_mp
@@ -431,16 +450,16 @@ entityDef damage_rocketDirect_mp
 	"knockback"					"110"
 }
 
-entityDef damage_rocketSplash //TMF7 CHANGE THIS ENTIRELY, DO NO DAMAGE, JUST ENABLE RAGDOLL/STAGGER
+entityDef damage_rocketSplash
 {
-	"damage"					"0"				//TMF7 was 150
+	"damage"					"150"
 	"radius"					"180"
-	"knockback"					"0"				//TMF7 was 100
-	"push"						"0"				//TMF7 was 10000
+	"knockback"					"100"
+	"push"						"10000"
 	"gib"						"0"
 
-	"deathPush"					"0"				//TMF7 was 100
-	"deathPushMin"				"5000 6000"		//TMF7 What does this mean? X Y ???
+	"deathPush"					"100"
+	"deathPushMin"				"5000 6000"
 	"deathPushMax"				"7000 8000"
 
 	"pain"						"concussive"

@@ -1816,7 +1816,7 @@ bool idActor::StartRagdoll( void ) {
 	// drop any articulated figures the actor is holding
 	idAFEntity_Base::DropAFs( this, "death", NULL );
 
-	RemoveAttachments();		//TMF7 check to see if sticky bombs get dropped if bound to a joint
+	RemoveAttachments();
 
 // RAVEN BEGIN
 // bdube: evaluate one ragdoll frame

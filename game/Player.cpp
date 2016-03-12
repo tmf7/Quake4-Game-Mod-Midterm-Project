@@ -7043,7 +7043,7 @@ void idPlayer::UpdateFocus( void ) {
 		if ( focusLength < (g_crosshairCharInfoFar.GetBool()?256.0f:80.0f) ) {
 // RAVEN END
 
-/*	//TMF7 SHOOT FRIENDLIES
+/*	//TMF7 BEGIN SHOOT FRIENDLIES
 			if ( ent->IsType( idAFAttachment::GetClassType() ) ) {
 				idEntity *body = static_cast<idAFAttachment *>( ent )->GetBody();
 				if ( body && body->IsType( idAI::GetClassType() ) && ( static_cast<idAI *>( body )->GetTalkState() >= TALK_OK ) ) {
@@ -7080,7 +7080,7 @@ void idPlayer::UpdateFocus( void ) {
 				}
 				continue;
 			}
-*/	//TMF7
+*/	//TMF7 END SHOOT FRIENDLIES
 		}
 
 		if ( focusLength < 80.0f ) {
@@ -7378,14 +7378,14 @@ void idPlayer::SetFocus ( playerFocus_t newType, int _focusTime, idEntity* newEn
 	//of the switch below because the focus type is the same when moving directly from marine to marine, but the
 	//medic/tech status may change.
 
-/*	//TMF7 SHOOT FRIENDLIES
+/*	//TMF7 BEGIN SHOOT FRIENDLIES
 	if ( newType == FOCUS_CHARACTER ) {
 		if ( newEnt != focusEnt ) {
 			UpdateFocusCharacter( newEnt );
 			cursor->HandleNamedEvent ( "showCrossTalk" );
 		}
 	}
-*/  //TMF7
+*/  //TMF7 END SHOOT FRIENDLIES
 
 
 	// Show the appropriate cursor for the current focus type
@@ -7404,14 +7404,14 @@ void idPlayer::SetFocus ( playerFocus_t newType, int _focusTime, idEntity* newEn
 			case FOCUS_GUI:
 				cursor->HandleNamedEvent ( "showCrossGui" );
 				break;
-/* //TMF7 SHOOT FRIENDLIES
+/* //TMF7 BEGIN SHOOT FRIENDLIES
 			case FOCUS_CHARACTER:
 				if ( newEnt != focusEnt ) {
 					UpdateFocusCharacter( newEnt );
 				}
 				cursor->HandleNamedEvent ( "showCrossTalk" );
 				break;
-*/	//TMF7
+*/	//TMF7 END SHOOT FRIENDLIES
 			default:
 				// Make sure the weapon is shown in the default state
 // RAVEN BEGIN
@@ -8557,7 +8557,7 @@ void idPlayer::PerformImpulse( int impulse ) {
    			}
    			break;
    		}
-//TMF7 BEGIN
+//TMF7 BEGIN REMOTE DETONATE
 		case IMPULSE_23: {
 
 			//Run through the list of gameLocal entities and perform checks prior to calling Explode()
@@ -8583,7 +8583,7 @@ void idPlayer::PerformImpulse( int impulse ) {
 			}
    			break;
    		}
-//TMF7 END
+//TMF7 END REMOTE DETONATE
 		case IMPULSE_28: {
  			if ( gameLocal.isClient || entityNumber == gameLocal.localClientNum ) {
  				gameLocal.mpGame.CastVote( gameLocal.localClientNum, true );

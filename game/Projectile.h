@@ -102,6 +102,8 @@ protected:
 	rvClientEffectPtr		flyEffect;
 	float					flyEffectAttenuateSpeed;
 
+	rvClientEffectPtr		smokeEffect;				//TMF7
+
 	int						bounceCount;
 	bool					sticky;
 	
@@ -137,6 +139,7 @@ private:
 	void					Event_Fizzle			( void );
 	void					Event_RadiusDamage		( idEntity *ignore );
 	void					Event_ResidualDamage	( idEntity *ignore );
+	void					Event_ParalysisCloud	( idEntity *ignore );					//TMF7
 	void					Event_Touch				( idEntity *other, trace_t *trace );
 
 	bool					syncPhysics;
