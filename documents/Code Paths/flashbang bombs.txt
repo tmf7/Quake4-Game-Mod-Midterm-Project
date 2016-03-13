@@ -9,3 +9,5 @@ use larger muzzle flash for flashbank EXPLOSION (not just firing)
 	if( bindMaster ) {
 		renderEffect.inConnectedArea = gameLocal.InPlayerConnectedArea( bindMaster );
 	}
+
+MuzzleFlash (...) //need the spawnArgs of SOMETHING I think

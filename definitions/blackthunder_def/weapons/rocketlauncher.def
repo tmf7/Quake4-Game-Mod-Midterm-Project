@@ -353,7 +353,7 @@ entityDef projectile_rocket
 	"gas_bomb"					"1"	
 //TMF7 END
 								
-	"detonate_on_fuse"			"1"			//TMF7 ???get rid of???
+	"detonate_on_fuse"			"0"			//TMF7 was 1
 	"detonate_on_death"			"0"
 	"detonate_on_world"			"0"			//TMF7 was 1
 	"detonate_on_actor"			"0"			//TMF7 was 1
@@ -369,7 +369,7 @@ entityDef projectile_rocket
 
 	"fx_fly_mp"				"effects/weapons/rocketlauncher/fly_mp.fx"
 	"fx_fly_mp_low"			"effects/weapons/rocketlauncher/fly_mp_low.fx"
-	"fx_detonate"				"effects/weapons/rocketlauncher/detonate.fx"		//TMF7 uncomment (extend the duration of this/change it)
+	"fx_detonate"				"effects/weapons/rocketlauncher/detonate.fx"
 	"fx_detonate_mp"			"effects/weapons/rocketlauncher/detonate_mp.fx"	
 	"fx_impact"				"effects/weapons/rocketlauncher/impact.fx"	
 	"fx_impact_mp"				"effects/weapons/rocketlauncher/impact_mp.fx"
