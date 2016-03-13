@@ -1,0 +1,63 @@
+explode calls the RadiusDamage/ResidualDamage function in gamelocal
+it plays the explosion sound (leaky pipe sound would be better)
+it plays the explosion graphic (not on a loop)
+//it alerts the AI about the owner
+it puts the physics object to rest and clears its clipmodel contents
+it hides the graphics, frees the lightEntity
+it stops the fly_fx /*AND all other particle effects (StopAllEffects( );) FIZZLE DOESNT*/ (so does....Think() before explode)
+then it removes the projectile
+
+it seems to set the axis (opposite of gravity if at rest, velocity if not) and origin of the fx ***PlayDetonateEffect( endpos, fxDir.ToMat3() );
+it also seems to set the origin of the hidden projectile a large amount in the opposte direction of its point of impact (weird???)
+
+
+find "fx_impact"
+
+idState???
+
+AI_PlayAnim -> Event_PlayAnim
+
+PerformAction ( "Torso_Pain", 2, true );
+idProjectile::PlayPainEffect??
+_____________________________________________
+
+ADD AN ITEM TO THE HUD THAT SHOWS WHEN A PLAYER HAS ACTIVE BOMBS (AND HOW MANY)
+
+______________________________________________
+
+im currently trying to:
+-fix lastKnowPosition errors (along with clipmodel/combatmodel jumping)
+	->ONLY idAI thinks when something is ragdolled
+	->working through idAI::Think() to determine where the af and entiry physics object/clipmodel diverge
+	-currently (both the aifl for think and physics are set as normal, physics only cuts off when the ragdoll is at rest)
+	->looking through the THINK section to determine blah...
+
+_________________________________________________
+
+focus on the rocket launcher:
+-Launch behavior (disable fuses)
+-Collide behavior (bounce, never explode, do some direct damage on bounce maybe)
+-think behavior (check if at rest -> start cloud)
+-Explode behavior (NEVER SHOULD)
+-FIzzle behavior (always should)
+-Paralysis_Cloud Behavior (recursive call)
+-RadiusDamage behavior
+
+"effects/steam/heavysteam_64.fx"
+____________________________________
+ScriptedAnim
+AI_
+pain.takenThisFrame
+monster->ProcessEvent( &AI_PlayAnim, channel, animName );
+animName = va( "%s_start", painAnim.c_str() );
+monster->ProcessEvent( &AI_PlayAnim, channel, animName );
+monster->PlayAnim ( ANIMCHANNEL_TORSO, "pain" , 4 );
+
+
+_____________________________________________
+idAI::Killed (immedialty prior to StartRagdoll())
+	physicsObj.SetContents( 0 );
+	physicsObj.GetClipModel()->Unlink();
+	Unbind();
+
+

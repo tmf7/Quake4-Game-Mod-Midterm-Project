@@ -464,6 +464,8 @@ void idMover::Think( void ) {
 	float	speed;
 	float	attenuation;
 
+	if ( fl.isParalyzed ) { gameLocal.Printf( "idMover (%s) THINK\n", name ? "HUSK" : name.c_str()); } //TMF7 idMover THINK
+
 	if ( physicsObj.GetSpline( ) ) {
 		splineStateThread.Execute( );
 	}

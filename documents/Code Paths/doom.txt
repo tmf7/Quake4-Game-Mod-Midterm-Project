@@ -1,0 +1,5 @@
+create a mod folder that has the highest level pak file with the resources Im swapping out:
+
+for a full weapon REPLACEMENT modify the player def file and tweak a few lines in the doom weapon def file to rename it to the weapon present in quake
+
+for example: the map file has instances of strogg_marine, so replace all the resources in that file with doom resources, but also modify the def file the calls those resources...sounds too

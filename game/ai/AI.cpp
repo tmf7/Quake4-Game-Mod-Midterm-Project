@@ -1135,7 +1135,7 @@ bool idAI::DoDormantTests ( void ) {
 idAI::Think
 =====================
 */
-void idAI::Think( void ) {
+void idAI::Think( void ) {		//TMF7 idAI THINK
 
 	// if we are completely closed off from the player, don't do anything at all
 	if ( CheckDormant() ) {
@@ -1188,6 +1188,7 @@ void idAI::Think( void ) {
 			// hidden monsters
 			UpdateStates ();
 		} else if( !ai_freeze.GetBool() ) {
+
 			Prethink(); 
 
 			// clear the ik before we do anything else so the skeleton doesn't get updated twice
@@ -1211,6 +1212,7 @@ void idAI::Think( void ) {
 			}
 
 			Postthink();
+
 		} else {
 			DrawTactical ( );
 		}
@@ -1232,6 +1234,16 @@ void idAI::Think( void ) {
 		// UpdateAnimation won't call frame commands when hidden, so call them here when we allow hidden movement
 		animator.ServiceAnims( gameLocal.previousTime, gameLocal.time );
 	}
+
+//TMF7 PARALYSIS BOMBS BEGIN (allow better NPC tracking of paralyzed monsters)
+			//just because the idPhysics_Monster physicsObj origin is being set doesn't mean its being updated/linked
+			//such that NPC track it...what do NPCs track...find that
+			if ( fl.isParalyzed && af.IsLoaded() && af.IsActive() ) { 
+				gameLocal.Printf( "physicsObj ORIGIN =\t%s\naf\tORIGIN =\t%s\nphysics ORIGIN =\t%s\n\n", physicsObj.GetOrigin().ToString(), af.GetPhysics()->GetOrigin().ToString(), GetPhysics()->GetOrigin().ToString() );
+			//	physicsObj.SetOrigin( af.GetPhysics()->GetOrigin() ); 
+			//	physicsObj.LinkClip();
+			}
+//TMF7 PARALYSIS BOMBS END
 
 	aasSensor->Update();
 

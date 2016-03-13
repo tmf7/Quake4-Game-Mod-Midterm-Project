@@ -1,0 +1,50 @@
+START:
+Sets the original Actor's physics center a little higher
+updates the renderentity to match they original physics object
+disables the physics bounding box...clipmodel->disabled (not unlinked)
+calls StartFromCurrentPose:
+	Ensures the actor physics object is at rest
+
+	reorients the limbs according to the current state of the renderEntity bodies
+
+	Links the AF physics object's bodys' clipmodels
+
+	Checks if the AF is solid/stuck in a wall (body traces)
+
+	Start() overwrites the actor's physics object with an AF physics object
+	then enables the AF physics clipmodel, and activates the clipmodel and the AF
+
+	updates the animation of the AF via the actor's renderEntity
+
+	updates the actors' renderEntity origin and axis
+	
+	passes the renderEntity to the gameRenderWorld for drawing
+applies a bunch of time and joint friction to the AF (now jointly using the Actor physObj)
+Drops (not unbinds) anything that the actor was carrying (items, other AFs, attachments)
+runs the (jointly used Actor) AF physics for ONE frame
+
+
+
+
+WHERE IN HERE is SOMETHING capable of collision detection (if made solid via clipmask) left behind????? such that when its linked to again the renderentity jumps there
+
+
+
+STOP:
+unlinks the physics object's clipmodel from the clipsectors it connected to
+deactivates the AF object
+THAT'S IT.
+
+
+
+
+
+
+
+
+		if ( use_combat_bbox ) {
+			physicsObj.SetContents( CONTENTS_BODY|CONTENTS_SOLID );
+		} else {
+			physicsObj.SetContents( CONTENTS_BODY );
+		}
+		physicsObj.SetClipMask( MASK_MONSTERSOLID );

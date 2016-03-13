@@ -553,10 +553,9 @@ void idProjectile::Think( void ) {
 
 		// Stop the trail effect if the physics flag was removed
 		if ( flyEffect && flyEffectAttenuateSpeed > 0.0f ) {
-			if ( physicsObj.IsAtRest( )  ) {	
+			if ( physicsObj.IsAtRest( )  ) {
 				flyEffect->Stop( );
 				flyEffect = NULL;
-
 			} else {
 				float speed;
 				speed = idMath::ClampFloat( 0, flyEffectAttenuateSpeed, physicsObj.GetLinearVelocity ( ).LengthFast ( ) );
@@ -564,17 +563,16 @@ void idProjectile::Think( void ) {
 			}
 		}
 
-//TMF7  BEGIN (add the NEW fx here...no, in FIZZLE, get rid of the fx_detonate)
+//TMF7  BEGIN GAS BOMB
 		if ( physicsObj.IsAtRest() && spawnArgs.GetFloat( "gas_bomb" ) ) {
 			CancelEvents( &EV_Fizzle );
-			gameLocal.Printf ( "MY THINK FIZZLE\n" );
-			PostEventMS( &EV_Fizzle, 0);		//AS opposed to ProcessEvent(...)
+			PostEventMS( &EV_Fizzle, 0 );
 		}
-//TMF7 END
+//TMF7 END GAS BOMB
 
 		UpdateVisualAngles();
 	}
-		
+
 	Present();
 
 	// add the light
@@ -1123,7 +1121,7 @@ void idProjectile::Fizzle( void ) {
 		//flyEffect->Event_Remove();
 	}
 
-	Hide();
+	Hide();				//TMF7 this makes the projectile mesh disappear
 	FreeLightDef();
 
 	state = FIZZLED;
@@ -1133,12 +1131,8 @@ void idProjectile::Fizzle( void ) {
 
 	// Paralysis Cloud (ragdoll over time)
 	if ( spawnArgs.GetBool( "gas_bomb" ) ) {
-		gameLocal.Printf( "GAS BOMB!\n" );
-				
-		//UpdateVisuals();		//perhaps the renderEntity is oriented wrong or something else needs to be updated
-		gameLocal.Printf ( "renderEntity origin = %s\nrenderEntity axis = %s\n", 
-							renderEntity.origin.ToString(), renderEntity.axis.ToString() );
-		//smokeEffect = PlayEffect( "fx_cloud", renderEntity.origin, renderEntity.axis, true ); 
+
+		smokeEffect = gameLocal.PlayEffect( spawnArgs, "fx_cloud", physicsObj.GetOrigin(), -physicsObj.GetGravityNormal().ToMat3(), true, vec3_origin, false); //may play indefinitely
 
 		PostEventMS ( &EV_ParalysisCloud, 0, NULL );  //this is basically a loop call to RadiusDamage
 
@@ -1147,9 +1141,9 @@ void idProjectile::Fizzle( void ) {
 		if ( removeTime < delay ) {
 			removeTime = delay;
 		}
-	}
 
-	//StopEffect ( "fx_cloud" );		//test to see if this persists, then post its removal for later...somehow
+		if ( smokeEffect ) { smokeEffect->PostEventMS( &EV_Remove, delay );	}
+	}
 //TMF7 END PARALYSIS BOMB
 	
  	CancelEvents( &EV_Fizzle );
@@ -1176,7 +1170,6 @@ idProjectile::Event_ParalysisCloud
 void idProjectile::Event_ParalysisCloud ( idEntity* ignore ) {
 	const char *paralysis_cloud = spawnArgs.GetString( "def_paralysis_cloud" );
 	if ( paralysis_cloud[0] != '\0' ) {
-		gameLocal.Printf ( "EVENT_PARALYSIS_CLOUD\n" );
 		gameLocal.RadiusDamage( physicsObj.GetOrigin(), this, owner, ignore, this, paralysis_cloud, damagePower, &hitCount );
 	}
 

@@ -107,7 +107,7 @@ void idAI::Event_CanBecomeSolid( void )														{ idThread::ReturnFloat( Ca
 void idAI::Event_BecomeSolid( void )														{ BecomeSolid(); }
 void idAI::Event_BecomeNonSolid( void )														{ BecomeNonSolid(); }
 void idAI::Event_BecomeRagdoll( void )														{ idThread::ReturnInt( StartRagdoll() ); }
-void idAI::Event_StopRagdoll( void )														{ StopRagdoll(); SetPhysics( &physicsObj ); }
+void idAI::Event_StopRagdoll( void )														{ if ( !aifl.dead ) { SetPhysics( &physicsObj ); StopRagdoll();  } }	//TMF7 condition to pevent dead enemies rising ( changed the order of the SetPhysics so StopRagdoll doesn't use the AF physicsObj anymore )
 void idAI::Event_SetHealth( float newHealth )												{ health = newHealth; fl.takedamage = true; if( health > 0 ) aifl.dead = false; else aifl.dead = true; }
 void idAI::Event_FaceEnemy( void )															{ FaceEnemy(); }
 void idAI::Event_FaceEntity( idEntity *ent )												{ FaceEntity( ent ); }

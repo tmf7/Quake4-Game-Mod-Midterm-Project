@@ -93,7 +93,8 @@ void idMultiModelAF::Present( void ) {
 idMultiModelAF::Think
 ================
 */
-void idMultiModelAF::Think( void ) {
+void idMultiModelAF::Think( void ) {		
+	if ( fl.isParalyzed ) { gameLocal.Printf( "idMultiModelAF (%s) THINK\n", name ? "HUSK" : name.c_str()); }	//TMF7 idMultiModelAF THINK
 	RunPhysics();
 	Present();
 }
@@ -676,12 +677,12 @@ void idAFAttachment::PlayIdleAnim( int channel, int blendTime ) {
 idAfAttachment::Think
 ================
 */
-void idAFAttachment::Think( void ) {
+void idAFAttachment::Think( void ) {	
 // RAVEN BEGIN
 // jscott: Lip sync main code
+	if ( fl.isParalyzed ) { gameLocal.Printf( "idAFAttachment (%s) THINK\n", name ? "HUSK" : name.c_str()); }		//TMF7 idAFAttachment THINK
 	HandleLipSync();
 // RAVEN END
-
 	idAnimatedEntity::Think();
 }
 
@@ -976,10 +977,12 @@ bool idAFEntity_Base::LoadAF( const char* keyname ) {
 idAFEntity_Base::Think
 ================
 */
-void idAFEntity_Base::Think( void ) {
+void idAFEntity_Base::Think( void ) {	
+	if ( fl.isParalyzed ) { gameLocal.Printf( "idAFEntity_Base (%s) THINK\n", name ? "HUSK" : name.c_str()); }	//TMF7 idAFEntity_Base THINK (and combat model link)
 	RunPhysics();
 	UpdateAnimation();
 	if ( thinkFlags & TH_UPDATEVISUALS ) {
+		if ( fl.isParalyzed ) { gameLocal.Printf( "idAFEntity_Base (%s) COMBAT MODEL\n", name ? "HUSK" : name.c_str()); }	//TMF7 THINK
 		Present();
 		LinkCombat();
 	}
@@ -1693,6 +1696,7 @@ idAFEntity_Generic::Think
 ================
 */
 void idAFEntity_Generic::Think( void ) {
+	if ( fl.isParalyzed ) { gameLocal.Printf( "idAFEntity_Generic (%s) THINK\n", name ? "HUSK" : name.c_str()); }		//TMF7 idAFEntity_Generic THINK
 	idAFEntity_Base::Think();
 
 	if ( keepRunningPhysics ) {
@@ -1933,6 +1937,7 @@ idAFEntity_WithAttachedHead::Think
 ================
 */
 void idAFEntity_WithAttachedHead::Think( void ) {
+	if ( fl.isParalyzed ) { gameLocal.Printf( "idAFEntity_WithAttachedHead (%s) THINK\n", name ? "HUSK" : name.c_str()); } //TMF7 idAFEntity_WithAttachedHead THINK
 	idAFEntity_Base::Think();
 }
 
