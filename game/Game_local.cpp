@@ -5807,9 +5807,6 @@ void idGameLocal::RadiusDamage( const idVec3 &origin, idEntity *inflictor, idEnt
 						monster->ProcessEvent ( &AI_BecomeRagdoll );
 						monster->ProcessEvent( &AI_BecomePassive, true );
 						
-						//idAI::Think does all the thinking in ragdoll mode, EXCEPT WHEN ACTUALLY DEAD
-						//somehow set the ORIGINAL physics object origin each THINK (with collision detection)
-
 						//postpone waking up each time RadiusDamage is called
 						float duration = damageDef->GetFloat( "paralysis_duration" );
 						monster->CancelEvents( &AI_BecomeAggressive );

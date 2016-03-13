@@ -31,7 +31,7 @@ im currently trying to:
 	->working through idAI::Think() to determine where the af and entiry physics object/clipmodel diverge
 	-currently (both the aifl for think and physics are set as normal, physics only cuts off when the ragdoll is at rest)
 	->looking through the THINK section to determine blah...
-
+-look for how NPC track a target********
 _________________________________________________
 
 focus on the rocket launcher:

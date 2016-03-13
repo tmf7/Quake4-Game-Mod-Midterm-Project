@@ -528,7 +528,7 @@ idMoveable::Think
 ================
 */
 void idMoveable::Think( void ) {
-	if ( fl.isParalyzed ) { gameLocal.Printf( "idMoveable (%s) THINK\n", name ? "HUSK" : name.c_str()); }		//TMF7 idMovable THINK
+	
 	if ( thinkFlags & TH_THINK ) {
 		// Move to the next stage?
 		UpdateStage ( );

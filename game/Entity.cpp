@@ -990,7 +990,7 @@ idEntity::Think
 ================
 */
 void idEntity::Think( void ) {		
-	if ( fl.isParalyzed ) { gameLocal.Printf( "idEntity (%s) THINK\n", name ? "HUSK" : name.c_str()); }	//TMF7 idEntity THINK
+	
 	RunPhysics();
 	Present();
 }
@@ -6355,7 +6355,7 @@ idAnimatedEntity::Think
 ================
 */
 void idAnimatedEntity::Think( void ) {	
-	if ( fl.isParalyzed ) { gameLocal.Printf( "idAnimatedEntity (%s) THINK\n", name ? "HUSK" : name.c_str()); }		//TMF7 idAnimatedEntity THINK
+	
 	RunPhysics();
 	UpdateAnimation();
 	Present();

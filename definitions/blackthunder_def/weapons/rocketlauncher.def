@@ -333,7 +333,7 @@ entityDef projectile_rocket
 																											
 	"speed"						"600"		//TMF7 was 900
 //	"fuse"						"6"			//TMF7 uncomment
-	"push"						"5000"			//TMF7 was 48000 (see if i can get a chest bounce to impulse an enemy)
+	"push"						"0"			//TMF7 was 48000
 
 //TMF7 BEGIN
 	"settle_duration"			"0.08"
@@ -365,19 +365,19 @@ entityDef projectile_rocket
 
 //	"fx_fly"				"effects/weapons/rocketlauncher/fly.fx"					//TMF7 uncomment
 	"fx_fly"				"effects/weapons/grenadelauncher/trail.fx"				//TMF7 looks more like a gas bomb
-	"fx_cloud"				"effects/smoke/smokestack.fx"							//TMF7 new
+	"fx_cloud"				"effects/steam/hi_pressure_fade_out.fx"							//TMF7 new
 
 	"fx_fly_mp"				"effects/weapons/rocketlauncher/fly_mp.fx"
 	"fx_fly_mp_low"			"effects/weapons/rocketlauncher/fly_mp_low.fx"
-//	"fx_detonate"				"effects/weapons/rocketlauncher/detonate.fx"		//TMF7 uncomment (extend the duration of this/change it)
-//	"fx_detonate_mp"			"effects/weapons/rocketlauncher/detonate_mp.fx"		//TMF7 uncomment
-//	"fx_impact"				"effects/weapons/rocketlauncher/impact.fx"				//TMF7 uncomment
-//	"fx_impact_mp"				"effects/weapons/rocketlauncher/impact_mp.fx"		//TMF7 uncomment
-//	"fx_impact_water"			"effects/ambient/splash_med.fx"						//TMF7 uncomment
-//	"fx_impact_rock"			"effects/weapons/rocketlauncher/impact_concrete.fx"	//TMF7 uncomment
-//	"fx_impact_rock_mp"			"effects/weapons/rocketlauncher/impact_mp.fx"		//TMF7 uncomment
-//	"fx_impact_concrete"			"effects/weapons/rocketlauncher/impact_concrete.fx"	//TMF7 uncomment
-//	"fx_impact_concrete_mp"			"effects/weapons/rocketlauncher/impact_mp.fx"	//TMF7 uncomment
+	"fx_detonate"				"effects/weapons/rocketlauncher/detonate.fx"		//TMF7 uncomment (extend the duration of this/change it)
+	"fx_detonate_mp"			"effects/weapons/rocketlauncher/detonate_mp.fx"	
+	"fx_impact"				"effects/weapons/rocketlauncher/impact.fx"	
+	"fx_impact_mp"				"effects/weapons/rocketlauncher/impact_mp.fx"
+	"fx_impact_water"			"effects/ambient/splash_med.fx"	
+	"fx_impact_rock"			"effects/weapons/rocketlauncher/impact_concrete.fx"
+	"fx_impact_rock_mp"			"effects/weapons/rocketlauncher/impact_mp.fx"
+	"fx_impact_concrete"			"effects/weapons/rocketlauncher/impact_concrete.fx"	
+	"fx_impact_concrete_mp"			"effects/weapons/rocketlauncher/impact_mp.fx"
 	
 //	"snd_fly"				"player_rocketlauncher_fly"		//TMF7 uncomment
 

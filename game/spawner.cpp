@@ -412,7 +412,7 @@ rvSpawner::Think
 ==============
 */
 void rvSpawner::Think( void ){
-	if ( fl.isParalyzed ) { gameLocal.Printf( "rvSpawner (%s) THINK\n", name ? "HUSK" : name.c_str()); }  //TMF7 rvSpawner THINK
+
 	if ( thinkFlags & TH_THINK ) {
 		if( ActiveListChanged() ) {// If an entity has been removed and we have not been informed via Detach
 			nextSpawnTime = gameLocal.GetTime() + spawnDelay;

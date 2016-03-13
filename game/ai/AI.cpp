@@ -1135,7 +1135,7 @@ bool idAI::DoDormantTests ( void ) {
 idAI::Think
 =====================
 */
-void idAI::Think( void ) {		//TMF7 idAI THINK
+void idAI::Think( void ) {
 
 	// if we are completely closed off from the player, don't do anything at all
 	if ( CheckDormant() ) {
@@ -1234,16 +1234,6 @@ void idAI::Think( void ) {		//TMF7 idAI THINK
 		// UpdateAnimation won't call frame commands when hidden, so call them here when we allow hidden movement
 		animator.ServiceAnims( gameLocal.previousTime, gameLocal.time );
 	}
-
-//TMF7 PARALYSIS BOMBS BEGIN (allow better NPC tracking of paralyzed monsters)
-			//just because the idPhysics_Monster physicsObj origin is being set doesn't mean its being updated/linked
-			//such that NPC track it...what do NPCs track...find that
-			if ( fl.isParalyzed && af.IsLoaded() && af.IsActive() ) { 
-				gameLocal.Printf( "physicsObj ORIGIN =\t%s\naf\tORIGIN =\t%s\nphysics ORIGIN =\t%s\n\n", physicsObj.GetOrigin().ToString(), af.GetPhysics()->GetOrigin().ToString(), GetPhysics()->GetOrigin().ToString() );
-			//	physicsObj.SetOrigin( af.GetPhysics()->GetOrigin() ); 
-			//	physicsObj.LinkClip();
-			}
-//TMF7 PARALYSIS BOMBS END
 
 	aasSensor->Update();
 
@@ -1991,9 +1981,10 @@ void idAI::UpdateEnemyPosition ( bool forceUpdate ) {
 
 	// Update the enemy origin if it isnt locked
 	if ( !enemy.fl.lockOrigin ) {
+		
 		enemy.lastKnownPosition	= enemyEnt->GetPhysics()->GetOrigin();
 
-		if ( enemyActor ) {				
+		if ( enemyActor && !enemyActor->fl.isParalyzed ) {		//TMF7 ensure NPCs don't fire at the floating invisible head of a ragdoll
 			enemy.lastVisibleEyePosition	= enemyActor->GetEyePosition();
 			enemy.lastVisibleChestPosition	= enemyActor->GetChestPosition();
 		} else {

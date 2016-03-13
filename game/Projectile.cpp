@@ -453,7 +453,7 @@ void idProjectile::Launch( const idVec3 &start, const idVec3 &dir, const idVec3 
 	physicsObj.SetOrigin( start );
 	physicsObj.SetAxis( dir.ToMat3() );
 
-	if ( !gameLocal.isClient && !spawnArgs.GetBool( "detonate_on_remote" )  && !spawnArgs.GetBool( "gas_bomb" ) ) {	//TMF7 disable fuses for remote detonated bombs
+	if ( !gameLocal.isClient && !spawnArgs.GetBool( "detonate_on_remote" )  && !spawnArgs.GetBool( "gas_bomb" ) ) {	//TMF7 disable fuses for remote detonated bombs/gas bombs
 		if ( fuse <= 0  ) {		
 			// run physics for 1 second
 			RunPhysics();
@@ -762,7 +762,7 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
 		damageDefName = spawnArgs.GetString ( "def_damage" );
 	}
 
-	if( damageDefName && damageDefName[0] && !projectileFlags.stick_on_impact ) {		//TMF7 (prevent ragdolls from flying around)
+	if( damageDefName && damageDefName[0] && !projectileFlags.stick_on_impact ) {		//TMF7 (prevent ragdolls from flying around with sticky bombs)
 		const idDict* dict = gameLocal.FindEntityDefDict( damageDefName, false );
 		if ( dict ) {
  			ent->ApplyImpulse( this, collision.c.id, collision.endpos, dir, dict );
@@ -1134,7 +1134,7 @@ void idProjectile::Fizzle( void ) {
 
 		smokeEffect = gameLocal.PlayEffect( spawnArgs, "fx_cloud", physicsObj.GetOrigin(), -physicsObj.GetGravityNormal().ToMat3(), true, vec3_origin, false); //may play indefinitely
 
-		PostEventMS ( &EV_ParalysisCloud, 0, NULL );  //this is basically a loop call to RadiusDamage
+		PostEventMS ( &EV_ParalysisCloud, 0, NULL );  //this is basically a recursive call to RadiusDamage
 
 		// Keep the projectile around until the cloud is gone		
 		float delay = SEC2MS ( spawnArgs.GetFloat ( "cloud_time" ) );

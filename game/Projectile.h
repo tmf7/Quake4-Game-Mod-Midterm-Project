@@ -103,7 +103,6 @@ protected:
 	float					flyEffectAttenuateSpeed;
 
 	rvClientEffectPtr		smokeEffect;				//TMF7
-	int						stopSmokeTime;				//TMF7
 
 	int						bounceCount;
 	bool					sticky;
