@@ -1152,7 +1152,10 @@ void idAI::Think( void ) {
 		aiManager.timerThink.Start ( );
 	}
 
-	if ( thinkFlags & TH_THINK ) {	
+	if ( thinkFlags & TH_THINK ) {
+
+		if ( gameLocal.time > blindnessFadeTime ) { fl.isBlind = false; }		//TMF7 FLASH BANG
+
 		// clear out the enemy when he dies or is hidden
 		idEntity* enemyEnt = enemy.ent;
 		idActor*  enemyAct = dynamic_cast<idActor*>( enemyEnt );
@@ -1195,7 +1198,7 @@ void idAI::Think( void ) {
 			walkIK.ClearJointMods();
 
 			// update enemy position if not dead
-			if ( !aifl.dead ) {
+			if ( !aifl.dead && !fl.isBlind ) {		//TMF7 FLASH BANG dont update enemy if blind
 				UpdateEnemy ( );
 			}
 

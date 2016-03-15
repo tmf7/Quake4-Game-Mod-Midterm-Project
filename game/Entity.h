@@ -135,6 +135,8 @@ public:
 	idList< idEntityPtr<idEntity> >	targets;		// when this entity is activated these entities entity are activated
 
 	int						health;					// FIXME: do all objects really need health?
+	
+	int						blindnessFadeTime;		//TMF7 for flash bang bombs
 
 // RAVEN BEGIN
 // ddynerman: optional pre-prediction
@@ -185,6 +187,7 @@ public:
 // RAVEN END
 
 		bool				isParalyzed				:1;		//TMF7 for paralysis gas bombs and StopRagdoll()
+		bool				isBlind					:1;		//TMF7 for flash bang bombs and targeting
 	} fl;
 
 public:

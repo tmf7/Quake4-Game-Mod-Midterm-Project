@@ -2569,7 +2569,9 @@ void rvWeapon::Attack( bool altAttack, int num_attacks, float spread, float fuse
 	}
 
 	// add the muzzleflash
-	MuzzleFlash();
+	if ( GetOwner()->GetCurrentWeapon() != 3 ) { //TMF7 dont play the muzzle flash for the hyperblaster (flashbangs)
+		MuzzleFlash();		
+	}
 
 	// quad damage overlays a sound
 	if ( owner->PowerUpActive( POWERUP_QUADDAMAGE ) ) {

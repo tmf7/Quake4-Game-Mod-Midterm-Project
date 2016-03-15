@@ -553,7 +553,7 @@ void idProjectile::Think( void ) {
 
 		// Stop the trail effect if the physics flag was removed
 		if ( flyEffect && flyEffectAttenuateSpeed > 0.0f ) {
-			if ( physicsObj.IsAtRest( )  ) {
+			if ( physicsObj.IsAtRest( )  && !spawnArgs.GetBool( "flash_bang", "0" ) ) {
 				flyEffect->Stop( );
 				flyEffect = NULL;
 			} else {
@@ -1352,6 +1352,42 @@ idProjectile::PlayDetonateEffect
 ================
 */
 void idProjectile::PlayDetonateEffect( const idVec3& origin, const idMat3& axis ) {
+
+//TMF7 BEGIN FLASH BANG
+
+	//play a world flash effect (so player can tell than its gone off if not looking)
+	if ( ( owner.GetEntity() )->IsType( idPlayer::GetClassType() ) && spawnArgs.GetBool( "flash_bang" ) ) { 
+		idPlayer *player = static_cast<idPlayer*>( owner.GetEntity() );
+		player->weapon->MuzzleFlash();
+
+		//check for AIs that can see the projectile
+		for ( int i = 0; i < gameLocal.num_entities; i++ ) {
+			if( gameLocal.entities[ i ] && gameLocal.entities[ i ]->IsType( idActor::GetClassType() ) ) {
+				idActor *person = static_cast<idActor*>(gameLocal.entities[ i ] );
+				
+				if( person->CanSee (this, true) ) {
+
+					//players get a screen flash for the duration
+					int duration = SEC2MS ( spawnArgs.GetInt ( "blindness_duration" ) );
+					if ( person->IsType( idPlayer::GetClassType() ) ) {
+						idPlayer *theDude = static_cast<idPlayer*>(person);
+
+						if ( theDude == gameLocal.GetLocalPlayer() ) { 
+							idVec4 opaqueWhite ( 1, 1, 1, 1 );
+							player->playerView.Flash( opaqueWhite, duration ); 
+						}
+					} else {
+						//remove enemy targeting ability, and set when they can see again
+						person->fl.isBlind = true;
+						person->blindnessFadeTime = gameLocal.time + duration;
+					}
+				}
+			} 
+		}
+	}
+//TMF7 END FLASH BANG
+
+
 	if( physicsObj.HasGroundContacts() ) {
 		if ( spawnArgs.GetBool( "detonateTestGroundMaterial" ) ) {
 			trace_t tr;
