@@ -67,6 +67,7 @@ public :
 
 protected:
 	void					SpawnImpactEntities(const trace_t& collision, const idVec3 projectileDirection);
+	void					SpawnImpactPortal(const trace_t& collision, const idVec3 projectileDirection);		//TMF7
 
 
 	idEntityPtr<idEntity>	owner;
@@ -75,7 +76,8 @@ protected:
 		bool				detonate_on_world			: 1;
 		bool				detonate_on_actor			: 1;
 		bool				detonate_on_bounce			: 1;		// Detonate if hit a bounce surface
-		bool				stick_on_impact				: 1;		//TMF7
+		bool				stick_on_actor				: 1;		//TMF7
+		bool				stick_on_world				: 1;		//TMF7
 		bool				randomShaderSpin			: 1;
 		bool				isTracer					: 1;
 	} projectileFlags;
@@ -103,6 +105,7 @@ protected:
 	float					flyEffectAttenuateSpeed;
 
 	rvClientEffectPtr		smokeEffect;				//TMF7
+	idStr					impactPortal;				//TMF7
 
 	int						bounceCount;
 	bool					sticky;

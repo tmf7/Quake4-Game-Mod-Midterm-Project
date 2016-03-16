@@ -8567,8 +8567,7 @@ void idPlayer::PerformImpulse( int impulse ) {
 				if ( ent && ent->IsType( idProjectile::GetClassType() ) ) {
 					idProjectile *proj = static_cast<idProjectile *>( ent );
 
-					//possibly get rid of the stick_on_impact qualifier because this is the remote detonate impulse regardless of stickyness
-					if ( proj->spawnArgs.GetBool( "stick_on_impact" ) && proj->GetOwner() && proj->GetOwner()->IsType( idPlayer::GetClassType() ) ) {
+					if ( proj->GetOwner() && proj->GetOwner()->IsType( idPlayer::GetClassType() ) ) {
 						idPlayer *owner = static_cast<idPlayer *>( proj->GetOwner() );
 
 						//dont blow up someone else's bombs

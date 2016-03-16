@@ -104,7 +104,9 @@ void idProjectile::Spawn( void ) {
 	prePredictTime = spawnArgs.GetInt( "predictTime", "0" );
 	syncPhysics = spawnArgs.GetBool( "net_syncPhysics", "0" );
 
-	projectileFlags.stick_on_impact		= spawnArgs.GetBool( "stick_on_impact" , "0" );		//TMF7
+	projectileFlags.stick_on_actor		= spawnArgs.GetBool( "stick_on_actor" , "0" );		//TMF7
+	projectileFlags.stick_on_world		= spawnArgs.GetBool( "stick_on_world" , "0" );		//TMF7
+	impactPortal						= spawnArgs.GetString ( "def_impactPortal" );		//TMF7
 
 	if ( gameLocal.isClient ) {
 		Hide();
@@ -497,6 +499,15 @@ void idProjectile::Launch( const idVec3 &start, const idVec3 &dir, const idVec3 
 	flyEffect = PlayEffect( "fx_fly", renderEntity.origin, renderEntity.axis, true );
 	flyEffectAttenuateSpeed = spawnArgs.GetFloat( "flyEffectAttenuateSpeed", "0" );
 
+//TMF7 BEGIN
+	if ( spawnArgs.GetString( "fx_idle" ) ) {
+		UpdateModelTransform();
+		PlayEffect( "fx_idle", renderEntity.origin, renderEntity.axis, true );		//effectIdle = 
+		//StopEffect( "fx_idle", true ); //when its timer runs out "explodes/fizzles"
+	}
+//TMF7 END
+
+
 	state = LAUNCHED;
 
 	hitCount = 0;
@@ -553,7 +564,7 @@ void idProjectile::Think( void ) {
 
 		// Stop the trail effect if the physics flag was removed
 		if ( flyEffect && flyEffectAttenuateSpeed > 0.0f ) {
-			if ( physicsObj.IsAtRest( )  && !spawnArgs.GetBool( "flash_bang", "0" ) ) {
+			if ( physicsObj.IsAtRest( )  && !spawnArgs.GetBool( "flash_bang", "0" ) ) {		//TMF7 FLASH BANG
 				flyEffect->Stop( );
 				flyEffect = NULL;
 			} else {
@@ -762,7 +773,7 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
 		damageDefName = spawnArgs.GetString ( "def_damage" );
 	}
 
-	if( damageDefName && damageDefName[0] && !projectileFlags.stick_on_impact ) {		//TMF7 (prevent ragdolls from flying around with sticky bombs)
+	if( damageDefName && damageDefName[0] && !projectileFlags.stick_on_actor ) {		//TMF7 (prevent ragdolls from flying around with sticky bombs)
 		const idDict* dict = gameLocal.FindEntityDefDict( damageDefName, false );
 		if ( dict ) {
  			ent->ApplyImpulse( this, collision.c.id, collision.endpos, dir, dict );
@@ -781,22 +792,32 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
 		ent->ProcessEvent( &EV_Activate , this );
 	}
 
-//TMF7 BEGIN STICKY BOMBS
-	//permanently sticks to friends, enemies, map objects, and world
-	//IMPORTANT: loses its damaging effects if left bound through Explode()
-	if ( projectileFlags.stick_on_impact && !IsBound() ) {
-		BindToJoint( ent, CLIPMODEL_ID_TO_JOINT_HANDLE( collision.c.id ), true);
-		physicsObj.PutToRest();
+//TMF7 BEGIN STICKY BOMBS and PORTAL GUN
 
-		StartSound( "snd_ricochet", SND_CHANNEL_ITEM, 0, true, NULL );
-		gameLocal.PlayEffect( 
-			gameLocal.GetEffect(spawnArgs,"fx_bounce",collision.c.materialType), 
-			collision.c.point, collision.c.normal.ToMat3(), 
-			false, vec3_origin, true );
+	//orient the projectile flat against the collision surface according to the normal???
+	/*if ( projectileFlags.stick_on_actor || projectileFlags.stick_on_world ) {
+		idMat3 axis( rotation.GetCurrentValue(gameLocal.GetTime()).ToMat3() );
+		axis[0].ProjectOntoPlane( collision.c.normal );
+		axis[0].Normalize();
+		axis[2] = collision.c.normal;
+		axis[1] = axis[2].Cross( axis[0] ).ToNormal();
+		rotation.Init( gameLocal.GetTime(), SEC2MS(spawnArgs.GetFloat("settle_duration")), 
+						rotation.GetCurrentValue(gameLocal.GetTime()), axis.ToQuat() );
+	}*/
 
+	if ( spawnArgs.GetBool( "aperature_portal", "0" ) ) { 
+		//SpawnImpactPortal(collision, velocity ); 
+		GetOwner()->Teleport( GetPhysics()->GetOrigin(), GetPhysics()->GetAxis().ToAngles(), NULL );
+		PostEventMS( &EV_Remove, 0 );		//get rid of the original projectile once a portal has spawned
 		return true;
 	}
-//TMF7 END STICKY BOMBS
+
+	//permanently sticks to friends, enemies, map objects, and world
+	//IMPORTANT: loses its damaging effects if left bound through Explode()
+	if ( projectileFlags.stick_on_world && !physicsObj.IsAtRest() ) { physicsObj.PutToRest(); }
+	if ( projectileFlags.stick_on_actor && !IsBound() ) { BindToJoint( ent, CLIPMODEL_ID_TO_JOINT_HANDLE( collision.c.id ), true); 	}
+
+//TMF7 END STICKY BOMBS and PORTAL GUN
 
 	// If the projectile hits water then we need to let the projectile keep going
 	if ( ent->GetPhysics()->GetContents() & CONTENTS_WATER ) {
@@ -959,7 +980,7 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
 	if( gameLocal.isClient ) {
 		return true;
 	}
-
+	//gameLocal.Printf ( "DASTARDLY EXPLODING DOORS AND CORPSES!!!\n" );		//TMF7 (grenadelauncher, rocketlauncher, hyperblaster, dmg)
 	Explode( &collision, false, ignore );
 
 	return true;
@@ -1012,8 +1033,8 @@ void idProjectile::SpawnImpactEntities(const trace_t& collision, const idVec3 ve
 	origin += 10.0f * collision.c.normal;
 	for(int i = 0;i < numImpactEntities; i++)
 	{
-		idProjectile* spawnProjectile = NULL;
-		gameLocal.SpawnEntityDef(*impactEntityDict,(idEntity**)&spawnProjectile);
+		idProjectile* spawnProjectile = NULL;											//TMF7 DMG PORTAL IS NOT A PROJECTILE
+		gameLocal.SpawnEntityDef(*impactEntityDict,(idEntity**)&spawnProjectile);		//TMF7 DMG PORTAL spawn
 		if(spawnProjectile != NULL)
 		{
 			int pitch = rvRandom::irand(ieMinPitch, ieMaxPitch);
@@ -1036,6 +1057,57 @@ void idProjectile::SpawnImpactEntities(const trace_t& collision, const idVec3 ve
 		}
 	}
 }
+
+//TMF7 BEGIN PORTAL GUN
+/*
+=================
+idProjectile::SpawnImpactPortal
+=================
+*/
+void idProjectile::SpawnImpactPortal(const trace_t& collision, const idVec3 velocity)
+{
+	if( impactPortal.Length() == 0 )
+		return;
+
+	const idDict* impactPortalDict = gameLocal.FindEntityDefDict(impactPortal);
+	if(impactPortalDict == NULL)
+		return;
+
+	idVec3 direction;
+	direction.Zero();
+
+	idVec3 up = collision.c.normal;
+
+	//Calculate the axes for that are oriented to the impact point. 
+	idMat3 impactAxes;
+
+	idVec3 right = velocity.Cross(up);
+	idVec3 forward = up.Cross(right);
+
+	right.Normalize();
+	forward.Normalize();
+	impactAxes[0] = forward;
+	impactAxes[1] = right;
+	impactAxes[2] = up;
+
+	idVec3 origin = collision.endpos;
+
+		idTrigger_Touch* spawnPortal = NULL;										
+		gameLocal.SpawnEntityDef(*impactPortalDict,(idEntity**)&spawnPortal);	//sets up the variables for the portal
+		if(spawnPortal != NULL)
+		{
+			//link the touchin of one portal to another...in Trigger.h (no "owner" necessary)
+
+			//Now orient the direction to the surface world orientation.
+			//direction = impactAxes * tempDirection;
+			//spawnPortal->Launch(origin, direction, vec3_zero );
+		}
+}
+
+//TMF7 END PORTAL GUN
+
+
+
 
 /*
 =================
@@ -1203,7 +1275,7 @@ void idProjectile::Explode( const trace_t *collision, const bool showExplodeFX, 
 	idVec3		normal, endpos;
 	int			removeTime;
 
-	if ( projectileFlags.stick_on_impact ) { Unbind(); }		//TMF7 CRITICAL to allow damage effects of projectile if bound to enemy
+	if ( projectileFlags.stick_on_actor ) { Unbind(); }		//TMF7 CRITICAL to allow damage effects of projectile if bound to enemy
 
 	if ( state == EXPLODED || state == FIZZLED ) {
 		return;

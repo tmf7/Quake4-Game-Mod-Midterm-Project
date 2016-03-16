@@ -458,13 +458,16 @@ rvDarkMatterProjectile::Think
 ================
 */
 void rvDarkMatterProjectile::Think ( void ) {
+
 	physicsObj.SetClipMask( MASK_DMGSOLID );
 	idProjectile::Think ( );
 
+/*TMF7 uncomment
 	if ( gameLocal.time > nextDamageTime ) {
 		gameLocal.RadiusDamage ( GetPhysics()->GetOrigin(), this, owner, owner, NULL, spawnArgs.GetString( "def_radius_damage" ), 1.0f, &hitCount );
 		nextDamageTime = gameLocal.time + SEC2MS ( spawnArgs.GetFloat ( "damageRate", ".05" ) );	
 	}
+*/
 }
 
 

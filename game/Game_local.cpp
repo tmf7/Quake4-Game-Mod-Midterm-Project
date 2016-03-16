@@ -4839,6 +4839,7 @@ bool idGameLocal::SpawnEntityDef( const idDict &args, idEntity **ent, bool setDe
 			Warning( "Unknown classname '%s'%s.", classname, error.c_str() );
 		}
 // RAVEN END
+
 		return false;
 	}
 
@@ -4909,6 +4910,7 @@ bool idGameLocal::SpawnEntityDef( const idDict &args, idEntity **ent, bool setDe
 	// check if we should call a script function to spawn
 	spawnArgs.GetString( "spawnfunc", NULL, &spawn );
 	if ( spawn ) {
+
 		const function_t *func = program.FindFunction( spawn );
 		if ( !func ) {
 			Warning( "Could not spawn '%s'.  Script function '%s' not found%s.", classname, spawn, error.c_str() );

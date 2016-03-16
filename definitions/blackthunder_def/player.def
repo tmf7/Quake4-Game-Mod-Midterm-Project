@@ -679,9 +679,16 @@ entityDef player_marine
 	"weapon9_best"						"0"
 	"weapon9_cycle"						"1"
 
-	"def_weapon10"						"weapon_napalmgun"
-	"weapon10_best"						"0"
-	"weapon10_cycle"					"1"	
+//	"def_weapon10"						"weapon_napalmgun"		//TMF7 uncomment
+//	"weapon10_best"						"0"						//TMF7 uncomment
+//	"weapon10_cycle"					"1"						//TMF7 uncomment
+
+//TMF7 BEGIN (replace weapon_napalmgun with weapon_gauntlet)
+	"def_weapon10"						"weapon_gauntlet"
+	"weapon10_best"						"1"
+	"weapon10_cycle"					"1"
+	"weapon10_flashlight"				"0"
+//TMF7 END
 
 	"mtr_wound"						"textures/decals/hurt02"
 	"mtr_splat"						"textures/decals/dsplat2"
@@ -692,8 +699,8 @@ entityDef player_marine
 	// default weapons
 	// seperate multiple weapons with commas (no spaces).
 	// NOTE: default ammo must be specified explicitly.
-	"weapon"						"weapon_grenadelauncher,weapon_rocketlauncher,weapon_hyperblaster"		//TMF7
-	"current_weapon"					"3"
+	"weapon"						"weapon_grenadelauncher,weapon_rocketlauncher,weapon_hyperblaster,weapon_dmg"		//TMF7
+	"current_weapon"					"9"
 
 //	"pm_thirdperson"					"1"						//TMF7 uncomment this for demo
 
@@ -750,9 +757,9 @@ entityDef player_marine
 	"max_ammo_hyperblaster"					"-1"			//TMF7 was 400
 	"max_ammo_napalmgun"					"40"
 	"max_ammo_rocketlauncher"				"-1"			//TMF7 was 40
-	"max_ammo_grenadelauncher"				"-1"			//TMF7 was ???
+	"max_ammo_grenadelauncher"				"-1"			//TMF7 was 50
 	"max_ammo_lightninggun"					"400"
-	"max_ammo_dmg"						"25"
+	"max_ammo_dmg"						"-1"				//TMF7 was 25
 	"max_ammo_none"						"-1"
 
 	// inventory items

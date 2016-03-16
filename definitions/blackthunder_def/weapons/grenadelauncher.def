@@ -261,7 +261,8 @@ entityDef projectile_grenade
 	"detonate_on_actor"			"0"			//TMF7 was 1
 	"detonateTestGroundMaterial"	"0"		//TMF7 was 1
 
-	"stick_on_impact"			"1"			//TMF7 new
+	"stick_on_actor"			"1"			//TMF7 new
+	"stick_on_world"			"1"			//TMF7 new
 	"detonate_on_remote"		"1"			//TMF7 new
 								
 	"impact_gib"				"1"											
@@ -283,7 +284,7 @@ entityDef projectile_grenade
 	"fx_impact_rock_mp"			"effects/weapons/rocketlauncher/impact_mp.fx"
 	"fx_impact_water"			"effects/ambient/splash_med.fx"
 
-	"friendly_impact"			"1"
+	"friendly_impact"			"0"								//TMF7 was "1"
 
 	"snd_ricochet"				"grenade_bounce"	
 
