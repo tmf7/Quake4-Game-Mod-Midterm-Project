@@ -459,12 +459,13 @@ rvDarkMatterProjectile::Think
 */
 void rvDarkMatterProjectile::Think ( void ) {
 
-	physicsObj.SetClipMask( MASK_DMGSOLID );
+	if ( spawnArgs.GetBool( "aperature_portal" ) ) { physicsObj.SetContents( CONTENTS_SOLID ); }
+	else { physicsObj.SetClipMask( MASK_DMGSOLID ); }
+
 	idProjectile::Think ( );
 
 	if ( physicsObj.IsAtRest() && spawnArgs.GetBool( "aperature_portal" ) ) {
 		gameLocal.Printf( "%d AT REST\n", entityNumber );
-		//physicsObj.SetContents( CONTENTS_SOLID ); //CONTENTS_TRIGGER | CONTENTS_PROJECTILE
 
 		//ensure both portals exist
 		if ( owner && GetOwner()->numPortals >= 2 ) {

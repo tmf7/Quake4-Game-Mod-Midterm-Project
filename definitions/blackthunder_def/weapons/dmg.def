@@ -353,7 +353,7 @@ entityDef impact_dmg_aperature_portal
 
 	"stick_on_world"				"1"	
 	"model"							"models/mapobjects/multiplayer/jump_pad/jump_pad.lwo"
-//	"fx_idle"						"effects/mp/jumppad_color.fx"
+	"fx_idle"						"effects/mp/jumppad_color.fx"
 	
 	"net_syncPhysics"				"1"
 }

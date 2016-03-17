@@ -502,7 +502,7 @@ void idProjectile::Launch( const idVec3 &start, const idVec3 &dir, const idVec3 
 
 //TMF7 BEGIN
 	if ( spawnArgs.GetString( "fx_idle" ) ) {
-		//UpdateModelTransform();
+		UpdateModelTransform();
 		PlayEffect( "fx_idle", renderEntity.origin, renderEntity.axis, true );		//effectIdle = 
 		//StopEffect( "fx_idle", true ); //when its timer runs out "explodes/fizzles"
 	}
