@@ -79,6 +79,8 @@ idProjectile::idProjectile( void ) {
 	launchOrig			= vec3_origin;
 	launchDir			= vec3_origin;
 	launchSpeed			= 0.0f;
+
+	smokeEffect			= NULL;		//TMF7 PARALYSIS BOMBS
 }
 
 /*
@@ -103,10 +105,6 @@ void idProjectile::Spawn( void ) {
  	SetPhysics( &physicsObj );
 	prePredictTime = spawnArgs.GetInt( "predictTime", "0" );
 	syncPhysics = spawnArgs.GetBool( "net_syncPhysics", "0" );
-
-	projectileFlags.stick_on_actor		= spawnArgs.GetBool( "stick_on_actor" , "0" );		//TMF7
-	projectileFlags.stick_on_world		= spawnArgs.GetBool( "stick_on_world" , "0" );		//TMF7
-	impactPortal						= spawnArgs.GetString ( "def_impactPortal" );		//TMF7
 
 	if ( gameLocal.isClient ) {
 		Hide();
@@ -153,6 +151,9 @@ void idProjectile::Save( idSaveGame *savefile ) const {
 	savefile->WriteInt ( hitCount );
 
  	savefile->WriteInt( (int)state );
+
+	savefile->WriteInt ( portalNumber );					//TMF7 PORTAL GUN
+	smokeEffect.Save( savefile );							//TMF7 PARALYSIS BOMBS
 }
 
 /*
@@ -207,6 +208,9 @@ void idProjectile::Restore( idRestoreGame *savefile ) {
 	savefile->ReadInt ( hitCount );
 
 	savefile->ReadInt( (int &)state );
+
+	savefile->ReadInt ( portalNumber );					//TMF7 PORTAL GUN
+	smokeEffect.Restore (savefile );					//TMF7 PARALYSIS BOMBS
 }
 
 /*
@@ -386,6 +390,7 @@ void idProjectile::Launch( const idVec3 &start, const idVec3 &dir, const idVec3 
 	
 	//spawn impact entity information
 	impactEntity				= spawnArgs.GetString("def_impactEntity","");
+	impactPortal				= spawnArgs.GetString ( "def_impactPortal" );		//TMF7												//TMF7 PORTAL GUN
 	numImpactEntities			= spawnArgs.GetInt("numImpactEntities","0");
 	ieMinPitch					= spawnArgs.GetInt("ieMinPitch","0");
 	ieMaxPitch					= spawnArgs.GetInt("ieMaxPitch","0");
@@ -395,6 +400,11 @@ void idProjectile::Launch( const idVec3 &start, const idVec3 &dir, const idVec3 
 	projectileFlags.detonate_on_actor	= spawnArgs.GetBool( "detonate_on_actor" );
 	projectileFlags.randomShaderSpin	= spawnArgs.GetBool( "random_shader_spin" );
 	projectileFlags.detonate_on_bounce  = spawnArgs.GetBool( "detonate_on_bounce" );
+
+	projectileFlags.stick_on_actor		= spawnArgs.GetBool( "stick_on_actor" , "0" );		//TMF7
+	projectileFlags.stick_on_world		= spawnArgs.GetBool( "stick_on_world" , "0" );		//TMF7
+
+
 
 	lightStartTime = 0;
 	lightEndTime = 0;
@@ -502,6 +512,7 @@ void idProjectile::Launch( const idVec3 &start, const idVec3 &dir, const idVec3 
 
 //TMF7 BEGIN PORTAL GUN
 	//change the axis so the fx aligns better
+	//possibly add "portalEffect = " and save/restore (works fine now though)
 	PlayEffect( "fx_idle", GetPhysics()->GetOrigin(), idVec3(0,0,1).ToMat3(), true );		
 	//if ( spawnArgs.GetBool ( "aperature_portal" ) ) { physicsObj.PutToRest(); }
 //TMF7 BEGIN PORTAL GUN
@@ -1076,7 +1087,9 @@ void idProjectile::SpawnImpactPortal(const trace_t& collision, const idVec3 velo
 	impactAxes[1] = right;
 	impactAxes[2] = up;
 
+	// spawn a little away to avoid teleporting into walls
 	idVec3 origin = collision.endpos;
+	origin += 30.0f * collision.c.normal;
 
 	idProjectile* spawnPortal = NULL;	
 	gameLocal.SpawnEntityDef(*impactPortalDict,(idEntity**)&spawnPortal);	//calls rvDarkMatterProjectile (and idProjectile?) Spawn()
@@ -1218,7 +1231,7 @@ void idProjectile::Fizzle( void ) {
 		//flyEffect->Event_Remove();
 	}
 
-	Hide();				//TMF7 this makes the projectile mesh disappear
+	Hide();	
 	FreeLightDef();
 
 	state = FIZZLED;

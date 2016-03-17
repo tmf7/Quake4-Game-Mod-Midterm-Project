@@ -462,7 +462,11 @@ rvDarkMatterProjectile::Think
 */
 void rvDarkMatterProjectile::Think ( void ) {
 
-	if ( spawnArgs.GetBool( "aperature_portal" ) ) { GetPhysics()->SetContents( CONTENTS_SOLID ); }
+	if ( spawnArgs.GetBool( "aperature_portal" ) ) { 
+
+		//somewhat better collision display
+		GetPhysics()->SetContents( CONTENTS_SOLID ); 
+	}
 	else { physicsObj.SetClipMask( MASK_DMGSOLID ); }
 
 	idProjectile::Think ( );

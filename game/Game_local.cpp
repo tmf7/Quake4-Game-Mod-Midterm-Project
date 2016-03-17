@@ -5734,7 +5734,7 @@ void idGameLocal::RadiusDamage( const idVec3 &origin, idEntity *inflictor, idEnt
 		assert( clipModel );
 
 		ent = clipModel->GetEntity();
-		
+
 		// Skip all entitys that arent primary damage entities
 		if ( !ent || ent != ent->GetDamageEntity ( ) ) {
 			continue;
@@ -5797,23 +5797,30 @@ void idGameLocal::RadiusDamage( const idVec3 &origin, idEntity *inflictor, idEnt
 			}
 
 //TMF7 BEGIN PORTAL GUN HACK
-			if ( inflictor && inflictor->IsType( idProjectile::GetClassType() ) ) {
-				idProjectile *telepad = static_cast<idProjectile*>(inflictor);
+			if ( damageDef->GetBool( "teleport" ) ) {
 
-				if ( ent && ent->IsType( idActor::GetClassType() ) ) {
-					idActor *person = static_cast<idActor*>(ent);
+				if ( inflictor && inflictor->IsType( idProjectile::GetClassType() ) ) {
+					idProjectile *telepad = static_cast<idProjectile*>(inflictor);
+					idEntity *otherTelepad;
 
-					if ( gameLocal.time > person->nextTeleportTime ) {
+					if ( ent && ent->IsType( idActor::GetClassType() ) ) {
+						idActor *person = static_cast<idActor*>(ent);
+
+						if ( gameLocal.time > person->nextTeleportTime ) {
+
+							//teleport the actor to the other portal
+							if ( telepad->portalNumber == 1 ) { otherTelepad = gameLocal.entities[ telepad->GetOwner()->portalTwo ]; }
+							else if ( telepad->portalNumber == 2 ) { otherTelepad = gameLocal.entities[ telepad->GetOwner()->portalOne ]; }
 					
-						//teleport the actor to the other portal
-						if ( telepad->portalNumber == 1 ) {
-							person->Teleport( gameLocal.entities[ telepad->GetOwner()->portalTwo ]->GetPhysics()->GetOrigin(), person->GetPhysics()->GetAxis().ToAngles(), NULL );
-						} else if ( telepad->portalNumber == 2 ) {
-							person->Teleport( gameLocal.entities[ telepad->GetOwner()->portalOne ]->GetPhysics()->GetOrigin(), person->GetPhysics()->GetAxis().ToAngles(), NULL );
+							if ( otherTelepad ) {
+								idVec3 otherTelepadNormal = otherTelepad->GetPhysics()->GetContactNormal();
+
+								person->Teleport( otherTelepad->GetPhysics()->GetOrigin() + (30.0f * otherTelepadNormal), person->GetPhysics()->GetAxis().ToAngles(), NULL );
+								person->nextTeleportTime = gameLocal.time + SEC2MS( damageDef->GetInt( "cooldown" ) );
+							}
+
 						}
-					
-						person->nextTeleportTime = gameLocal.time + SEC2MS( damageDef->GetInt( "cooldown" ) );
-					}
+					} 
 				}
 			}
 //TMF7 END PORTAL GUN HACK

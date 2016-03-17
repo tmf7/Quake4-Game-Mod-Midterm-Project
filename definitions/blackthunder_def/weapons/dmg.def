@@ -354,7 +354,7 @@ entityDef impact_aperature_portal
 	"gravity"						"1"
 
 	"stick_on_world"				"1"	
-	"model"							"models/mapobjects/multiplayer/jump_pad/jump_pad.lwo"
+	"model"							"models/pick_ups/sp_pickups/sp_darkmatter.lwo"	//TMF7 was "models/mapobjects/multiplayer/jump_pad/jump_pad.lwo"
 	"fx_idle"						"effects/mp/jumppad_color.fx"
 	
 	"net_syncPhysics"				"1"
@@ -362,6 +362,7 @@ entityDef impact_aperature_portal
 
 entityDef portal_behavior
 {
+	"teleport"			"1"
 	"damage"			"0"
 	"radius"			"20"
 	"push"				"20"

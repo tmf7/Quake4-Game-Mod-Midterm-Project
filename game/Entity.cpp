@@ -680,8 +680,12 @@ void idEntity::Spawn( void ) {
 	declManager->FindType( DECL_ENTITYDEF, "damage_crush", false, false );
 // RAVEN END
 
-	portalToggle = 1;			//TMF7
-	numPortals = 0;				//TMF7
+//TMF7 BEGIN
+	portalToggle		=		1;
+	numPortals			=		0;
+	nextTeleportTime	=		0;
+	blindnessFadeTime	=		0;
+//TMF7 END	
 
 }
 
@@ -820,6 +824,16 @@ void idEntity::Save( idSaveGame *savefile ) const {
 
 	savefile->WriteInt( instance );
 	savefile->WriteInt( clipWorld );
+
+//TMF7 BEGIN PORTAL GUN
+	savefile->WriteInt( blindnessFadeTime );
+	savefile->WriteInt( portalOne );
+	savefile->WriteInt( portalTwo );
+	savefile->WriteInt( portalToggle );
+	savefile->WriteInt( numPortals );
+	savefile->WriteInt( nextTeleportTime );
+//TMF7 END PORTAL GUN
+	
 }
 
 /*
@@ -937,6 +951,15 @@ void idEntity::Restore( idRestoreGame *savefile ) {
 
 	// precache decls
 	declManager->FindType( DECL_ENTITYDEF, "damage_crush", false, false );
+
+//TMF7 BEGIN PORTAL GUN
+	savefile->ReadInt( blindnessFadeTime );
+	savefile->ReadInt( portalOne );
+	savefile->ReadInt( portalTwo );
+	savefile->ReadInt( portalToggle );
+	savefile->ReadInt( numPortals );
+	savefile->ReadInt( nextTeleportTime );
+//TMF7 END PORTAL GUN
 }
 
 /*

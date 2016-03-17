@@ -65,11 +65,11 @@ public :
 
 	virtual bool			ClientStale( void );
 
-	int						portalNumber;			//TMF7
+	int						portalNumber;			//TMF7 PORTAL GUN
 
 protected:
 	void					SpawnImpactEntities(const trace_t& collision, const idVec3 projectileDirection);
-	void					SpawnImpactPortal(const trace_t& collision, const idVec3 projectileDirection);		//TMF7
+	void					SpawnImpactPortal(const trace_t& collision, const idVec3 projectileDirection);		//TMF7 PORTAL GUN
 
 
 	idEntityPtr<idEntity>	owner;
