@@ -135,8 +135,14 @@ public:
 	idList< idEntityPtr<idEntity> >	targets;		// when this entity is activated these entities entity are activated
 
 	int						health;					// FIXME: do all objects really need health?
-	
-	int						blindnessFadeTime;		//TMF7 for flash bang bombs
+
+//TMF7 BEGIN
+	int						blindnessFadeTime;		// flash bang bombs
+	int						portalOne;				// the entity number of portal A
+	int						portalTwo;				// the entity number of portal B
+	int						portalToggle;			// which portal is being spawned
+	int						numPortals;				// number of active portals
+//TMF7 END
 
 // RAVEN BEGIN
 // ddynerman: optional pre-prediction

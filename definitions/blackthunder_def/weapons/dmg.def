@@ -260,15 +260,13 @@ entityDef projectile_dmg
 	"no_contents"				"1"
 								
 //	"def_splash_damage"			"damage_dmg_splash"
-
+//	"delay_splash"				".45"
 //	"def_radius_damage"			"damage_dmg_fly"
 //	"damageRate"				".05"
 																											
-	"speed"						"1000"				//TMF7 was "250"
+	"speed"						"1000"								//TMF7 was "250"
 	
-//	"delay_splash"				".45"
-
-	"aperature_portal"			"1"									//TMF7 new
+	"aperature_portal_gun"		"1"
 	"def_impactPortal"			"impact_dmg_aperature_portal"		//TMF7 new
 	
 	"linear_friction"			"0"
@@ -340,21 +338,22 @@ entityDef projectile_dmg_mp
 entityDef impact_dmg_aperature_portal
 {
 
-	"spawnclass"					"idTrigger_Touch"
+	"spawnclass"					"rvDarkMatterProjectile"
 	"mins"							"-4 -4 -4"
 	"maxs"							"4 4 4"
 	"cone"							""
 	"noshadows"						"1"
 	"no_contents"					"0"
 
-	"start_on"						"1"
+	"aperature_portal"				"1"									//TMF7 new
 
 	"velocity"						"0"
 	"speed"							"0"
 	"gravity"						"1"
 
-	"stick_on_world"			"1"			//TMF7 new
-	"model"							"models/mapobjects/multiplayer/jump_pad/jump_pad.lwo"	//TMF7 was "models/weapons/napalmgun/flame_gun_globsmall.ase"
+	"stick_on_world"				"1"	
+	"model"							"models/mapobjects/multiplayer/jump_pad/jump_pad.lwo"
+//	"fx_idle"						"effects/mp/jumppad_color.fx"
 	
 	"net_syncPhysics"				"1"
 }

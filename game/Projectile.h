@@ -65,6 +65,8 @@ public :
 
 	virtual bool			ClientStale( void );
 
+	int						portalNumber;			//TMF7
+
 protected:
 	void					SpawnImpactEntities(const trace_t& collision, const idVec3 projectileDirection);
 	void					SpawnImpactPortal(const trace_t& collision, const idVec3 projectileDirection);		//TMF7

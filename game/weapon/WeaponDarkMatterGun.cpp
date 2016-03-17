@@ -428,8 +428,8 @@ rvDarkMatterProjectile::Spawn
 ================
 */
 void rvDarkMatterProjectile::Spawn ( void ) {
-	nextDamageTime  = 0;
-	radiusDamageDef = gameLocal.FindEntityDefDict ( spawnArgs.GetString ( "def_radius_damage" ) );
+	//nextDamageTime  = 0;							//TMF7 uncomment
+	//radiusDamageDef = gameLocal.FindEntityDefDict ( spawnArgs.GetString ( "def_radius_damage" ) ); //TMF7 uncomment
 }
 
 /*
@@ -461,6 +461,31 @@ void rvDarkMatterProjectile::Think ( void ) {
 
 	physicsObj.SetClipMask( MASK_DMGSOLID );
 	idProjectile::Think ( );
+
+	if ( physicsObj.IsAtRest() && spawnArgs.GetBool( "aperature_portal" ) ) {
+		gameLocal.Printf( "%d AT REST\n", entityNumber );
+		//physicsObj.SetContents( CONTENTS_SOLID ); //CONTENTS_TRIGGER | CONTENTS_PROJECTILE
+
+		//ensure both portals exist
+		if ( owner && GetOwner()->numPortals >= 2 ) {
+
+			//check if any actors are touching this portal (update the contacts and the clipmodel/clipmask???)
+			for ( int i = 0; i < physicsObj.GetNumContacts( ); i++ ) {
+				idEntity *ent = gameLocal.entities[ physicsObj.GetContact( i ).entityNum ];
+
+				if ( ent && ent->IsType( idActor::GetClassType() ) ) {
+					idActor *person = static_cast<idActor*>(ent);
+
+					//teleport the actor to the other portal
+					if ( portalNumber == 1 ) {
+						person->Teleport( gameLocal.entities[ GetOwner()->portalTwo ]->GetPhysics()->GetOrigin(), person->GetPhysics()->GetAxis().ToAngles(), NULL );
+					} else if ( portalNumber == 2 ) {
+						person->Teleport( gameLocal.entities[ GetOwner()->portalOne ]->GetPhysics()->GetOrigin(), person->GetPhysics()->GetAxis().ToAngles(), NULL );
+					}
+				}
+			}
+		}
+	}
 
 /*TMF7 uncomment
 	if ( gameLocal.time > nextDamageTime ) {

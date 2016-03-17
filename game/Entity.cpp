@@ -679,6 +679,10 @@ void idEntity::Spawn( void ) {
 	// precache decls
 	declManager->FindType( DECL_ENTITYDEF, "damage_crush", false, false );
 // RAVEN END
+
+	portalToggle = 1;			//TMF7
+	numPortals = 0;				//TMF7
+
 }
 
 /*

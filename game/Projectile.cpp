@@ -455,7 +455,8 @@ void idProjectile::Launch( const idVec3 &start, const idVec3 &dir, const idVec3 
 	physicsObj.SetOrigin( start );
 	physicsObj.SetAxis( dir.ToMat3() );
 
-	if ( !gameLocal.isClient && !spawnArgs.GetBool( "detonate_on_remote" )  && !spawnArgs.GetBool( "gas_bomb" ) ) {	//TMF7 disable fuses for remote detonated bombs/gas bombs
+	//TMF7 disable fuses for remote detonated bombs / gas bombs / portals
+	if ( !gameLocal.isClient && !spawnArgs.GetBool( "detonate_on_remote" )  && !spawnArgs.GetBool( "gas_bomb" )  && !spawnArgs.GetBool( "aperature_portal" ) ) {	
 		if ( fuse <= 0  ) {		
 			// run physics for 1 second
 			RunPhysics();
@@ -501,7 +502,7 @@ void idProjectile::Launch( const idVec3 &start, const idVec3 &dir, const idVec3 
 
 //TMF7 BEGIN
 	if ( spawnArgs.GetString( "fx_idle" ) ) {
-		UpdateModelTransform();
+		//UpdateModelTransform();
 		PlayEffect( "fx_idle", renderEntity.origin, renderEntity.axis, true );		//effectIdle = 
 		//StopEffect( "fx_idle", true ); //when its timer runs out "explodes/fizzles"
 	}
@@ -536,7 +537,7 @@ void idProjectile::Think( void ) {
 	if ( thinkFlags & TH_PHYSICS ) {
 
 		// Update the velocity to match the changing speed
-		if ( updateVelocity ) {
+		if ( updateVelocity ) {		//TMF7 PORTAL (keep from accel due to gravity?) && !spawnArgs.GetBool( "aperature_portal" )
 			idVec3 vel;
 			vel = physicsObj.GetLinearVelocity ( );
 			vel.Normalize ( );
@@ -574,12 +575,12 @@ void idProjectile::Think( void ) {
 			}
 		}
 
-//TMF7  BEGIN GAS BOMB
+//TMF7  BEGIN PARALYSIS BOMB
 		if ( physicsObj.IsAtRest() && spawnArgs.GetFloat( "gas_bomb" ) ) {
 			CancelEvents( &EV_Fizzle );
 			PostEventMS( &EV_Fizzle, 0 );
 		}
-//TMF7 END GAS BOMB
+//TMF7 END PARALYSIS BOMB
 
 		UpdateVisualAngles();
 	}
@@ -794,20 +795,8 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
 
 //TMF7 BEGIN STICKY BOMBS and PORTAL GUN
 
-	//orient the projectile flat against the collision surface according to the normal???
-	/*if ( projectileFlags.stick_on_actor || projectileFlags.stick_on_world ) {
-		idMat3 axis( rotation.GetCurrentValue(gameLocal.GetTime()).ToMat3() );
-		axis[0].ProjectOntoPlane( collision.c.normal );
-		axis[0].Normalize();
-		axis[2] = collision.c.normal;
-		axis[1] = axis[2].Cross( axis[0] ).ToNormal();
-		rotation.Init( gameLocal.GetTime(), SEC2MS(spawnArgs.GetFloat("settle_duration")), 
-						rotation.GetCurrentValue(gameLocal.GetTime()), axis.ToQuat() );
-	}*/
-
-	if ( spawnArgs.GetBool( "aperature_portal", "0" ) ) { 
-		//SpawnImpactPortal(collision, velocity ); 
-		GetOwner()->Teleport( GetPhysics()->GetOrigin(), GetPhysics()->GetAxis().ToAngles(), NULL );
+	if ( spawnArgs.GetBool( "aperature_portal_gun", "0" ) ) { 
+		SpawnImpactPortal( collision, velocity ); 
 		PostEventMS( &EV_Remove, 0 );		//get rid of the original projectile once a portal has spawned
 		return true;
 	}
@@ -980,7 +969,7 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity, bo
 	if( gameLocal.isClient ) {
 		return true;
 	}
-	//gameLocal.Printf ( "DASTARDLY EXPLODING DOORS AND CORPSES!!!\n" );		//TMF7 (grenadelauncher, rocketlauncher, hyperblaster, dmg)
+	gameLocal.Printf ( "COLLIDE EXPLODE\n" );		//TMF7 
 	Explode( &collision, false, ignore );
 
 	return true;
@@ -1033,8 +1022,8 @@ void idProjectile::SpawnImpactEntities(const trace_t& collision, const idVec3 ve
 	origin += 10.0f * collision.c.normal;
 	for(int i = 0;i < numImpactEntities; i++)
 	{
-		idProjectile* spawnProjectile = NULL;											//TMF7 DMG PORTAL IS NOT A PROJECTILE
-		gameLocal.SpawnEntityDef(*impactEntityDict,(idEntity**)&spawnProjectile);		//TMF7 DMG PORTAL spawn
+		idProjectile* spawnProjectile = NULL;	
+		gameLocal.SpawnEntityDef(*impactEntityDict,(idEntity**)&spawnProjectile);
 		if(spawnProjectile != NULL)
 		{
 			int pitch = rvRandom::irand(ieMinPitch, ieMaxPitch);
@@ -1066,13 +1055,13 @@ idProjectile::SpawnImpactPortal
 */
 void idProjectile::SpawnImpactPortal(const trace_t& collision, const idVec3 velocity)
 {
-	if( impactPortal.Length() == 0 )
+	if( impactPortal.Length() == 0 || !owner )
 		return;
 
-	const idDict* impactPortalDict = gameLocal.FindEntityDefDict(impactPortal);
-	if(impactPortalDict == NULL)
-		return;
+	const idDict* impactPortalDict = gameLocal.FindEntityDefDict( impactPortal );
+	if(impactPortalDict == NULL) { return; }
 
+	idVec3 tempDirection( 1, 0, 0 );
 	idVec3 direction;
 	direction.Zero();
 
@@ -1092,16 +1081,55 @@ void idProjectile::SpawnImpactPortal(const trace_t& collision, const idVec3 velo
 
 	idVec3 origin = collision.endpos;
 
-		idTrigger_Touch* spawnPortal = NULL;										
-		gameLocal.SpawnEntityDef(*impactPortalDict,(idEntity**)&spawnPortal);	//sets up the variables for the portal
-		if(spawnPortal != NULL)
-		{
-			//link the touchin of one portal to another...in Trigger.h (no "owner" necessary)
+	idProjectile* spawnPortal = NULL;	
+	gameLocal.SpawnEntityDef(*impactPortalDict,(idEntity**)&spawnPortal);	//calls rvDarkMatterProjectile (and idProjectile?) Spawn()
 
-			//Now orient the direction to the surface world orientation.
-			//direction = impactAxes * tempDirection;
-			//spawnPortal->Launch(origin, direction, vec3_zero );
+	if( spawnPortal != NULL )
+	{
+		spawnPortal->SetOwner( owner );
+		spawnPortal->GetOwner()->numPortals++;
+
+		//idEntity variable that toggles which portal is being assigned
+		if ( !spawnPortal->GetOwner()->portalToggle ) { spawnPortal->GetOwner()->portalToggle = 1; }
+			
+		//tell the portal which one it is
+		spawnPortal->portalNumber = spawnPortal->GetOwner()->portalToggle;
+
+		//set the idEntity variable that holds the entityNumber of this portal accordingly
+		switch ( spawnPortal->GetOwner()->portalToggle ) {
+			case 1: { 		
+
+				//if there's already two portals get rid of the second to last one spawned
+				if ( spawnPortal->GetOwner()->numPortals >= 3 ) {
+					gameLocal.entities[ spawnPortal->GetOwner()->portalOne ]->ProcessEvent( &EV_Remove );
+					spawnPortal->GetOwner()->numPortals--;
+				}
+
+				spawnPortal->GetOwner()->portalOne = spawnPortal->entityNumber; 
+				spawnPortal->GetOwner()->portalToggle = 2; 
+
+				break; 
+			}
+
+			case 2: { 
+
+				//if there's already two portals get rid of the second to last one spawned
+				if ( spawnPortal->GetOwner()->numPortals >= 3 ) {
+					gameLocal.entities[ spawnPortal->GetOwner()->portalTwo ]->ProcessEvent( &EV_Remove );
+					spawnPortal->GetOwner()->numPortals--;
+				}
+
+				spawnPortal->GetOwner()->portalTwo = spawnPortal->entityNumber; 
+				spawnPortal->GetOwner()->portalToggle = 1; 
+
+				break; 
+			}
 		}
+
+		//Now orient the direction to the surface world orientation.
+		direction = impactAxes * tempDirection;
+		spawnPortal->Launch(origin, direction, vec3_zero ); //no initial launch velocity
+	}
 }
 
 //TMF7 END PORTAL GUN
@@ -1233,7 +1261,7 @@ void idProjectile::Event_RadiusDamage( idEntity *ignore ) {
 		gameLocal.RadiusDamage( physicsObj.GetOrigin(), this, owner, ignore, this, splash_damage, damagePower, &hitCount );
 	}
 }
-//TMF7 BEGIN
+//TMF7 BEGIN PARALYSIS BOMB
 /*
 ================
 idProjectile::Event_ParalysisCloud
@@ -1248,7 +1276,7 @@ void idProjectile::Event_ParalysisCloud ( idEntity* ignore ) {
 	// Keep the loop going
 	PostEventSec ( &EV_ParalysisCloud, spawnArgs.GetFloat ( "delay_ragdoll" ), ignore );
 }
-//TMF7 END
+//TMF7 END PARALYSIS BOMB
 
 
 /*
