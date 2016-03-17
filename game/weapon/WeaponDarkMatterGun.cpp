@@ -428,8 +428,11 @@ rvDarkMatterProjectile::Spawn
 ================
 */
 void rvDarkMatterProjectile::Spawn ( void ) {
-	//nextDamageTime  = 0;							//TMF7 uncomment
-	//radiusDamageDef = gameLocal.FindEntityDefDict ( spawnArgs.GetString ( "def_radius_damage" ) ); //TMF7 uncomment
+
+	BecomeActive( TH_THINK );	//TMF7 PORTAL GUN 
+
+	nextDamageTime  = 0;							
+	radiusDamageDef = gameLocal.FindEntityDefDict ( spawnArgs.GetString ( "def_radius_damage" ) ); 
 }
 
 /*
@@ -459,34 +462,28 @@ rvDarkMatterProjectile::Think
 */
 void rvDarkMatterProjectile::Think ( void ) {
 
-	if ( spawnArgs.GetBool( "aperature_portal" ) ) { physicsObj.SetContents( CONTENTS_SOLID ); }
+	if ( spawnArgs.GetBool( "aperature_portal" ) ) { GetPhysics()->SetContents( CONTENTS_SOLID ); }
 	else { physicsObj.SetClipMask( MASK_DMGSOLID ); }
 
 	idProjectile::Think ( );
 
+//TMF7 BEGIN PORTAL GUN
 	if ( physicsObj.IsAtRest() && spawnArgs.GetBool( "aperature_portal" ) ) {
-		gameLocal.Printf( "%d AT REST\n", entityNumber );
-
+		
 		//ensure both portals exist
 		if ( owner && GetOwner()->numPortals >= 2 ) {
 
-			//check if any actors are touching this portal (update the contacts and the clipmodel/clipmask???)
-			for ( int i = 0; i < physicsObj.GetNumContacts( ); i++ ) {
-				idEntity *ent = gameLocal.entities[ physicsObj.GetContact( i ).entityNum ];
+			//make sure both portal entities actually exist
+			if ( owner->portalOne < gameLocal.num_entities && owner->portalTwo < gameLocal.num_entities && 
+				gameLocal.entities[ owner->portalOne ]->IsType( idProjectile::GetClassType() ) && 
+				gameLocal.entities[ owner->portalTwo ]->IsType( idProjectile::GetClassType() ) ) {
 
-				if ( ent && ent->IsType( idActor::GetClassType() ) ) {
-					idActor *person = static_cast<idActor*>(ent);
-
-					//teleport the actor to the other portal
-					if ( portalNumber == 1 ) {
-						person->Teleport( gameLocal.entities[ GetOwner()->portalTwo ]->GetPhysics()->GetOrigin(), person->GetPhysics()->GetAxis().ToAngles(), NULL );
-					} else if ( portalNumber == 2 ) {
-						person->Teleport( gameLocal.entities[ GetOwner()->portalOne ]->GetPhysics()->GetOrigin(), person->GetPhysics()->GetAxis().ToAngles(), NULL );
-					}
-				}
+				//hacky check for all actors touching this portal
+				gameLocal.RadiusDamage( GetPhysics()->GetOrigin(), this, NULL, NULL, NULL, spawnArgs.GetString ( "def_portal" ) );
 			}
 		}
 	}
+//TMF7 BEGIN PORTAL GUN
 
 /*TMF7 uncomment
 	if ( gameLocal.time > nextDamageTime ) {

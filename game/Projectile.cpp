@@ -500,14 +500,11 @@ void idProjectile::Launch( const idVec3 &start, const idVec3 &dir, const idVec3 
 	flyEffect = PlayEffect( "fx_fly", renderEntity.origin, renderEntity.axis, true );
 	flyEffectAttenuateSpeed = spawnArgs.GetFloat( "flyEffectAttenuateSpeed", "0" );
 
-//TMF7 BEGIN
-	if ( spawnArgs.GetString( "fx_idle" ) ) {
-		UpdateModelTransform();
-		PlayEffect( "fx_idle", renderEntity.origin, renderEntity.axis, true );		//effectIdle = 
-		//StopEffect( "fx_idle", true ); //when its timer runs out "explodes/fizzles"
-	}
-//TMF7 END
-
+//TMF7 BEGIN PORTAL GUN
+	//change the axis so the fx aligns better
+	PlayEffect( "fx_idle", GetPhysics()->GetOrigin(), idVec3(0,0,1).ToMat3(), true );		
+	//if ( spawnArgs.GetBool ( "aperature_portal" ) ) { physicsObj.PutToRest(); }
+//TMF7 BEGIN PORTAL GUN
 
 	state = LAUNCHED;
 
@@ -537,7 +534,7 @@ void idProjectile::Think( void ) {
 	if ( thinkFlags & TH_PHYSICS ) {
 
 		// Update the velocity to match the changing speed
-		if ( updateVelocity ) {		//TMF7 PORTAL (keep from accel due to gravity?) && !spawnArgs.GetBool( "aperature_portal" )
+		if ( updateVelocity ) {
 			idVec3 vel;
 			vel = physicsObj.GetLinearVelocity ( );
 			vel.Normalize ( );

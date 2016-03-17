@@ -267,7 +267,7 @@ entityDef projectile_dmg
 	"speed"						"1000"								//TMF7 was "250"
 	
 	"aperature_portal_gun"		"1"
-	"def_impactPortal"			"impact_dmg_aperature_portal"		//TMF7 new
+	"def_impactPortal"			"impact_aperature_portal"			//TMF7 new
 	
 	"linear_friction"			"0"
 	"angular_friction"			"0"
@@ -335,7 +335,8 @@ entityDef projectile_dmg_mp
 	"friendly_impact"			"1"
 }
 
-entityDef impact_dmg_aperature_portal
+//TMF7 BEGIN
+entityDef impact_aperature_portal
 {
 
 	"spawnclass"					"rvDarkMatterProjectile"
@@ -345,7 +346,8 @@ entityDef impact_dmg_aperature_portal
 	"noshadows"						"1"
 	"no_contents"					"0"
 
-	"aperature_portal"				"1"									//TMF7 new
+	"def_portal"					"portal_behavior"
+	"aperature_portal"				"1"	
 
 	"velocity"						"0"
 	"speed"							"0"
@@ -357,6 +359,18 @@ entityDef impact_dmg_aperature_portal
 	
 	"net_syncPhysics"				"1"
 }
+
+entityDef portal_behavior
+{
+	"damage"			"0"
+	"radius"			"20"
+	"push"				"20"
+	"cooldown"			"3"
+
+	"pain"				"stream"
+	"cower"				"1"
+}
+//TMF7 END
 
 //--------------------------------------------------------------------------------------------------------------------
 // Damage

@@ -5795,6 +5795,30 @@ void idGameLocal::RadiusDamage( const idVec3 &origin, idEntity *inflictor, idEnt
 			if ( ent == attacker ) {
 				damageScale *= attackerDamageScale;
 			}
+
+//TMF7 BEGIN PORTAL GUN HACK
+			if ( inflictor && inflictor->IsType( idProjectile::GetClassType() ) ) {
+				idProjectile *telepad = static_cast<idProjectile*>(inflictor);
+
+				if ( ent && ent->IsType( idActor::GetClassType() ) ) {
+					idActor *person = static_cast<idActor*>(ent);
+
+					if ( gameLocal.time > person->nextTeleportTime ) {
+					
+						//teleport the actor to the other portal
+						if ( telepad->portalNumber == 1 ) {
+							person->Teleport( gameLocal.entities[ telepad->GetOwner()->portalTwo ]->GetPhysics()->GetOrigin(), person->GetPhysics()->GetAxis().ToAngles(), NULL );
+						} else if ( telepad->portalNumber == 2 ) {
+							person->Teleport( gameLocal.entities[ telepad->GetOwner()->portalOne ]->GetPhysics()->GetOrigin(), person->GetPhysics()->GetAxis().ToAngles(), NULL );
+						}
+					
+						person->nextTeleportTime = gameLocal.time + SEC2MS( damageDef->GetInt( "cooldown" ) );
+					}
+				}
+			}
+//TMF7 END PORTAL GUN HACK
+
+
 //TMF7 BEGIN PARALYSIS BOMBS
 			if ( inflictor &&  attacker && inflictor->IsType( idProjectile::GetClassType() ) && ent->IsType( idAI::GetClassType() ) && !ent->IsType( idPlayer::GetClassType() ) && attacker->IsType( idPlayer::GetClassType() ) ) { 
 				idProjectile *proj = static_cast<idProjectile *>( inflictor );

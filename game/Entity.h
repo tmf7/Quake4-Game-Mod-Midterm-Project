@@ -142,6 +142,7 @@ public:
 	int						portalTwo;				// the entity number of portal B
 	int						portalToggle;			// which portal is being spawned
 	int						numPortals;				// number of active portals
+	int						nextTeleportTime;		// time at which teleportation will be re-enabled
 //TMF7 END
 
 // RAVEN BEGIN
