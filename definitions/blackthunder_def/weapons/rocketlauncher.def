@@ -85,8 +85,8 @@ entityDef weapon_rocketlauncher
 	"weaponname"				"Rocket Launcher"
 	"def_projectile"			"projectile_rocket"
 	"ammoType"					"ammo_rocketlauncher"
-	"clipSize"					"0"												//TMF7 was 1
-	"ammoRequired"				"0"												//TMF7 was 1
+	"clipSize"					"0"					//TMF7 was 1
+	"ammoRequired"				"0"					//TMF7 was 1
 	"gui"						"guis/weapons/rocketlauncher_ammo.gui"
 	"mtr_icon"					"gfx/guis/hud/icons/gun_rocketlauncher"
 

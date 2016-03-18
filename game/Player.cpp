@@ -3613,7 +3613,7 @@ void idPlayer::DrawShadow( renderEntity_t *headRenderEnt ) {
 idPlayer::DrawHUD
 ===============
 */
-void idPlayer::DrawHUD( idUserInterface *_hud ) {
+void idPlayer::DrawHUD( idUserInterface *_hud ) {	//TMF7 THIRD PERSON HUD
 	idUserInterface * cursor = idPlayer::cursor;
  
 	if ( !gameLocal.GetLocalPlayer() ) {
@@ -3640,7 +3640,7 @@ void idPlayer::DrawHUD( idUserInterface *_hud ) {
 			}
 		}		
 	}
-
+	//TMF7 enable the hud, the hud's definitly defined, g_show is default 1 (check in-game), pcv = null, not in a NORMAL teleport
 	if ( disableHud || influenceActive != INFLUENCE_NONE || privateCameraView || !_hud || !g_showHud.GetBool() ) {
 		return;
 	}

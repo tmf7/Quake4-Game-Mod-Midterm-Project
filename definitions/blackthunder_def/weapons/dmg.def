@@ -105,8 +105,8 @@ entityDef weapon_dmg
 	"weaponname"				"Dark Matter Gun"
 	"def_projectile"			"projectile_dmg"
 	"ammoType"					"ammo_dmg"
-	"clipSize"					"1"
-	"ammoRequired"				"1"
+	"clipSize"					"0"			//TMF7 was 1
+	"ammoRequired"				"0"			//TMF7 was 1
 	"mtr_icon"					"gfx/guis/hud/icons/gun_darkmatter"
 
 //	"muzzle_kick_time"			"0.8"

@@ -2569,7 +2569,7 @@ void rvWeapon::Attack( bool altAttack, int num_attacks, float spread, float fuse
 	}
 
 	// add the muzzleflash
-	if ( GetOwner()->GetCurrentWeapon() != 3 ) { //TMF7 dont play the muzzle flash for the hyperblaster (flashbangs)
+	if ( GetOwner()->GetCurrentWeapon() != 3 ) { //TMF7 FLASH BANGS
 		MuzzleFlash();		
 	}
 

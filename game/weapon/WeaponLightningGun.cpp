@@ -164,6 +164,7 @@ void rvWeaponLightningGun::Spawn( void ) {
 	chainLightningRange = spawnArgs.GetVec2( "chainLightningRange", "150 300" );
 	
 	SetState ( "Raise", 0 );
+
 }
 
 /*

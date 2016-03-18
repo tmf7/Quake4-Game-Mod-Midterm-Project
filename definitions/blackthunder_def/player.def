@@ -699,10 +699,13 @@ entityDef player_marine
 	// default weapons
 	// seperate multiple weapons with commas (no spaces).
 	// NOTE: default ammo must be specified explicitly.
-	"weapon"						"weapon_grenadelauncher,weapon_rocketlauncher,weapon_hyperblaster,weapon_dmg"		//TMF7
-	"current_weapon"					"9"
+	"weapon"						"weapon_grenadelauncher,weapon_rocketlauncher,weapon_hyperblaster,weapon_dmg,weapon_lightninggun"		//TMF7
+	"current_weapon"					"8"
 
-//	"pm_thirdperson"					"1"						//TMF7 uncomment this for demo
+	"pm_thirdPerson"					"0"						//TMF7 keep 0
+	"pm_thirdPersonRange"				"150"
+	"pm_thirdPersonClip"				"1"
+	"pm_thirdPersonDeath"				"1"						//TMF7 enables hud and crosshair in 3rd person (when pm_thirdperson = 0)
 
 	"pm_jumpheight"						"48"
 	"pm_stepsize"						"16"
@@ -743,22 +746,22 @@ entityDef player_marine
 	"ammo_nailgun"						"0"
 	"ammo_blaster"						"-1"
 	"ammo_shotgun"						"0"
-	"ammo_hyperblaster"					"-1"			//TMF7 was 0
-	"ammo_rocketlauncher"					"-1"		//TMF7 was 0
-	"ammo_grenadelauncher"					"-1"		//TMF7 was 0
-	"ammo_lightninggun"					"0"
-	"ammo_none"						"-1"
+	"ammo_hyperblaster"					"-1"	
+	"ammo_rocketlauncher"				"-1"	
+	"ammo_grenadelauncher"				"-1"	
+	"ammo_lightninggun"					"-1"
+	"ammo_none"							"-1"
 
 	"max_ammo_blaster"					"-1"
 	"max_ammo_railgun"					"50"
-	"max_ammo_machinegun"					"300"
+	"max_ammo_machinegun"				"300"
 	"max_ammo_nailgun"					"300"
 	"max_ammo_shotgun"					"50"
-	"max_ammo_hyperblaster"					"-1"			//TMF7 was 400
-	"max_ammo_napalmgun"					"40"
-	"max_ammo_rocketlauncher"				"-1"			//TMF7 was 40
-	"max_ammo_grenadelauncher"				"-1"			//TMF7 was 50
-	"max_ammo_lightninggun"					"400"
+	"max_ammo_hyperblaster"				"-1"			//TMF7 was 400
+	"max_ammo_napalmgun"				"40"
+	"max_ammo_rocketlauncher"			"-1"			//TMF7 was 40
+	"max_ammo_grenadelauncher"			"-1"			//TMF7 was 50
+	"max_ammo_lightninggun"				"-1"			//TMF7 was 400
 	"max_ammo_dmg"						"-1"				//TMF7 was 25
 	"max_ammo_none"						"-1"
 

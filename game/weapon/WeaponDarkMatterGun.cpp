@@ -263,6 +263,7 @@ stateResult_t rvWeaponDarkMatterGun::State_Idle( const stateParms_t& parms ) {
 
 			// Auto reload?
 			if ( !AmmoInClip ( ) && AmmoAvailable () && !clientReload ) {
+
 				SetState ( "reload", 2 );
 				return SRESULT_DONE;
 			}
@@ -345,7 +346,7 @@ stateResult_t rvWeaponDarkMatterGun::State_Reload ( const stateParms_t& parms ) 
 			} else {
 				NetReload ( );
 			}
-			
+
 			StartRings ( true );
 			
 			SetStatus ( WP_RELOAD );
