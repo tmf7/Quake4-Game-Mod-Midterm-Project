@@ -58,10 +58,10 @@ entityDef weapon_lightninggun
 	"size"						"32 32 32"
 
 	//TMF7 the models apparently include the player's hands... but they can be removed and force the beam to emanate from the player's eyes/chest
-//	"model_view" 				"weapon_lightninggun_view"
-//	"model_view_strogg" 		"weapon_lightninggun_view_strogg"
-// 	"model_world"				"weapon_lightninggun_world"
-//	"model"						"models/weapons/lightning_gun/w_lg.lwo"
+	"model_view" 				"weapon_lightninggun_view"
+	"model_view_strogg" 		"weapon_lightninggun_view_strogg"
+ 	"model_world"				"weapon_lightninggun_world"
+	"model"						"models/weapons/lightning_gun/w_lg.lwo"
 	"def_dropItem"				"weapon_lightninggun"
 
 	"chainLightningRange"		"0 0"
@@ -296,9 +296,9 @@ entityDef hitscan_lightninggun_mp
 
 entityDef damage_lightninggun
 {
-	"damage"					"11"
+	"damage"					"0"						//TMF7 was "11"
 //	"knockback"					"10"
-	"gib"						"1"
+	"gib"						"0"						//TMF7 was 1
 
 	"filter_electricity"		"1"						// can damage all entities with their damage_filter set to "electricity"
 	
@@ -314,6 +314,9 @@ entityDef damage_lightninggun
 	"bleed"						"1"
 	
 	"pain"						"stream"
+
+	"infuse_life"				"1"			//TMF7
+	"add_heartbeats"			"1"			//TMF7 add this much to the monster's heartbeats each attack, at fireRate
 }
 
 entityDef damage_lightninggun_mp

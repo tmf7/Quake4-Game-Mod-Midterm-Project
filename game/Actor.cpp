@@ -2419,6 +2419,46 @@ void idActor::Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &dir
 	int	damage = damageDef->GetInt( "damage" ) * damageScale;
 	damage = GetDamageForLocation( damage, location );
 
+
+//TMF7 BEGIN NECROMANCER
+
+	if ( this->IsType( idAI::GetClassType() ) && damageDef->GetBool( "infuse_life" ) ) {
+		idAI *monster = static_cast<idAI*>(this);
+		
+		if ( monster->aifl.dead ) {
+
+			//pulse "life" (not health) into the dying monster on each attack according to fireRate
+			monster->heartbeats += damageDef->GetInt( "add_heartbeats" );
+
+			if ( monster->heartbeats > spawnArgs.GetInt( "health" ) ) {
+
+				//remove the dead monster
+				monster->PostEventMS( &EV_Remove, 0);
+
+				StartSound( "snd_pain_large", SND_CHANNEL_VOICE, 0, false, NULL );
+				gameLocal.PlayEffect( spawnArgs, "fx_gib", GetPhysics()->GetOrigin(), GetPhysics()->GetAxis() );
+
+				//spawn a new monster_failed_transer in the dead one's place
+				idDict		dict;
+				float		yaw = gameLocal.GetLocalPlayer()->viewAngles.yaw;
+				dict.Set( "classname", "monster_failed_transfer" );	//might walk too slow to be interesting
+				dict.Set( "angle", va( "%f", yaw + 180 ) );
+
+				idVec3 org = monster->af.GetPhysics()->GetOrigin();
+				dict.Set( "origin", org.ToString() );
+
+				idEntity *zombie = NULL;
+				gameLocal.SpawnEntityDef( dict, &zombie );
+
+				//make the new zombie a good guy that follows the player
+				((idAI*)zombie)->team = gameLocal.GetLocalPlayer()->team;
+				((idAI*)zombie)->SetLeader( gameLocal.GetLocalPlayer() );
+				((idAI*)zombie)->aifl.undying = false;
+			}
+		}
+	}
+//TMF7 END NECROMANCER
+
 	// friendly fire damage
 	bool noDmgFeedback = false;
 	if ( attacker->IsType ( idActor::Type ) && static_cast<idActor*>(attacker)->team == team ) {

@@ -674,6 +674,7 @@ stateResult_t idAI::State_Killed ( const stateParms_t& parms ) {
 
 	//quickburning subjects skip all this jazz
 	if( fl.quickBurn )	{
+		gameLocal.Printf( "QUICKBURN\n" );		//TMF7 DEBUG
 		PostState ( "State_Dead" );
 		return SRESULT_DONE;
 	}
@@ -705,6 +706,20 @@ idAI::State_Dead
 */
 stateResult_t idAI::State_Dead ( const stateParms_t& parms ) {
 	if ( !fl.hidden ) {
+
+//TMF7 BEGIN NECROMANCER
+		//don't burn if the corpse has heartbeats
+		if ( heartbeats > 0 ) { 
+
+			if ( gameLocal.time > nextDarkbeatTime ) {
+				heartbeats -= (heartbeats * 0.1f); //one tenth of accumulated heartbeats makes it exponentially harder to raise big ones
+				nextDarkbeatTime = gameLocal.time + darkbeat;
+			}
+
+			return SRESULT_WAIT; 
+		}	
+//TMF7 END NECROMANCER 
+
 		float burnDelay = spawnArgs.GetFloat ( "burnaway" );
 		if ( burnDelay > 0.0f ) {
 			if( fl.quickBurn )	{

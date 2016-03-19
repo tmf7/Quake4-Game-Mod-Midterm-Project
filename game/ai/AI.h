@@ -576,6 +576,12 @@ public:
 		bool		meleeSuperhero			:1;
 		bool		killerGuard				:1;			// Do 100 points of damage with each hit
 	} aifl;
+
+//TMF7 BEGIN NECROMANCER
+	int				heartbeats;
+	int				nextDarkbeatTime;
+	int				darkbeat;
+//TMF7 END NECROMANCER
 	
 	//
 	// ai/ai.cpp

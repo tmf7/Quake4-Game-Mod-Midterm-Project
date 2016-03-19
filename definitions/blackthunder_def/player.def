@@ -704,7 +704,7 @@ entityDef player_marine
 
 	"pm_thirdPerson"					"0"						//TMF7 keep 0
 	"pm_thirdPersonRange"				"150"
-	"pm_thirdPersonClip"				"1"
+	"pm_thirdPersonClip"				"1"						//TMF7 issue with world clipping with 0:1 person:death
 	"pm_thirdPersonDeath"				"1"						//TMF7 enables hud and crosshair in 3rd person (when pm_thirdperson = 0)
 
 	"pm_jumpheight"						"48"

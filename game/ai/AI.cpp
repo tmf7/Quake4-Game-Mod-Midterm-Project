@@ -244,6 +244,13 @@ void idAI::Save( idSaveGame *savefile ) const {
     
 	savefile->Write( &aifl, sizeof( aifl ) );
 
+//TMF7 BEGIN NECROMANCER
+	savefile->WriteInt( heartbeats );
+	savefile->WriteInt( nextDarkbeatTime );
+	savefile->WriteInt( darkbeat);
+//TMF7 END NECROMANCER
+
+
 	// Misc
 	savefile->WriteInt ( actionAnimNum );
 	savefile->WriteInt ( actionTime );
@@ -453,6 +460,12 @@ void idAI::Restore( idRestoreGame *savefile ) {
 
 	savefile->Read( &aifl, sizeof( aifl ) );
 
+//TMF7 BEGIN NECROMANCER
+	savefile->ReadInt( heartbeats );
+	savefile->ReadInt( nextDarkbeatTime );
+	savefile->ReadInt( darkbeat);
+//TMF7 END NECROMANCER
+
 	// Misc
 	savefile->ReadInt ( actionAnimNum );
 	savefile->ReadInt ( actionTime );
@@ -634,6 +647,14 @@ void idAI::Spawn( void ) {
 	aifl.undying		  		= spawnArgs.GetBool ( "undying", "0" );
 	aifl.killerGuard			= spawnArgs.GetBool ( "killer_guard", "0" );
 	aifl.scriptedEndWithIdle	= true;
+
+//TMF7 BEGIN NECROMANCER
+	heartbeats					= 10;	//universal delay before burning away
+	darkbeat					= 1000;	//every second is one heartbeat lost //SEC2MS( spawnArgs.GetInt( "health" ) / 10 );
+	nextDarkbeatTime			= gameLocal.time + darkbeat;
+//TMF7 END NECROMANCER
+
+
 
 	// Setup Move Data
 	move.Spawn( spawnArgs );

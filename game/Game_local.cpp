@@ -5801,7 +5801,7 @@ void idGameLocal::RadiusDamage( const idVec3 &origin, idEntity *inflictor, idEnt
 
 				if ( inflictor && inflictor->IsType( idProjectile::GetClassType() ) ) {
 					idProjectile *telepad = static_cast<idProjectile*>(inflictor);
-					idEntity *otherTelepad;
+					idEntity *otherTelepad = NULL;
 
 					if ( ent && ent->IsType( idActor::GetClassType() ) ) {
 						idActor *person = static_cast<idActor*>(ent);
