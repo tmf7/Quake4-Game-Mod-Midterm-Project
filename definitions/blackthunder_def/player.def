@@ -702,10 +702,13 @@ entityDef player_marine
 	"weapon"						"weapon_grenadelauncher,weapon_rocketlauncher,weapon_hyperblaster,weapon_dmg,weapon_lightninggun"		//TMF7
 	"current_weapon"					"8"
 
+//TMF7 BEGIN
 	"pm_thirdPerson"					"0"						//TMF7 keep 0
-	"pm_thirdPersonRange"				"150"
-	"pm_thirdPersonClip"				"1"						//TMF7 issue with world clipping with 0:1 person:death
+	"pm_thirdPersonRange"				"45"
+	"pm_thirdPersonClip"				"1"	
 	"pm_thirdPersonDeath"				"1"						//TMF7 enables hud and crosshair in 3rd person (when pm_thirdperson = 0)
+	"pm_thirdPersonHeight"				"15"
+//TMF7 END
 
 	"pm_jumpheight"						"48"
 	"pm_stepsize"						"16"

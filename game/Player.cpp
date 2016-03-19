@@ -2052,6 +2052,8 @@ void idPlayer::Spawn( void ) {
 //RITUAL END
 
 	itemCosts = static_cast< const idDeclEntityDef * >( declManager->FindType( DECL_ENTITYDEF, "ItemCostConstants", false ) );
+
+	selectedSpell = 0;		//TMF7 MAGIC USE
 }
 
 /*
@@ -2323,6 +2325,8 @@ void idPlayer::Save( idSaveGame *savefile ) const {
 	savefile->WriteBool( objectivesEnabled );
 
 	savefile->WriteBool( flagCanFire );
+
+	savefile->WriteInt( selectedSpell );		//TMF7 MAGIC USE
 	
 	// TOSAVE: const idDeclEntityDef*	cachedWeaponDefs [ MAX_WEAPONS ];	// cnicholson: Save these?
 	// TOSAVE: const idDeclEntityDef*	cachedPowerupDefs [ POWERUP_MAX ];
@@ -2599,6 +2603,8 @@ void idPlayer::Restore( idRestoreGame *savefile ) {
 	savefile->ReadBool( objectivesEnabled );
 
 	savefile->ReadBool( flagCanFire );
+
+	savefile->ReadInt( selectedSpell );		//TMF7 MAGIC USE
 
 	// set the pm_ cvars
 	const idKeyValue	*kv;
@@ -3972,7 +3978,7 @@ void idPlayer::FireWeapon( void ) {
 		return;
 	}
 
-	if ( g_editEntityMode.GetInteger() ) {
+	if ( g_editEntityMode.GetInteger() ) {		//TMF7 SELECT ENTITY (as opposed to g_dragEntity)
 		GetViewPos( muzzle, axis );
 		gameLocal.editEntities->SelectEntity( muzzle, axis[0], this );	
 		return;
@@ -6105,7 +6111,7 @@ void idPlayer::Weapon_Combat( void ) {
 	// check for attack
 	pfl.weaponFired = false;
  	if ( !influenceActive ) {
- 		if ( ( usercmd.buttons & BUTTON_ATTACK ) && !weaponGone ) {
+ 		if ( ( usercmd.buttons & BUTTON_ATTACK ) && !weaponGone ) {		//TMF7 MAGIC USE interrupt if selectedSpell > 0???
  			FireWeapon();
  		} else if ( oldButtons & BUTTON_ATTACK ) {
  			pfl.attackHeld = false;
@@ -8583,6 +8589,15 @@ void idPlayer::PerformImpulse( int impulse ) {
    			break;
    		}
 //TMF7 END REMOTE DETONATE
+
+//TMF7 BEGIN SPELL SELECT
+		case IMPULSE_24: {
+			selectedSpell++;
+			if ( selectedSpell > 4 ) { selectedSpell = 0; }
+			break;
+		}
+//TMF7 END SPELL SELECT
+
 		case IMPULSE_28: {
  			if ( gameLocal.isClient || entityNumber == gameLocal.localClientNum ) {
  				gameLocal.mpGame.CastVote( gameLocal.localClientNum, true );
@@ -9430,23 +9445,39 @@ void idPlayer::Think( void ) {
 		usercmd.upmove = 0;
 	}
 	
+//TMF7 BEGIN MAGIC USE
+	//and another condition maybe !( oldButtons & BUTTON_ATTACK ) [note that oldButtons was just set to usercmd.buttons 9397]
+	if ( selectedSpell > 0 && (usercmd.buttons & BUTTON_ZOOM) ) { 
+
+		//cast the selected spell (give the spells a castRate, like fireRate???) see lightninggun's "cast"
+		switch ( selectedSpell ) {
+			case TELEKINESIS: {break;}
+			case NECROMANCER: {break;}
+			case BLACKTHUNDER: {break;}
+			case FIRESPOUT: {break;}//see if I can change the trail of the lightninggun to a fire.fx
+		}
+
+//TMF7 END MAGIC USE
+	} else {
+
 	// zooming
-	bool zoom = (usercmd.buttons & BUTTON_ZOOM) && CanZoom();
-	if ( zoom != zoomed ) {
-		if ( zoom ) {
-			ProcessEvent ( &EV_Player_ZoomIn );
-		} else {
-			ProcessEvent ( &EV_Player_ZoomOut );
-		}
+		bool zoom = (usercmd.buttons & BUTTON_ZOOM) && CanZoom();		//TMF7 MAGIC USE
+		if ( zoom != zoomed ) {
+			if ( zoom ) {
+				ProcessEvent ( &EV_Player_ZoomIn );
+			} else {
+				ProcessEvent ( &EV_Player_ZoomOut );
+			}
 
-		if ( vehicleController.IsDriving( ) ) {
-#ifdef _XENON
-			usercmdGen->SetSlowJoystick( zoom ? pm_zoomedSlow.GetInteger() : 100 );
-#else
-			cvarSystem->SetCVarInteger( "pm_isZoomed", zoom ? pm_zoomedSlow.GetInteger() : 0 );
-#endif
-		}
+			if ( vehicleController.IsDriving( ) ) {
+	#ifdef _XENON
+				usercmdGen->SetSlowJoystick( zoom ? pm_zoomedSlow.GetInteger() : 100 );
+	#else
+				cvarSystem->SetCVarInteger( "pm_isZoomed", zoom ? pm_zoomedSlow.GetInteger() : 0 );
+	#endif
+			}
 
+		}
 	}
 
 	if ( IsInVehicle ( ) ) {	
@@ -11094,7 +11125,7 @@ void idPlayer::CalculateRenderView( void ) {
 				SmoothenRenderView( false );
 			} else if ( pm_thirdPersonDeath.GetBool() ) {
 				range = gameLocal.time < minRespawnTime ? ( gameLocal.time + RAGDOLL_DEATH_TIME - minRespawnTime ) * ( 120.0f / RAGDOLL_DEATH_TIME ) : 120.0f;
-	 			OffsetThirdPersonView( 0.0f, 20.0f + range, 0.0f, false );
+	 			OffsetThirdPersonView( pm_thirdPersonAngle.GetFloat(), pm_thirdPersonRange.GetFloat(), pm_thirdPersonHeight.GetFloat(), pm_thirdPersonClip.GetBool() );		//TMF7 THIRD PERSON HUD AND PROPER CLIPPING
 				SmoothenRenderView( false );
 			} else {
 				renderView->vieworg = firstPersonViewOrigin;

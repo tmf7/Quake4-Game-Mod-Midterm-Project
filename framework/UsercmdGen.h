@@ -24,7 +24,7 @@ const int USERCMD_MSEC_SP		= 1000 / USERCMD_HZ_SP;
 // usercmd_t->button bits
 const int BUTTON_ATTACK			= BIT(0);
 const int BUTTON_RUN			= BIT(1);
-const int BUTTON_ZOOM			= BIT(2);
+const int BUTTON_ZOOM			= BIT(2);			//TMF7 MAGIC USE only zoom if selectedSpell == 0 (no spell)
 const int BUTTON_SCORES			= BIT(3);
 const int BUTTON_MLOOK			= BIT(4);
 // RAVEN BEGIN
@@ -64,7 +64,7 @@ const int IMPULSE_20			= 20;			// toggle team ( toggles ui_team )
 const int IMPULSE_21			= 21;			// tourney toggle waiting room/spec
 const int IMPULSE_22			= 22;			// spectate
 const int IMPULSE_23			= 23;			// <unused>		//TMF7 remote detonate 
-const int IMPULSE_24			= 24;			// <unused>
+const int IMPULSE_24			= 24;			// <unused>		//TMF7 spell select
 const int IMPULSE_25			= 25;			// <unused>
 const int IMPULSE_26			= 26;			// <unused>
 const int IMPULSE_27			= 27;			// <unused>

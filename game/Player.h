@@ -84,6 +84,15 @@ typedef enum {
 	FOCUS_MAX
 } playerFocus_t;
 
+//TMF7 BEGIN MAGIC USE
+typedef enum {
+	TELEKINESIS			= 1,
+	NECROMANCER			= 2,
+	BLACKTHUNDER		= 3,
+	FIRESPOUT			= 4
+} playerSpell_t;
+//TMF7 END MAGIC USE
+
 struct idItemInfo {
 	idStr name;
 	idStr icon;
@@ -800,6 +809,9 @@ protected:
 	void					SetupHead( const char* modelKeyName = "", idVec3 headOffset = idVec3(0, 0, 0) );
 
 private:
+
+	int						selectedSpell;		//TMF7 MAGIC SYSTEM
+
 	float					vehicleCameraDist;
 
 	jointHandle_t			hipJoint;
