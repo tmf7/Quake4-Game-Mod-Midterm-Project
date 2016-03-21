@@ -36,6 +36,8 @@ const int	FOCUS_GUI_TIME				= 300;
 const int	FOCUS_USABLE_TIME			= 100;
 
 const int	MAX_WEAPONS					= 16;
+const int	MAX_SPELLS					= 5;		//TMF7 MAGIC USE
+const int	MAX_MANA					= 100;		//TMF7 MAGIC USE
 const int	MAX_AMMO					= 16;
 const int	CARRYOVER_FLAG_AMMO			= 0x40000000;
 const int	CARRYOVER_FLAG_ARMOR_LIGHT	= 0x20000000;
@@ -86,10 +88,11 @@ typedef enum {
 
 //TMF7 BEGIN MAGIC USE
 typedef enum {
-	TELEKINESIS			= 1,
-	NECROMANCER			= 2,
-	BLACKTHUNDER		= 3,
-	FIRESPOUT			= 4
+	SPELL_NONE,
+	TELEKINESIS,
+	NECROMANCER,
+	BLACKTHUNDER,
+	FIRESPOUT
 } playerSpell_t;
 //TMF7 END MAGIC USE
 
@@ -341,11 +344,18 @@ public:
 	// inventory
 	idInventory				inventory;
 
+//TMF7 BEGIN MAGIC USE
+	short							rechargingSpells;		//determines which spells are recharging
+	int								spell;
+	int								mana[ MAX_SPELLS ];		//how much mana each spell has
+	int								nextCastTime;
+	int								nextChargeTime;
+//TMF7 BEGIN MAGIC USE
+
 	rvWeapon*						weapon;
 	idEntityPtr<rvViewWeapon>		weaponViewModel;
 	idEntityPtr<idAnimatedEntity>	weaponWorldModel;
 	const idDeclEntityDef*			weaponDef;
-
 
  	idUserInterface *		hud;				// Common hud
 	idUserInterface *		mphud;				// hud overlay containing MP elements
@@ -809,8 +819,6 @@ protected:
 	void					SetupHead( const char* modelKeyName = "", idVec3 headOffset = idVec3(0, 0, 0) );
 
 private:
-
-	int						selectedSpell;		//TMF7 MAGIC SYSTEM
 
 	float					vehicleCameraDist;
 

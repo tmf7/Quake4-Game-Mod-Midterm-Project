@@ -87,7 +87,28 @@ entityDef weapon_lightninggun
 	"ammoType"					"ammo_lightninggun"
 	"ammoRequired"				"1"				//TMF7 was 1
 	"clipSize"					"0"				//TMF7 was 0
-	"lowAmmo"					"10"			//TMF7 get rid of this??
+
+//TMF7 BEGIN MAGIC USE
+	
+	"spell_name1"				"Necromancer"
+	"spell_mana1"				"1"
+	"spell_recharge1"			"2"
+
+	"spell_name2"				"Telekinesis"
+	"spell_mana2"				"5"
+	"spell_recharge2"			"1"
+
+	"spell_name3"				"Black Thunder"
+	"spell_mana3"				"5"
+	"spell_recharge3"			"2"
+
+	"spell_name4"				"Firespout"
+	"spell_mana4"				"10"
+	"spell_recharge4"			"2"
+
+//TMF7 END MAGIC USE
+
+	"lowAmmo"					"10"
 	"mtr_icon"					"gfx/guis/hud/icons/gun_lightninggun"
 
 	"muzzle_kick_time"			"0.1"
@@ -129,6 +150,8 @@ entityDef weapon_lightninggun
 	"weaponOffsetTime"			"600"
 	"weaponOffsetScale"			"0.002"
 	
+
+//TMF7 BEGIN SPELL_NONE
 	"fx_impact"					"effects/weapons/lightninggun/impact.fx"
 	"fx_impact_mp"				"effects/weapons/lightninggun/impact_mp.fx"
 //	"fx_impact_water"			"effects/ambient/splash_med.fx"
@@ -140,7 +163,7 @@ entityDef weapon_lightninggun
 //	"fx_flash_world"			"effects/weapons/lightninggun/muzzleflash_world.fx"
 	"fx_respawn"				"effects/mp/itemrespawn.fx"
 	"crawlTime"					".05"
-
+//TMF7 END SPELL_NONE
 
 	
 	// ------------------------ Ammo Tubes ---------------------------------------

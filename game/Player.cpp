@@ -1413,7 +1413,7 @@ void idPlayer::SetWeapon( int weaponIndex ) {
 		Event_DisableWeapon( );
 	}
 }
- 
+
 /*
 ==============
 idPlayer::SetupWeaponEntity
@@ -2053,7 +2053,13 @@ void idPlayer::Spawn( void ) {
 
 	itemCosts = static_cast< const idDeclEntityDef * >( declManager->FindType( DECL_ENTITYDEF, "ItemCostConstants", false ) );
 
-	selectedSpell = 0;		//TMF7 MAGIC USE
+//TMF7 BEGIN MAGIC USE
+	spell = SPELL_NONE;
+	nextCastTime = 0;
+	nextChargeTime = 0;
+	rechargingSpells = 0;
+	for( int i = 0; i < MAX_SPELLS; i++ ) { mana[ i ] = MAX_MANA; }
+//TMF7 END MAGIC USE
 }
 
 /*
@@ -2326,8 +2332,16 @@ void idPlayer::Save( idSaveGame *savefile ) const {
 
 	savefile->WriteBool( flagCanFire );
 
-	savefile->WriteInt( selectedSpell );		//TMF7 MAGIC USE
-	
+//TMF7 BEGIN MAGIC USE
+	savefile->WriteShort( rechargingSpells );
+	savefile->WriteInt( spell );	
+	savefile->WriteInt( nextCastTime );
+	savefile->WriteInt( nextChargeTime );
+		for( i = 0; i < MAX_SPELLS; i++ ) {
+		savefile->WriteInt( mana[ i ] );
+	}
+//TMF7 END MAGIC USE
+
 	// TOSAVE: const idDeclEntityDef*	cachedWeaponDefs [ MAX_WEAPONS ];	// cnicholson: Save these?
 	// TOSAVE: const idDeclEntityDef*	cachedPowerupDefs [ POWERUP_MAX ];
 
@@ -2604,7 +2618,15 @@ void idPlayer::Restore( idRestoreGame *savefile ) {
 
 	savefile->ReadBool( flagCanFire );
 
-	savefile->ReadInt( selectedSpell );		//TMF7 MAGIC USE
+//TMF7 BEGIN MAGIC USE
+	savefile->ReadShort( rechargingSpells );
+	savefile->ReadInt( spell );	
+	savefile->ReadInt( nextCastTime );
+	savefile->ReadInt( nextChargeTime );
+		for( i = 0; i < MAX_SPELLS; i++ ) {
+		savefile->ReadInt( mana[ i ] );
+	}
+//TMF7 END MAGIC USE
 
 	// set the pm_ cvars
 	const idKeyValue	*kv;
@@ -3362,10 +3384,18 @@ void idPlayer::UpdateHudAmmo( idUserInterface *_hud ) {
 	ammoamount	= weapon->AmmoAvailable();
 
 	if ( ammoamount < 0 ) {
-		// show infinite ammo
-		_hud->SetStateString( "player_ammo", "-1" );
+		// show infinite ammo			//TMF7 and set the spell text
+		if ( weapon && spell > SPELL_NONE ) { 
+			_hud->SetStateString( "player_ammo", weapon->spawnArgs.GetString( va( "spell_name%i", spell ), "" ) ); 
+
+			idStr text ( va( "spell_name%i", spell ) );
+			text.Append( " = %s\n" );
+			gameLocal.Printf( text, weapon->spawnArgs.GetString( va( "spell_name%i", spell ) ) );
+		}
+		else { _hud->SetStateString( "player_ammo", "-1" ); }
+
 		_hud->SetStateString( "player_totalammo", "-1" );
-		_hud->SetStateFloat ( "player_ammopct", 1.0f );
+		_hud->SetStateFloat ( "player_ammopct", (float)mana[ spell ] / (float)MAX_MANA );		//TMF7 MAGIC USE
 	} else if ( weapon->ClipSize ( ) && !gameLocal.isMultiplayer ) {
 		_hud->SetStateInt ( "player_clip_size", weapon->ClipSize() );
 		_hud->SetStateFloat ( "player_ammopct", (float)inclip / (float)weapon->ClipSize ( ) );
@@ -3646,7 +3676,7 @@ void idPlayer::DrawHUD( idUserInterface *_hud ) {	//TMF7 THIRD PERSON HUD
 			}
 		}		
 	}
-	//TMF7 enable the hud, the hud's definitly defined, g_show is default 1 (check in-game), pcv = null, not in a NORMAL teleport
+
 	if ( disableHud || influenceActive != INFLUENCE_NONE || privateCameraView || !_hud || !g_showHud.GetBool() ) {
 		return;
 	}
@@ -5488,7 +5518,7 @@ void idPlayer::LastWeapon( void ) {
 idPlayer::NextBestWeapon
 ===============
 */
-void idPlayer::NextBestWeapon( void ) {
+void idPlayer::NextBestWeapon( void ) {		
 	const char *weap;
 	int w = MAX_WEAPONS;
 
@@ -6111,7 +6141,7 @@ void idPlayer::Weapon_Combat( void ) {
 	// check for attack
 	pfl.weaponFired = false;
  	if ( !influenceActive ) {
- 		if ( ( usercmd.buttons & BUTTON_ATTACK ) && !weaponGone ) {		//TMF7 MAGIC USE interrupt if selectedSpell > 0???
+ 		if ( ( usercmd.buttons & BUTTON_ATTACK ) && !weaponGone ) {		//TMF7 MAGIC USE Fire the spell instead if selectedSpell > 0
  			FireWeapon();
  		} else if ( oldButtons & BUTTON_ATTACK ) {
  			pfl.attackHeld = false;
@@ -6348,7 +6378,7 @@ void idPlayer::UpdateWeapon( void ) {
 		Weapon_GUI();
 	} else if ( !hiddenWeapon ) { /* no pda yet || ( ( weapon_pda >= 0 ) && ( idealWeapon == weapon_pda ) ) ) { */
 		flagCanFire = true;
-		Weapon_Combat();
+		Weapon_Combat();					//TMF7 MAGIC USE
 	}	
 
 	// Range finder for debugging
@@ -8592,8 +8622,8 @@ void idPlayer::PerformImpulse( int impulse ) {
 
 //TMF7 BEGIN SPELL SELECT
 		case IMPULSE_24: {
-			selectedSpell++;
-			if ( selectedSpell > 4 ) { selectedSpell = 0; }
+			spell++;
+			if ( spell >= MAX_SPELLS ) { spell = SPELL_NONE; }
 			break;
 		}
 //TMF7 END SPELL SELECT
@@ -9445,39 +9475,23 @@ void idPlayer::Think( void ) {
 		usercmd.upmove = 0;
 	}
 	
-//TMF7 BEGIN MAGIC USE
-	//and another condition maybe !( oldButtons & BUTTON_ATTACK ) [note that oldButtons was just set to usercmd.buttons 9397]
-	if ( selectedSpell > 0 && (usercmd.buttons & BUTTON_ZOOM) ) { 
-
-		//cast the selected spell (give the spells a castRate, like fireRate???) see lightninggun's "cast"
-		switch ( selectedSpell ) {
-			case TELEKINESIS: {break;}
-			case NECROMANCER: {break;}
-			case BLACKTHUNDER: {break;}
-			case FIRESPOUT: {break;}//see if I can change the trail of the lightninggun to a fire.fx
+// zooming
+	bool zoom = (usercmd.buttons & BUTTON_ZOOM) && CanZoom();
+	if ( zoom != zoomed ) {
+		if ( zoom ) {
+			ProcessEvent ( &EV_Player_ZoomIn );
+		} else {
+			ProcessEvent ( &EV_Player_ZoomOut );
 		}
 
-//TMF7 END MAGIC USE
-	} else {
-
-	// zooming
-		bool zoom = (usercmd.buttons & BUTTON_ZOOM) && CanZoom();		//TMF7 MAGIC USE
-		if ( zoom != zoomed ) {
-			if ( zoom ) {
-				ProcessEvent ( &EV_Player_ZoomIn );
-			} else {
-				ProcessEvent ( &EV_Player_ZoomOut );
-			}
-
-			if ( vehicleController.IsDriving( ) ) {
-	#ifdef _XENON
-				usercmdGen->SetSlowJoystick( zoom ? pm_zoomedSlow.GetInteger() : 100 );
-	#else
-				cvarSystem->SetCVarInteger( "pm_isZoomed", zoom ? pm_zoomedSlow.GetInteger() : 0 );
-	#endif
-			}
-
+		if ( vehicleController.IsDriving( ) ) {
+#ifdef _XENON
+			usercmdGen->SetSlowJoystick( zoom ? pm_zoomedSlow.GetInteger() : 100 );
+#else
+			cvarSystem->SetCVarInteger( "pm_isZoomed", zoom ? pm_zoomedSlow.GetInteger() : 0 );
+#endif
 		}
+
 	}
 
 	if ( IsInVehicle ( ) ) {	
@@ -9619,7 +9633,44 @@ void idPlayer::Think( void ) {
 	if ( spectating ) {
 		UpdateSpectating();
 	} else if ( health > 0 && !gameLocal.inCinematic ) {
-		UpdateWeapon();
+		UpdateWeapon();		//disable the attack step if rechargingSpells on the current spell
+//TMF7 BEGIN MAGIC USE
+		if ( weapon ) {
+			
+			// Each spell has a different amount of mana required and a different recharge rate, fireRate is constant
+
+			// All spells are handled through the lightning gun
+			if ( idStr::Cmp( weapon->spawnArgs.GetString( "weaponclass" ), "rvWeaponLightningGun" ) ) { spell = SPELL_NONE; }	
+
+			if ( pfl.attackHeld && !( rechargingSpells & spell ) && spell != SPELL_NONE && spell < MAX_SPELLS && gameLocal.time > nextCastTime ) { 
+				int manaRequired = weapon->spawnArgs.GetInt( va( "spell_mana%i", spell ), "1" );
+
+				mana[ spell ] -= manaRequired;
+				nextCastTime = gameLocal.time + weapon->fireRate;
+
+				if( mana[ spell ] < 0 ) { mana[ spell ] = 0; rechargingSpells |= spell; }
+			}// else if ( rechargingSpells & spell ) { StopFiring(); }//hopefully no damage has been assesed yet....probably has...
+		
+			if( rechargingSpells ) {
+				int rechargeAmount = 1;
+
+				for( int i = 1; i < MAX_SPELLS; i++) { //dont bother checking SPELL_NONE index
+					rechargeAmount = weapon->spawnArgs.GetInt( va( "spell_recharge%i", i ) );
+
+					if( ( rechargingSpells & i ) && gameLocal.time > nextChargeTime ) {
+						mana[ i ] += rechargeAmount;	
+
+						if ( mana[ i ] > MAX_MANA ) { 
+							mana[ i ] = MAX_MANA; 
+							rechargingSpells  &= ~i; 
+						}
+						
+						nextChargeTime = gameLocal.time + ( weapon->fireRate * 2 );		//recharge at half the speed of casting
+					}
+				}
+			}
+		}
+//TMF7 END MAGIC USE
 	}
 
 	UpdateAir();

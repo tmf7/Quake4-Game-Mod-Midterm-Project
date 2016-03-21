@@ -24,7 +24,7 @@ const int USERCMD_MSEC_SP		= 1000 / USERCMD_HZ_SP;
 // usercmd_t->button bits
 const int BUTTON_ATTACK			= BIT(0);
 const int BUTTON_RUN			= BIT(1);
-const int BUTTON_ZOOM			= BIT(2);			//TMF7 MAGIC USE only zoom if selectedSpell == 0 (no spell)
+const int BUTTON_ZOOM			= BIT(2);			//TMF7 MAGIC USE [ only zoom if selectedSpell == 0 (no spell) ]
 const int BUTTON_SCORES			= BIT(3);
 const int BUTTON_MLOOK			= BIT(4);
 // RAVEN BEGIN

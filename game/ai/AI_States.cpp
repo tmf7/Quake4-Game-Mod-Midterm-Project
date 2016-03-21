@@ -674,7 +674,6 @@ stateResult_t idAI::State_Killed ( const stateParms_t& parms ) {
 
 	//quickburning subjects skip all this jazz
 	if( fl.quickBurn )	{
-		gameLocal.Printf( "QUICKBURN\n" );		//TMF7 DEBUG
 		PostState ( "State_Dead" );
 		return SRESULT_DONE;
 	}

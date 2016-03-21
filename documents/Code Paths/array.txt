@@ -1,0 +1,61 @@
+0 = blaster
+1 = machinegun
+2 = shotgun
+3 = hyperblaster
+4 = grenade launcher
+5 = nailgun
+6 = rocketl launcher
+7 = railgun
+8 = lightning gun
+9 = dmg
+10 = gauntlet
+11 = unassigned
+12 = unassigned
+13 = unassigned
+14 = unassigned
+15 = unassigned
+
+idPlayer::Think()
+UpdateWeapon();		//determines firing, not directly hud
+UpdateHud();		//abritrary proj% and mp lag stuff
+
+
+idPlayer::Weapon_Combat()
+UpdateHudAmmo( hud );			//handles the %filled ammo gauge and inf ammo
+
+idPlayer::FireWeapon()
+hud->HandleNamedEvent( "weaponFire" );
+
+idPlayer::SetWeapon( int )
+UpdateHudWeapon();			//pops up the icons/spec_name, ammo# in box?
+_______________________________________________
+HUD.gui
+
+namedEvent "updateAmmo";
+namedEvent "clipCheck";
+
+
+______________________________________________
+UpdateHudWeapon
+UpdateHudAmmo
+UpdateHudStats
+UpdateHud
+DrawHud
+
+HandleNamedEvent
+StateChanged
+UpdateInGameHud
+player->GetHud()->SetStateInt( "stat_visible", visible? 1 : 0);
+gameLocal.GetLocalPlayer()->hud->HandleNamedEvent( "hideBossShieldBar");
+player->hud->SetStateString( "viewcomments", "" );
+selectionIndex = statHud->State().GetInt( "spec_names_sel_0", "-1" );
+SetupStatWindow
+
+hud->Activate( true, gameLocal.time );
+_hud->SetStateFloat ( "player_ammopct", (float)inclip / (float)weapon->ClipSize ( ) );
+hud->SetStateBool( weapnum, true );
+_hud->Redraw( gameLocal.realClientTime );
+____________________________________________________________
+
+what makes the armor show when > 0 and hide when < 0
+what causes the armor/health to slowly diminish when over 100 (reverse it)

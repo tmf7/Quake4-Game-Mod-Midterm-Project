@@ -1,0 +1,89 @@
+
+-go through the logic of COLLIDE as to why a thing that strikes a particular object immedialy plays a detonate/impact effect
+	->regardless of whether it's bouncy
+
+-the player has weapon_raise (etc) animations AND the weapons themselves have animations
+	->which means if the weapon animations and meshes are removed, then the player will still animate
+	->the mesh in first person is the player AND the weapon =>only works for third person
+	->use gauntlet ANIMATIONS (no mesh) for all equippable spells
+
+-FORCE DMG TO ALWAYS PLAY RELOAD EACH SHOT
+
+-Fix NPC crossair (originally wanted to prevent them from ragdoll using that code)
+-NO KNIFE, JUST meshless gauntlet PUNCH
+
+
+idPlayer::UpdateHudStats
+wfl.silent_fire (to avoid alerting nearby AIs)
+idPlayer::SetShowHUD( bool );
+idPlayer::ShowCrosshair
+
+move the focus of the crosshair downrange (make aiming more natural looking?)
+focusLength (something calculates the distance to what essentially the first person crosshair is aimed at)
+	->move the crosshair (and player's aim) to the left (twisting the torso a bit hopefully)
+->idPlayer::OffsetThirdPersonView
+
+owner->playerView.SetShakeParms( MS2SEC(gameLocal.GetTime() + 500), 2.0f ); //shaky camera
+
+
+
+g_gunViewStyle
+
+g_crosshairCharInfoFar
+g_crosshairSize
+
+
+-test what happends to necro followers if i die
+g_editEntityMode (click on an entity/whatever to SELECT and edit it in-game)
+
+
+___________________________________________________________
+MAGIC STEPS:
+-Enable IMPULSE_24 (bind 'v') to set the spell # (and update the hud accordingly)
+-Enable IMPULSE_25 (bind 'ctrl?') to actually switch to the casting version of the lightning gun
+	->lockout switch weapons other ways??? (IMPULSE_4 or whatever Next/Prev)
+	->a version of the lighting gun with and without a model???????
+-Setup Weapon_Combat to cast the spell
+
+-ensure the player starts off with all four spells
+-ensure that when a spell runs out it stays equipped just fine but cant fire
+
+-make a single mana bar that displays like the ammo clip on the hud (just far to the right or top or wherever) and updatehudstats accordingly
+	->make the bar blink if its reloading...forget this shit about not even going to it or switching away
+	->have it display the spell name instead of the mana_amount number (like bullets in clip)
+
+
+PLAYER VALUES TO SAVE/RESTORE(...):
+recharging	(currently 2 bytes (16 bits) long == MAX_WEAPONS)
+spell
+
+____________________________________________________________
+
+
+idPlayer::Weapon_Combat( void ) [as long as BUTTON_ATTACK IS HELD FireWeapon() is called, which sets pfl.attackHeld, wsfl.attack]
+
+EvaluateControls happens (in Think )before:
+Think->UpdateWeapon->Weapon_Combat->FireWeapon->( weapon->BeginAttack )
+
+
+if ( selectedSpell > 0 && (usercmd.buttons & BUTTON_ZOOM) )
+
+-Check when ( Button_Zoom ), if spell selected => cast that spell ( instead of BUTTON_ATTACK )
+-never scroll-switch or button-switch to a weapon that's designated a spell in the player.def (only "v" switch)
+	->switching weapons conflicts with the ability to ZOOM AND FIRE simultaneously
+-add mana qualifer/condition and depelete THAT alongside INFINITE AMMO 
+	->handle each spell's mana in idPlayer::Think
+
+whan a weapon Spawns it SetState( "Raise" )
+the Raise animation plays, when its done it SetState( "Idle" ) [unless wsfl.lowerweapon]
+the Idle animation plays, moves on to STAGE_WAIT and cycles the state, looking for wsfl.lowerWeapon == true OR wsfl.attack == true
+	->so essentially, after a weapon spawns it just waits for wsfl.attack == true to actually do the magic ANIMATION
+	->the Think() function of the lightninggun handles the Attack (again as long as wsfl.attack == true )
+
+-FIND HOW TO SWITCH/ENABLE/SPAWN a weapon (IMPULSE_14 and IMPULSE_15 change weapons)
+
+UpdateHudWeapon( int displayWeapon ) is whats immedialtly called after the nextweapon is determined (via ammo, ideal, etc) BUT:
+
+idealWeapon changes, which might mean that if ( idealWeapon != currentWeapon ) causes a weapon change.....SetWeapon( idealWeapon );
+
+
