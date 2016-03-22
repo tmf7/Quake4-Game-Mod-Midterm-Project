@@ -165,6 +165,11 @@ void rvWeaponLightningGun::Spawn( void ) {
 	
 	SetState ( "Raise", 0 );
 
+	//TMF7 populate the player's rechargeAmount, rechargeRate arrays
+	for ( int i = 1; i < MAX_SPELLS; i++ ) { //dont bother populating SPELL_NONE
+		GetOwner()->chargeAmount[ i ] = spawnArgs.GetInt( va( "spell_charge_amount%i", i ) );
+		GetOwner()->chargeRate[ i ] = SEC2MS( spawnArgs.GetInt( va( "spell_charge_rate%i", i ) ) );
+	}
 }
 
 /*

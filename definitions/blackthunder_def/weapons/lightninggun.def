@@ -91,20 +91,24 @@ entityDef weapon_lightninggun
 //TMF7 BEGIN MAGIC USE
 	
 	"spell_name1"				"Necromancer"
-	"spell_mana1"				"1"
-	"spell_recharge1"			"2"
+	"spell_cost1"				"1"
+	"spell_charge_amount1"		"2"
+	"spell_charge_rate1"		"0.1"
 
 	"spell_name2"				"Telekinesis"
-	"spell_mana2"				"5"
-	"spell_recharge2"			"1"
+	"spell_cost2"				"5"
+	"spell_charge_amount2"		"1"
+	"spell_charge_rate2"		"0.1"
 
 	"spell_name3"				"Black Thunder"
-	"spell_mana3"				"5"
-	"spell_recharge3"			"2"
+	"spell_cost3"				"5"
+	"spell_charge_amount3"		"2"
+	"spell_charge_rate3"		"0.1"
 
 	"spell_name4"				"Firespout"
-	"spell_mana4"				"10"
-	"spell_recharge4"			"2"
+	"spell_cost4"				"10"
+	"spell_charge_amount4"		"2"
+	"spell_charge_rate4"		"0.1"
 
 //TMF7 END MAGIC USE
 

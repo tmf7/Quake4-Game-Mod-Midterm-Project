@@ -255,27 +255,36 @@ windowDef Desktop
 	}	
 	
 	onNamedEvent clipCheck {
-		if ( "gui::player_totalammo" == -1  ) {				
 //TMF7 BEGIN MAGIC USE
-			if ( "gui::player_ammo" == -1 ) { set "ammo_amount::visible" "0"; }	
-			else { 
-				set "ammo_amount::visible" "1"; 
-				set "ammo_amount::textscale" 0.1
-			}
-//TMF7 END MAGIC USE
+		if ( "gui::spell_equipped" ) {
+			set "ammo_amount::rect"	"20,429,125,26";
+			set "ammo_amount::textscale" 0.32;
+			set "ammo_amount::visible" "1";
 			set "ammo_amount_mp::visible" "0";
 			set "total_ammo::visible" "0";		
 			set "ammo_amount_nc::visible" "0";
+//TMF7 END MAGIC USE
+		} else if ( "gui::player_totalammo" == -1 ) {				
+			set "ammo_amount::visible" "0";
+			set "ammo_amount_mp::visible" "0";
+			set "total_ammo::visible" "0";		
+			set "ammo_amount_nc::visible" "0";
+			set "ammo_amount::textscale" 0.5;						//TMF7 new
+			set "ammo_amount::rect"	"44,429,49,26";					//TMF7 new
 		} else if ( "gui::player_ammo" == -1 || "gui::player_clip_size" < 2 ) {
 			set "ammo_amount::visible" "0";	
 			set "ammo_amount_mp::visible" "1";
 			set "total_ammo::visible" "0";	
 			set "ammo_amount_nc::visible" "1";
+			set "ammo_amount::textscale" 0.5;						//TMF7 new
+			set "ammo_amount::rect"	"44,429,49,26";					//TMF7 new
 		} else {
 			set "ammo_amount_mp::visible" "1";
 			set "ammo_amount::visible" "1";	
 			set "total_ammo::visible" "1";	
 			set "ammo_amount_nc::visible" "0";
+			set "ammo_amount::textscale" 0.5;						//TMF7 new
+			set "ammo_amount::rect"	"44,429,49,26";					//TMF7 new
 		}
 	}	
 	
@@ -623,10 +632,6 @@ windowDef Desktop
 	{
 		rect	0,0,640,480
 		visible	("gui::mp" == 0 )
-		//TMF7 add a Desktop (or gui) variable that is SetStateBool if the spell is recharging......and then a transition onTime continuously until SetStateBool recharging = 0
-		//also add a nother variable and SetStateString for the spell name...
-		//the quesiton is if i can actully se the desktop variable or MUST se the gui::variable???
-
 		windowDef ammo_backbar
 		{
 			rect	13,420,125,59
@@ -661,7 +666,7 @@ windowDef Desktop
 		windowDef current_gun
 		{
 			rect	11,435,106,26
-			visible	"desktop::showGunInfo" != 0
+			visible	"gui::spell_equipped" == 0		//TMF7 MAGIC USE was "desktop::showGunInfo" != 0
 			background	"gui::weapicon"
 			matcolor	0.780,0.741,0.470,0.4
 		}		
@@ -670,11 +675,11 @@ windowDef Desktop
 			rect	44,429,49,26
 			visible	1
 			forecolor	0.866,0.921,0.764,1
-			text	"gui::player_ammo"				//TMF7 MAGIC USE (set this to the spell name if spell != SPELL_NONE or just spell > 0)
-			textscale	0.5							//TMF7 change this to account for long spell names
+			text	"gui::player_ammo"				//TMF7 MAGIC USE (holds the spell name)
+			textscale	0.5		
 			font	"fonts/chain"
 			shear	0,-.22
-			textalign	2
+			textalign	0							//TMF7 MAGIC USE was 2
 		}
 		windowDef total_ammo
 		{
@@ -705,6 +710,24 @@ windowDef Desktop
 			background	"gui::ammoicon"
 			matcolor	0.658,0.639,0.376,0.6
 		}
+//TMF7 BEGIN MAGIC USE
+		windowDef spell_recharging
+		{
+			rect	13,420,125,59
+			visible	"gui::spell_charging"
+			background	"gfx/guis/hud/backbar_add"
+			matcolor	1*guitable_10_5[time*0.002],0,0,1
+			shear	0,-.22
+		}
+		windowDef spell_ekg
+		{
+			rect	13,420,125,59
+			visible	"gui::spell_equipped"
+			background	"gfx/guis/hud/ekg"
+			matcolor	0.0862,0.105,0.0549,1
+			shear	0,-.22
+		}
+//TMF7 END MAGIC USE
 	}
 	
 //-----------------------		

@@ -348,6 +348,8 @@ public:
 	short							rechargingSpells;		//determines which spells are recharging
 	int								spell;
 	int								mana[ MAX_SPELLS ];		//how much mana each spell has
+	int								chargeAmount[ MAX_SPELLS ];
+	int								chargeRate[ MAX_SPELLS ];
 	int								nextCastTime;
 	int								nextChargeTime;
 //TMF7 BEGIN MAGIC USE

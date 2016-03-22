@@ -2337,8 +2337,10 @@ void idPlayer::Save( idSaveGame *savefile ) const {
 	savefile->WriteInt( spell );	
 	savefile->WriteInt( nextCastTime );
 	savefile->WriteInt( nextChargeTime );
-		for( i = 0; i < MAX_SPELLS; i++ ) {
+	for( i = 0; i < MAX_SPELLS; i++ ) {
 		savefile->WriteInt( mana[ i ] );
+		savefile->WriteInt( chargeAmount[ i ] );
+		savefile->WriteInt( chargeRate[ i ] );
 	}
 //TMF7 END MAGIC USE
 
@@ -2623,8 +2625,10 @@ void idPlayer::Restore( idRestoreGame *savefile ) {
 	savefile->ReadInt( spell );	
 	savefile->ReadInt( nextCastTime );
 	savefile->ReadInt( nextChargeTime );
-		for( i = 0; i < MAX_SPELLS; i++ ) {
+	for( i = 0; i < MAX_SPELLS; i++ ) {
 		savefile->ReadInt( mana[ i ] );
+		savefile->ReadInt( chargeAmount[ i ] );
+		savefile->ReadInt( chargeRate[ i ] );
 	}
 //TMF7 END MAGIC USE
 
@@ -3383,19 +3387,15 @@ void idPlayer::UpdateHudAmmo( idUserInterface *_hud ) {
 	inclip		= weapon->AmmoInClip();
 	ammoamount	= weapon->AmmoAvailable();
 
+	_hud->SetStateBool( "spell_equipped", spell != SPELL_NONE ? true : false );		//TMF7 MAGIC USE (determines spell name visibility)
+	_hud->SetStateBool( "spell_charging", rechargingSpells & (1<<spell) ? true : false );	//TMF7 MAGIC USE (shows red mana bar if charging)
+	//_hud->SetStateInt( "spell_align", spell != SPELL_NONE ? 0 : 2 );					//TMF7 MAGIC USE (cleaner text display)
+	
 	if ( ammoamount < 0 ) {
 		// show infinite ammo			//TMF7 and set the spell text
-		if ( weapon && spell > SPELL_NONE ) { 
-			_hud->SetStateString( "player_ammo", weapon->spawnArgs.GetString( va( "spell_name%i", spell ), "" ) ); 
-
-			idStr text ( va( "spell_name%i", spell ) );
-			text.Append( " = %s\n" );
-			gameLocal.Printf( text, weapon->spawnArgs.GetString( va( "spell_name%i", spell ) ) );
-		}
-		else { _hud->SetStateString( "player_ammo", "-1" ); }
-
+		_hud->SetStateString( "player_ammo", spell != SPELL_NONE ? weapon->spawnArgs.GetString( va( "spell_name%i", spell ) ) : "-1" ); 
 		_hud->SetStateString( "player_totalammo", "-1" );
-		_hud->SetStateFloat ( "player_ammopct", (float)mana[ spell ] / (float)MAX_MANA );		//TMF7 MAGIC USE
+		_hud->SetStateFloat ( "player_ammopct", (float)mana[ spell ] / (float)MAX_MANA );		//TMF7 MAGIC USE (mana remaining)
 	} else if ( weapon->ClipSize ( ) && !gameLocal.isMultiplayer ) {
 		_hud->SetStateInt ( "player_clip_size", weapon->ClipSize() );
 		_hud->SetStateFloat ( "player_ammopct", (float)inclip / (float)weapon->ClipSize ( ) );
@@ -4020,14 +4020,15 @@ void idPlayer::FireWeapon( void ) {
 		bool noFireWhileSwitching = false;
 		noFireWhileSwitching = ( gameLocal.isMultiplayer && idealWeapon != currentWeapon && weapon->NoFireWhileSwitching() );
 		if ( !noFireWhileSwitching ) {
-			if ( weapon->AmmoInClip() || weapon->AmmoAvailable() ) {
+			if ( (weapon->AmmoInClip() || weapon->AmmoAvailable() ) && !( rechargingSpells & (1 << spell) ) ) {	//TMF7 MAGIC USE
 				pfl.attackHeld = true;
 				weapon->BeginAttack();
 			} else {
 				pfl.attackHeld = false;
 				pfl.weaponFired = false;
 				StopFiring();
-				NextBestWeapon();
+				if ( spell == SPELL_NONE ) 		//TMF7 MAGIC USE
+				{ NextBestWeapon(); }
 			}
 		} else {
 			StopFiring();
@@ -6141,7 +6142,7 @@ void idPlayer::Weapon_Combat( void ) {
 	// check for attack
 	pfl.weaponFired = false;
  	if ( !influenceActive ) {
- 		if ( ( usercmd.buttons & BUTTON_ATTACK ) && !weaponGone ) {		//TMF7 MAGIC USE Fire the spell instead if selectedSpell > 0
+ 		if ( ( usercmd.buttons & BUTTON_ATTACK ) && !weaponGone ) {
  			FireWeapon();
  		} else if ( oldButtons & BUTTON_ATTACK ) {
  			pfl.attackHeld = false;
@@ -6158,6 +6159,8 @@ void idPlayer::Weapon_Combat( void ) {
 		inventory.clip[ currentWeapon ] = weapon->AmmoInClip();
  		if ( hud && ( currentWeapon == idealWeapon ) ) {
  			UpdateHudAmmo( hud );
+			hud->HandleNamedEvent( "clipCheck" );		//TMF7 MAGIC USE (ensure spell name displays)
+			hud->StateChanged( gameLocal.time );		//TMF7 MAGIC USE housekeeping
 		}
 	}
 }
@@ -6378,7 +6381,7 @@ void idPlayer::UpdateWeapon( void ) {
 		Weapon_GUI();
 	} else if ( !hiddenWeapon ) { /* no pda yet || ( ( weapon_pda >= 0 ) && ( idealWeapon == weapon_pda ) ) ) { */
 		flagCanFire = true;
-		Weapon_Combat();					//TMF7 MAGIC USE
+		Weapon_Combat();					
 	}	
 
 	// Range finder for debugging
@@ -9633,44 +9636,39 @@ void idPlayer::Think( void ) {
 	if ( spectating ) {
 		UpdateSpectating();
 	} else if ( health > 0 && !gameLocal.inCinematic ) {
-		UpdateWeapon();		//disable the attack step if rechargingSpells on the current spell
+
 //TMF7 BEGIN MAGIC USE
-		if ( weapon ) {
-			
-			// Each spell has a different amount of mana required and a different recharge rate, fireRate is constant
+		
+		// All spells are handled through the lightning gun
+		if ( weapon && !idStr::Cmp( weapon->spawnArgs.GetString( "weaponclass" ), "rvWeaponLightningGun" ) ) {	
 
-			// All spells are handled through the lightning gun
-			if ( idStr::Cmp( weapon->spawnArgs.GetString( "weaponclass" ), "rvWeaponLightningGun" ) ) { spell = SPELL_NONE; }	
+			if ( pfl.attackHeld && !( rechargingSpells & (1 << spell) ) && spell != SPELL_NONE && spell < MAX_SPELLS && gameLocal.time > nextCastTime ) { 
 
-			if ( pfl.attackHeld && !( rechargingSpells & spell ) && spell != SPELL_NONE && spell < MAX_SPELLS && gameLocal.time > nextCastTime ) { 
-				int manaRequired = weapon->spawnArgs.GetInt( va( "spell_mana%i", spell ), "1" );
-
-				mana[ spell ] -= manaRequired;
+				mana[ spell ] -= weapon->spawnArgs.GetInt( va( "spell_cost%i", spell ), "1" );
 				nextCastTime = gameLocal.time + weapon->fireRate;
 
-				if( mana[ spell ] < 0 ) { mana[ spell ] = 0; rechargingSpells |= spell; }
-			}// else if ( rechargingSpells & spell ) { StopFiring(); }//hopefully no damage has been assesed yet....probably has...
+				if( mana[ spell ] <= 0 ) { mana[ spell ] = 0; rechargingSpells |= ( 1 << spell ); }
+			}
+		} else { spell = SPELL_NONE; }
 		
-			if( rechargingSpells ) {
-				int rechargeAmount = 1;
+		if( rechargingSpells ) {
 
-				for( int i = 1; i < MAX_SPELLS; i++) { //dont bother checking SPELL_NONE index
-					rechargeAmount = weapon->spawnArgs.GetInt( va( "spell_recharge%i", i ) );
+			for( int i = 1; i < MAX_SPELLS; i++) { //dont bother checking SPELL_NONE index
 
-					if( ( rechargingSpells & i ) && gameLocal.time > nextChargeTime ) {
-						mana[ i ] += rechargeAmount;	
+				if( ( rechargingSpells & (1 << i) ) && gameLocal.time > nextChargeTime ) {
+					mana[ i ] += chargeAmount[ i ];	
 
-						if ( mana[ i ] > MAX_MANA ) { 
-							mana[ i ] = MAX_MANA; 
-							rechargingSpells  &= ~i; 
-						}
-						
-						nextChargeTime = gameLocal.time + ( weapon->fireRate * 2 );		//recharge at half the speed of casting
+					if ( mana[ i ] > MAX_MANA ) { 
+						mana[ i ] = MAX_MANA; 
+						rechargingSpells  &= ~(1 << i); 
 					}
+						
+					nextChargeTime = gameLocal.time + chargeRate[ i ];
 				}
 			}
 		}
 //TMF7 END MAGIC USE
+		UpdateWeapon();		//disable the attack step if rechargingSpells on the current spell
 	}
 
 	UpdateAir();

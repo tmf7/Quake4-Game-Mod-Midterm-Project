@@ -700,7 +700,7 @@ entityDef player_marine
 	// seperate multiple weapons with commas (no spaces).
 	// NOTE: default ammo must be specified explicitly.
 	"weapon"						"weapon_grenadelauncher,weapon_rocketlauncher,weapon_hyperblaster,weapon_dmg,weapon_lightninggun"		//TMF7
-	"current_weapon"					"8"
+	"current_weapon"					"4"
 
 //TMF7 BEGIN
 	"pm_thirdPerson"					"0"						//TMF7 keep 0
@@ -765,7 +765,7 @@ entityDef player_marine
 	"max_ammo_rocketlauncher"			"-1"			//TMF7 was 40
 	"max_ammo_grenadelauncher"			"-1"			//TMF7 was 50
 	"max_ammo_lightninggun"				"-1"			//TMF7 was 400
-	"max_ammo_dmg"						"-1"				//TMF7 was 25
+	"max_ammo_dmg"						"-1"			//TMF7 was 25
 	"max_ammo_none"						"-1"
 
 	// inventory items
