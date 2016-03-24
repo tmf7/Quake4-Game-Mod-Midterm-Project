@@ -25,6 +25,8 @@ public:
 	void			Save( idSaveGame *savefile ) const;					// archives object for save game file
 	void			Restore( idRestoreGame *savefile );					// unarchives object from save game file
 
+	float			IlluminatePlayer( void );			//TMF7 PLAYER SHADOWS
+
 	virtual void	UpdateChangeableSpawnArgs( const idDict *source );
 	virtual void	Think( void );
 	virtual void	FreeLightDef( void );

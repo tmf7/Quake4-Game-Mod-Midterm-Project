@@ -89,8 +89,8 @@ typedef enum {
 //TMF7 BEGIN MAGIC USE
 typedef enum {
 	SPELL_NONE,
-	TELEKINESIS,
 	NECROMANCER,
+	TELEKINESIS,
 	BLACKTHUNDER,
 	FIRESPOUT
 } playerSpell_t;
@@ -454,6 +454,9 @@ public:
 
 	void					Spawn( void );
 	void					Think( void );
+
+	void					ShadowTests ( void );		//TMF7 PLAYER SHADOWS
+	int						nextShadowTestTime;			//TMF7 PLAYER SHADOWS
 
 	// save games
 	void					Save( idSaveGame *savefile ) const;					// archives object for save game file

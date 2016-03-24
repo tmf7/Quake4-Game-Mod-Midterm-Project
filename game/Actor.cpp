@@ -1830,6 +1830,7 @@ void idActor::StopRagdoll( void ) {
 			// enable collision detection
 			GetPhysics()->EnableClip();
 			GetPhysics()->Activate();
+			//SetCombatContents( true );
 
 			GetPhysics()->SetOrigin( af.GetPhysics()->GetOrigin() ); 
 

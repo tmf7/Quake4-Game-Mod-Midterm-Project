@@ -3628,6 +3628,24 @@ TIME_THIS_SCOPE("idGameLocal::RunFrame - gameDebug.BeginFrame()");
 					num++;
 				}
 			} else {
+
+//TMF7 PLAYER SHADOWS
+				float totalIllumination = 0;
+
+				for ( int lt = 0; lt < gameLocal.num_entities; lt++ ) {
+					if ( gameLocal.entities[ lt ] && gameLocal.entities[ lt ]->IsType( idLight::GetClassType() ) ) {
+						idLight *light = static_cast<idLight*>( gameLocal.entities[lt] );
+						totalIllumination += light->IlluminatePlayer();
+					}
+				}
+				
+				//TMF7 0.055f with the current setup looks good enough
+				//somehow account for non-point non-projection light...pure ambient???
+				if ( totalIllumination > 0.055f ) { Printf( "TOTAL_ILLUMINATION = %f\n", totalIllumination ); }
+
+//TMF7 PLAYER SHADOWS
+
+
 				num = 0;
 				for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() ) {
 					// ddynerman: save the current thinking entity for instance-dependent

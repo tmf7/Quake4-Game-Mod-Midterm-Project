@@ -383,7 +383,7 @@ void idLight::Spawn( void ) {
 	baseColor.Set( renderLight.shaderParms[ SHADERPARM_RED ], renderLight.shaderParms[ SHADERPARM_GREEN ], renderLight.shaderParms[ SHADERPARM_BLUE ] );
 
 	// set the number of light levels
-	spawnArgs.GetInt( "levels", "1", levels );
+	spawnArgs.GetInt( "levels", "1", levels );			//TMF7 PLAYER SHADOWS???
 	currentLevel = levels;
 	if ( levels <= 0 ) {
 		gameLocal.Error( "Invalid light level set on entity #%d(%s)", entityNumber, name.c_str() );
@@ -930,6 +930,54 @@ void idLight::Think( void ) {
 	RunPhysics();
 	Present();
 }
+
+
+//TMF7 BEGIN PLAYER SHADOWS
+/*
+================
+idLight::IlluminatePlayer
+================
+*/
+float idLight::IlluminatePlayer( void ) {
+	float illumination;
+	float intensity;
+
+	intensity		=	( float )currentLevel / ( float )levels;
+	//idVec3 c		=	baseColor * intensity;	
+	illumination	=	intensity; //c.Length();
+	//this->SetLightParm();
+	//this->SetShaderParm();
+	//renderLight.target;
+	//some lights aren't active yet due to scripting, but are still checked by this
+
+	trace_t tr;
+
+	idVec3 fromPos	=  	renderLight.origin;	//GetEyePosition();
+	idVec3 toPos	=	gameLocal.GetLocalPlayer()->GetEyePosition();
+	idVec3 dir		=	toPos - fromPos;
+	dir.Normalize();
+				
+	//make sure the trace can hit the player
+	toPos = fromPos + dir * MAX_WORLD_SIZE;
+		
+	//MASK_ALL, MASK_PLAYERSOLID, MASK_OPAQUE, MASK_SHOT_BOUNDINGBOX
+	gameLocal.TracePoint( this, tr, fromPos, toPos, MASK_PLAYERSOLID, this );
+	idEntity *hit = gameLocal.GetTraceEntity( tr );
+
+	//only add illumination when player is within light radius??? && idMath::Sqr( idMath::Abs( tr.c.dist ) ) < renderLight.lightRadius[2]
+	if ( tr.fraction < 1.0f && hit && hit->IsType( idPlayer::GetClassType() ) ) { 
+		idPlayer *player = static_cast<idPlayer*>(hit);
+
+		//dont use square of distance because of roundoff errors
+		illumination /= DistanceTo( gameLocal.GetLocalPlayer() ); //idMath::Abs( tr.c.dist );
+		//gameLocal.Printf( "%s\tILLUMINATION = %f\n", name.c_str(), illumination );
+
+	} else { illumination = 0; }
+
+	return illumination;
+}
+//TMF7 END PLAYER SHADOWS
+
 
 /*
 ================
