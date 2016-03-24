@@ -35,7 +35,8 @@ hud mods/Magic System:
 
 
 Enemy response to Player Light Levels:
-1-
+1-HUD shows current visibility and illumination level
+2-Enemies unable to track "HIDDEN" player (unless player touches them)
 
 
 General:

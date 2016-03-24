@@ -711,7 +711,7 @@ stateResult_t idAI::State_Dead ( const stateParms_t& parms ) {
 		if ( heartbeats > 0 ) { 
 
 			if ( gameLocal.time > nextDarkbeatTime ) {
-				heartbeats -= (heartbeats * 0.1f); //one tenth of accumulated heartbeats makes it exponentially harder to raise big ones
+				heartbeats -= 2;
 				nextDarkbeatTime = gameLocal.time + darkbeat;
 			}
 

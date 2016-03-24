@@ -313,7 +313,7 @@ entityDef projectile_hyperblaster
 
 	"fx_detonate"				"effects/weapons/rocketlauncher/detonate.fx"
 	"flash_bang"				"1"
-	"blindness_duration"		"10"
+	"blindness_duration"		"20"
 	"friendly_impact"			"0"								//TMF7 new
 //TMF7 END
 

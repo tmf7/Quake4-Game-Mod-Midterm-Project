@@ -769,7 +769,7 @@ windowDef Desktop
 		}
 		windowDef shadow_amount
 		{
-			rect	44,22,49,26					
+			rect	44,22,55,26					
 			visible	1
 			forecolor	0.866,0.921,0.764,1
 			text	"gui::player_visibility"				//TMF7 holds the window text

@@ -949,55 +949,101 @@ float idLight::IlluminatePlayer( void ) {
 		return fade; 
 	}
 	*/
-	float illumination;
-	float intensity;
-	idVec3 color;
-	float colorScale;
-	float brightness	= renderLight.shaderParms[ SHADERPARM_RED ];		//determined from g_editEntityMode 1 in-game, this is 0-1
-	float radius		= idMath::Abs ( renderLight.lightRadius.Length() );
-	float dist			= idMath::Abs( DistanceTo( gameLocal.GetLocalPlayer() ) );
-	float radiusScale;
+	float axisLight		=	0.0f;
+	float illumination	=	0.0f;
+	float intensity		=	( float )currentLevel / ( float )levels;							// fraction of 1
+	idVec3 color		=	( baseColor * intensity );
+	float colorScale	=	idMath::Abs( color.Length() );										// fraction of 1
+	float brightness	=	0.0f;
+
+	//brightness proportional to the largest color value ( saturation qualifier? )
+	for ( int b = 0; b < 3; b++ ) {
+		if ( renderLight.shaderParms[ b ] > brightness ) { brightness =  renderLight.shaderParms[ b ]; }
+	}
+
+	float radius		=	idMath::Abs ( renderLight.lightRadius.Length() );
+	float dist			=	idMath::Abs( DistanceTo( gameLocal.GetLocalPlayer() ) );
+	float radiusScale	=	0.0f;
 	trace_t tr;
-	idVec3 fromPos		=  	renderLight.origin;	//GetEyePosition();
+	idVec3 fromPos		=  	renderLight.origin;
 	idVec3 toPos		=	gameLocal.GetLocalPlayer()->GetEyePosition();
 	idVec3 dir			=	toPos - fromPos;
 	dir.Normalize();
+
+	float axisContribution		= 0.0f;
+	float radiusContribution	= 0.0f;
 				
 	//make sure the trace can hit the player
 	toPos = fromPos + dir * MAX_WORLD_SIZE;
 
 	//MASK_ALL, MASK_PLAYERSOLID, MASK_OPAQUE, MASK_SHOT_BOUNDINGBOX
-	gameLocal.TracePoint( this, tr, fromPos, toPos, MASK_OPAQUE, this );
+	gameLocal.TracePoint( this, tr, fromPos, toPos, MASK_SHOT_BOUNDINGBOX, this );
 	idEntity *hit = gameLocal.GetTraceEntity( tr );
-
-	//can the light see the player
+	
+	// if the light can see the player, then find the part of the light that most illuminates the player
 	if ( tr.fraction < 1.0f && hit && hit->IsType( idPlayer::GetClassType() ) ) { 
-		//idPlayer *player = static_cast<idPlayer*>(hit);
 
-		//how angled toward the player is the light (projected lights vs point lights)********
-		//renderLight.target;
-		//dir = renderLight.axis[0];	//also forward
-		//dir.Normalize();
-		//idFrustum derp;
-		//idVec3 forward = renderLight.right.Cross( renderLight.up );
+		// also put the light texture on the model, so light flares
+		// can get the current intensity of the light
+		//renderEntity.referenceShader //not critical
 
-		if ( radius <= 0 )		{ radius = 0.001f;	}
-		if ( dist < radius )	{ dist = radius;	}
+		// PROJECTION LIGHT only use the target direction
+		if ( !renderLight.pointLight ) {
+			idVec3 targetDir		= ( fromPos - renderLight.target );
+			float lightDist			= idMath::Abs( ( renderLight.end - renderLight.start ).Length() );
+			targetDir.Normalize();
 
-		//how much to attenuate according to distance???
-		radiusScale = idMath::Abs( DistanceTo( renderLight.target ) ) / radius;											// ranges from 1 - infinity
-		if ( radiusScale < 1 ) { radiusScale = 1.0f; }							// paranoid
+			//might be negative
+			axisContribution = targetDir * dir;														// ranges from (-1) - 1
 
-		intensity		=	( float )currentLevel / ( float )levels;			// fraction of 1
-		color			=	( baseColor * intensity );	
-		colorScale		=	idMath::Abs( color.Length() );						// fraction of 1
+			//only consider parts looking in the player's direction
+			if ( axisContribution > 0 ) { 
 
-		illumination	=	( brightness * colorScale ) / radiusScale;			// ranges from 0 - 1
+				// prevent divide by zero
+				if ( lightDist > 0 ) { radiusContribution = dist / lightDist; }
 
-		gameLocal.Printf( "%s\tILLUMINATION = %f\n", name.c_str(), illumination );
+				//player is obviously standing in the light
+				if ( radiusContribution < 1 ) { radiusScale = 1.0f; }
+				else { radiusScale = radiusContribution; }
+
+				illumination	=	( brightness * colorScale * axisContribution) / radiusScale;	// ranges from 0 - 1			
+			}
+
+		} else {
+
+			//check along each axis for a POINT LIGHT (or dont...)
+			
+			for ( int a = 0; a < 3; a++ ) {
+				idVec3 normAxis = renderLight.axis[a];
+				normAxis.Normalize();
+
+				//might be negative
+				axisContribution = normAxis * dir;													// ranges from (-1) - 1
+
+				//only consider parts looking in the player's direction
+				if ( axisContribution > 0 ) { 
+
+					//get the distance to the player ALONG the axis?
+					//normAxis; //the direction
+
+					//prevent divide by zero
+					if ( renderLight.lightRadius[a] > 0 ) { radiusContribution = dist / renderLight.lightRadius[a]; }
+
+					//player is obviously standing in the light
+					if ( radiusContribution < 1 ) { radiusScale = 1.0f; }
+					else { radiusScale = radiusContribution; }
+
+					axisLight	=	( brightness * colorScale * axisContribution) / ( radiusScale );	// ranges from 0 - 1			
+	
+					if ( axisLight > illumination ) { illumination = axisLight; }
+				}
+			}
+		}
+
+		if ( illumination > 0 ) { gameLocal.Printf( "%s\tILLUMINATION = %f\n", name.c_str(), illumination ); }
 		
 		return illumination;
-	} 
+	}
 
 	return 0.0f;
 }

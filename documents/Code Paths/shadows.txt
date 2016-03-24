@@ -9,24 +9,8 @@ how dark are the things in the player's fov (and how far away are they) via the 
 check the shaderparms earilier in think(), they may be reset/cleared/stabilized by the end.
 
 
-TODO:
--fix the "VISIBLE" text (just a box size thing)
--change the threshold value
--more lights seeing the player reduces the average illumination (problem)
-
-
-
-
-EvaluateRegisters
-
-
-
 idAI::ReactionTo( const idEntity *ent ) => use this to check the light levels or a flag set by the ent
 idAI::UpdateEnemyVisibility  => or here
-
-
-
-multiply the direction by 1.5~ times the length PRODUCES a slightly longer trace
 
 
 
