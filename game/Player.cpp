@@ -2061,7 +2061,8 @@ void idPlayer::Spawn( void ) {
 	for( int i = 0; i < MAX_SPELLS; i++ ) { mana[ i ] = MAX_MANA; }
 //TMF7 END MAGIC USE
 
-	nextShadowTestTime = 0;	//TMF7 PLAYER SHADOWS
+	playerIllumination = 1000.0f;		//TMF7 PLAYER SHADOWS (default illumination)
+
 }
 
 /*
@@ -3389,11 +3390,20 @@ void idPlayer::UpdateHudAmmo( idUserInterface *_hud ) {
 	inclip		= weapon->AmmoInClip();
 	ammoamount	= weapon->AmmoAvailable();
 
-	_hud->SetStateBool( "spell_equipped", spell != SPELL_NONE ? true : false );				//TMF7 MAGIC USE (determines spell name visibility)
-	_hud->SetStateBool( "spell_charging", rechargingSpells & (1<<spell) ? true : false );	//TMF7 MAGIC USE (shows red mana bar if charging)
-	//_hud->SetStateInt( "spell_align", spell != SPELL_NONE ? 0 : 2 );						//TMF7 MAGIC USE (cleaner text display)
-	_hud->SetStateFloat( "spell_scale", spell != SPELL_NONE ? 0.32f : 0.5f );				//TMF7 MAGIC USE (cleaner text display)
-	
+//TMF7 BEGIN MAGIC USE
+	_hud->SetStateBool( "spell_equipped", spell != SPELL_NONE ? true : false );				// determines spell name visibility
+	_hud->SetStateBool( "spell_charging", rechargingSpells & (1<<spell) ? true : false );	// shows red mana bar if charging
+	//_hud->SetStateInt( "spell_align", spell != SPELL_NONE ? 0 : 2 );						// cleaner text display
+	_hud->SetStateFloat( "spell_scale", spell != SPELL_NONE ? 0.32f : 0.5f );				// cleaner text display
+//TMF7 END MAGIC USE
+
+//TMF7 BEGIN PLAYER SHADOWS
+	_hud->SetStateFloat ( "player_shadowpct", playerIllumination / 100.0f );							//change limit, clamp value
+	_hud->SetStateString( "player_visibility", playerIllumination > 55.0f ? "VISIBLE" : "HIDDEN" );		//change limit, clamp value
+	_hud->SetStateBool( "visible_player", playerIllumination > 55.0f ? true : false );					//change limit, clamp value
+//TMF7 END PLAYER SHADOWS
+
+
 	if ( ammoamount < 0 ) {
 		// show infinite ammo																//TMF7 and set the spell text
 		_hud->SetStateString( "player_ammo", spell != SPELL_NONE ? weapon->spawnArgs.GetString( va( "spell_name%i", spell ) ) : "-1" ); 
@@ -3633,7 +3643,7 @@ void idPlayer::DrawShadow( renderEntity_t *headRenderEnt ) {
  			headRenderEnt->suppressShadowInViewID = gameLocal.localClientNum+1;
    		}
 	} else if ( gameLocal.isMultiplayer || g_showPlayerShadow.GetBool() || pm_thirdPerson.GetBool() ) {
-		// Show all player shadows		//TMF7 PLAYER SHADOWS???
+		// Show all player shadows
 		renderEntity.suppressShadowInViewID	= 0;
  		if ( headRenderEnt ) {
 			headRenderEnt->suppressShadowInViewID = 0;
@@ -8628,7 +8638,6 @@ void idPlayer::PerformImpulse( int impulse ) {
 
 //TMF7 BEGIN SPELL SELECT
 		case IMPULSE_24: {
-			gameLocal.tmfDebug = !gameLocal.tmfDebug;			//TMF7 PLAYER SHADOWS
 			spell++;
 			if ( spell >= MAX_SPELLS ) { spell = SPELL_NONE; }
 			break;
@@ -9759,119 +9768,7 @@ void idPlayer::Think( void ) {
 		inBuyZone = false;
 
 	inBuyZonePrev = false;
-
-
-	//ShadowTests();			//TMF7 PLAYER SHADOWS
-
 }
-
-
-//TMF7 BEGIN PLAYER SHADOWS
-/*
-=================
-idPlayer::ShadowTests
-=================
-*/
-void idPlayer::ShadowTests( void ) {
-
-	 if ( gameLocal.time > nextShadowTestTime ) {
-	
-		 if ( renderEntity.hModel && gameLocal.tmfDebug ) {
-
-			// instantiate a mesh using the joint information from the render entity
-			// add a viewDef???
-			// double check model.h for more stuff like this
-			idRenderModel *model = renderEntity.hModel->InstantiateDynamicModel( &renderEntity, NULL, NULL );
-
-			// gameLocal.Printf( "NUM MODEL SURFACES = %d\n", model->NumSurfaces() );		// HAS ONE SURFACE!?
-			// gameLocal.Printf( "MODEL SHADOW HULL = %s\n", model->ShadowHull() ? "TRUE" : "FALSE" );	//false
-
-			// renderEntity.hModel->Print();	//good, shows player has a dynamic hModel one mesh one collision with vert, tris, weights
-			// gameLocal.Printf( "HMODEL NAME = %s\n", renderEntity.hModel->Name() );			//good alone
-			// gameLocal.Printf( "NUM SURFACES = %d\n", renderEntity.hModel->NumSurfaces() );	//this is 0 at this point
-			// renderEntity.hModel->ShadowHull()												//no shadow hull at this point either
-
-
-			
-			for ( int i = 0; i < model->NumSurfaces(); i++ ) { 
-
-				if ( model->Surface( i ) ) {
-					gameLocal.Printf( "Surface ( %i ) FOUND:\t", i );
-
-					if( model->Surface( i )->shader ) {
-					//if ( model->Surface(i)->geometry ) {
-
-						if ( model->Surface(i)->shader->GetNumStages() ) {
-						//if ( model->Surface(i)->geometry->numVerts ) {
-							//gameLocal.Printf( "%i VERTS\n", model->Surface(i)->geometry->numVerts );
-
-							for ( int s = 0; s < /*model->Surface(i)->geometry->numVerts*/model->Surface(i)->shader->GetNumStages(); s++ ) { 
-
-								gameLocal.Printf( "STAGE (%i) [ RED GREEN BLUE ALPHA ] =\t[", s );
-								//gameLocal.Printf( "VERT (%i) [ RED GREEN BLUE ALPHA ] =\t[", s );
-
-								for ( int c = 0; c < 4; c++ ) {
-									gameLocal.Printf( " %d ", model->Surface(i)->shader->GetStage(s)->color.registers[c] );
-									//gameLocal.Printf( " %d ", model->Surface(i)->geometry->verts[s].color[c] );
-								}
-
-								gameLocal.Printf( "]\n" );
-							}
-
-						} /*else { gameLocal.Printf( "NO VERTS\n" ); }*/	else { gameLocal.Printf( "ZERO STAGES\n"); }
-
-					} /*else { gameLocal.Printf( "NO GEOMETRY\n" ); }*/ else { gameLocal.Printf( "NO SHADER\n" ); }
-				 }
-			}
-			 /*
-			 if ( renderEntity.hModel->ShadowHull() ) {
-				 gameLocal.Printf( "ShadowHull numVerts = %d\n", renderEntity.hModel->ShadowHull()->numVerts );
-				 if ( renderEntity.hModel->ShadowHull()->numVerts ) {
-					 for ( int i = 0; i < renderEntity.hModel->ShadowHull()->numVerts; i++ ) {
-						 for ( int c = 0; c < 4; c++ ) {
-							 switch (c) {
-								 case 0: {
-									gameLocal.Printf( "VERT[ %i ] RED = %d\n", renderEntity.hModel->ShadowHull()->verts[i].color[c] );
-									break;
-								 }
-								 case 1: {
-									gameLocal.Printf( "VERT[ %i ] GREEN = %d\n", renderEntity.hModel->ShadowHull()->verts[i].color[c] );
-									break;
-								 }
-								 case 2: {
-									gameLocal.Printf( "VERT[ %i ] BLUE = %d\n", renderEntity.hModel->ShadowHull()->verts[i].color[c] );
-									break;
-								 }
-								 case 3: {
-									gameLocal.Printf( "VERT[ %i ] ALPHA = %d\n", renderEntity.hModel->ShadowHull()->verts[i].color[c] );
-									break;
-								 }
-							 }
-						 }
-					 }
-				 }
-			 } else { gameLocal.Printf( "CURRENTLY NO SHADOW HULL\n" ); }
-			 */
-			//renderEntity.hModel->Surface(0)->geometry[0].verts[0].color[0];
-			//renderEntity.hModel->ShadowHull()[0].ambientSurface[0].verts[0].GetColor();
-			//renderEntity.hModel->Surface(0)->shader->GetBumpStage()->color.registers[1];
-		 } //else { gameLocal.Printf( "CURRENTLY NO renderEntity.hModel\n" ); }
-
-		/*
-		if ( GetPhysics() ) {
-			for ( int i = 0; i < physicsObj.GetNumContacts(); i++ ) {
-				const contactInfo_t *c = &( GetPhysics()->GetContact(i) ) ;
-				gameLocal.Printf( "CONTACT %d TINT = %d\n", i, c ? ( c->materialType ? c->materialType->GetTint() : 0) : 0 );
-			}
-		}
-		*/
-		nextShadowTestTime = gameLocal.time + 1000;
-	}
-
-}
-//TMF7 END PLAYER SHADOWS
-
-
 
 /*
 =================

@@ -331,7 +331,7 @@ void idGameEdit::ParseSpawnArgsToRenderEntity( const idDict *args, renderEntity_
 	renderEntity->referenceSoundHandle = -1;
 // RAVEN END
 
-	// get shader parms					//TMF7 PLAYER SHADOWS
+	// get shader parms		
 	args->GetVector( "_color", "1 1 1", color );
 	renderEntity->shaderParms[ SHADERPARM_RED ]		= color[0];
 	renderEntity->shaderParms[ SHADERPARM_GREEN ]	= color[1];

@@ -1,22 +1,9 @@
--get rid of all "magic" weapon meshes
--make inf ammo UpdateHudAmmo display a pct proportional to the mana (a list in player)
-	->diminishes as long as attack held
-	->increases if recharging flag is set
--Display the spell name in the mana bar
-
-:::HOW TO REFERENCE CODE VARIABLES:::
--give the ammo gui a different color for magic weapons?
-	->set the specific color variable in the UpdateHudAmmo?
--pulse the color if recharging (see where pulsing is set in the .gui)...is it? armor?
-
 
 -all spells go through the lightning gun
 -different effects different behavior => but conditionals on the IN-CODE behavior and reference different spawnArgs and damageDef stuff accordingly
 -different FX
+-use gauntlet ANIMATIONS (no mesh) for all equippable spells????
 
-add to lightninggun.def:
-spell_mana_%i
-spell_recharge_%i
 
 fx_spell_%i
 fx_spell_derp_%i
@@ -24,3 +11,7 @@ fx_spell_derp_%i
 AND CHANGE THE PlayEffect/Sound in the rvWeaponLightningGun.cpp according to spell #
 search TMF7 MAGIC EDIT FX
 
+-if spell == SPELL_NONE do damage as normal (and display the mesh)
+
+
+g_perfTest_weaponNoFX(				"g_perfTest_weaponNoFX",			"0",			CVAR_GAME | CVAR_BOOL, "no muzzle flash, brass eject, muzzle fx, tracers, impact fx, blood decals or blood splats (whew!)" );

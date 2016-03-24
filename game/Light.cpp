@@ -383,7 +383,7 @@ void idLight::Spawn( void ) {
 	baseColor.Set( renderLight.shaderParms[ SHADERPARM_RED ], renderLight.shaderParms[ SHADERPARM_GREEN ], renderLight.shaderParms[ SHADERPARM_BLUE ] );
 
 	// set the number of light levels
-	spawnArgs.GetInt( "levels", "1", levels );			//TMF7 PLAYER SHADOWS???
+	spawnArgs.GetInt( "levels", "1", levels );	
 	currentLevel = levels;
 	if ( levels <= 0 ) {
 		gameLocal.Error( "Invalid light level set on entity #%d(%s)", entityNumber, name.c_str() );
@@ -939,42 +939,67 @@ idLight::IlluminatePlayer
 ================
 */
 float idLight::IlluminatePlayer( void ) {
+	/*
+	// TMF7 illumination works well enough without this
+	if ( (IsAmbient() || renderLight.globalLight )
+			&& idMath::Abs( DistanceTo( gameLocal.GetLocalPlayer() ) ) < idMath::Abs( renderLight.lightRadius.Length() ) ) { 
+				float fade = (illumination / idMath::Abs(DistanceTo( gameLocal.GetLocalPlayer() ) ) );
+		gameLocal.Printf( "%s\tAG FADE = %f\n", name.c_str(), fade );
+
+		return fade; 
+	}
+	*/
 	float illumination;
 	float intensity;
-
-	intensity		=	( float )currentLevel / ( float )levels;
-	//idVec3 c		=	baseColor * intensity;	
-	illumination	=	intensity; //c.Length();
-	//this->SetLightParm();
-	//this->SetShaderParm();
-	//renderLight.target;
-	//some lights aren't active yet due to scripting, but are still checked by this
-
+	idVec3 color;
+	float colorScale;
+	float brightness	= renderLight.shaderParms[ SHADERPARM_RED ];		//determined from g_editEntityMode 1 in-game, this is 0-1
+	float radius		= idMath::Abs ( renderLight.lightRadius.Length() );
+	float dist			= idMath::Abs( DistanceTo( gameLocal.GetLocalPlayer() ) );
+	float radiusScale;
 	trace_t tr;
-
-	idVec3 fromPos	=  	renderLight.origin;	//GetEyePosition();
-	idVec3 toPos	=	gameLocal.GetLocalPlayer()->GetEyePosition();
-	idVec3 dir		=	toPos - fromPos;
+	idVec3 fromPos		=  	renderLight.origin;	//GetEyePosition();
+	idVec3 toPos		=	gameLocal.GetLocalPlayer()->GetEyePosition();
+	idVec3 dir			=	toPos - fromPos;
 	dir.Normalize();
 				
 	//make sure the trace can hit the player
 	toPos = fromPos + dir * MAX_WORLD_SIZE;
-		
+
 	//MASK_ALL, MASK_PLAYERSOLID, MASK_OPAQUE, MASK_SHOT_BOUNDINGBOX
-	gameLocal.TracePoint( this, tr, fromPos, toPos, MASK_PLAYERSOLID, this );
+	gameLocal.TracePoint( this, tr, fromPos, toPos, MASK_OPAQUE, this );
 	idEntity *hit = gameLocal.GetTraceEntity( tr );
 
-	//only add illumination when player is within light radius??? && idMath::Sqr( idMath::Abs( tr.c.dist ) ) < renderLight.lightRadius[2]
+	//can the light see the player
 	if ( tr.fraction < 1.0f && hit && hit->IsType( idPlayer::GetClassType() ) ) { 
-		idPlayer *player = static_cast<idPlayer*>(hit);
+		//idPlayer *player = static_cast<idPlayer*>(hit);
 
-		//dont use square of distance because of roundoff errors
-		illumination /= DistanceTo( gameLocal.GetLocalPlayer() ); //idMath::Abs( tr.c.dist );
-		//gameLocal.Printf( "%s\tILLUMINATION = %f\n", name.c_str(), illumination );
+		//how angled toward the player is the light (projected lights vs point lights)********
+		//renderLight.target;
+		//dir = renderLight.axis[0];	//also forward
+		//dir.Normalize();
+		//idFrustum derp;
+		//idVec3 forward = renderLight.right.Cross( renderLight.up );
 
-	} else { illumination = 0; }
+		if ( radius <= 0 )		{ radius = 0.001f;	}
+		if ( dist < radius )	{ dist = radius;	}
 
-	return illumination;
+		//how much to attenuate according to distance???
+		radiusScale = idMath::Abs( DistanceTo( renderLight.target ) ) / radius;											// ranges from 1 - infinity
+		if ( radiusScale < 1 ) { radiusScale = 1.0f; }							// paranoid
+
+		intensity		=	( float )currentLevel / ( float )levels;			// fraction of 1
+		color			=	( baseColor * intensity );	
+		colorScale		=	idMath::Abs( color.Length() );						// fraction of 1
+
+		illumination	=	( brightness * colorScale ) / radiusScale;			// ranges from 0 - 1
+
+		gameLocal.Printf( "%s\tILLUMINATION = %f\n", name.c_str(), illumination );
+		
+		return illumination;
+	} 
+
+	return 0.0f;
 }
 //TMF7 END PLAYER SHADOWS
 

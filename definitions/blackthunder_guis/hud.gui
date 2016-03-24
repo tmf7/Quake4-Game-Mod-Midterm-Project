@@ -725,6 +725,70 @@ windowDef Desktop
 		}
 //TMF7 END MAGIC USE
 	}
+
+
+//TMF7 BEGIN PLAYER SHADOW METER
+//-----------------------		
+// shadows				
+//-----------------------		
+
+	windowDef p_shadows
+	{
+		rect	0,0,640,480
+		visible	("gui::mp" == 0 )
+		windowDef shadow_backbar
+		{
+			rect	13,13,125,59
+			visible	1
+			background	"gfx/guis/hud/backbar"
+			matcolor	0,0,0,0.5
+			shear	0,-.22
+		}
+		windowDef shadow_valbar
+		{
+			rect	13,13,125,59
+			visible	1
+			background	"gfx/guis/hud/valbar"
+			matcolor	0.701,0.815,0.431,0.2
+			shear	0,-.22
+		}
+		
+		windowDef p_shadow_val
+		{
+			rect	133 - ( "gui::player_shadowpct" * 115 ),13,115,59
+			visible	1
+			shear	0,-.22
+			windowDef shadow_val
+			{
+				rect	-120 + ( "gui::player_shadowpct" * 115 ),0,125,59
+				visible	1
+				background	"gfx/guis/hud/valbar"
+				matcolor	0.701,0.815,0.431,0.35
+				shear	0,-.22
+			}
+		}
+		windowDef shadow_amount
+		{
+			rect	44,22,49,26					
+			visible	1
+			forecolor	0.866,0.921,0.764,1
+			text	"gui::player_visibility"				//TMF7 holds the window text
+			textscale	0.32								//TMF7 was 0.5		
+			font	"fonts/chain"
+			shear	0,-.22
+			textalign	0									//TMF7 MAGIC USE was 2
+		}
+		windowDef illumination_exceeded
+		{
+			rect	13,13,125,59
+			visible	"gui::visible_player"	
+			background	"gfx/guis/hud/backbar_add"
+			matcolor	1*guitable_10_5[time*0.002],0,0,1
+			shear	0,-.22
+		}
+	} 
+
+//TMF7 END PLAYER SHADOW METER
 	
 //-----------------------		
 // health

@@ -1218,66 +1218,6 @@ void idAI::Think( void ) {
 			// clear the ik before we do anything else so the skeleton doesn't get updated twice
 			walkIK.ClearJointMods();
 
-//TMF7 BEGIN PLAYER SHADOWS
-			/*
-			if ( CheckFOV( gameLocal.GetLocalPlayer()->GetEyePosition() ) ) {
-				
-				trace_t tr;
-
-				idVec3 fromPos = GetEyePosition();
-				idVec3 toPos = gameLocal.GetLocalPlayer()->GetEyePosition();
-				idVec3 dir = toPos - fromPos;
-				dir.Normalize();
-
-				toPos = fromPos + dir * MAX_WORLD_SIZE;
-
-				gameLocal.TracePoint( this, tr, fromPos, toPos, MASK_PLAYERSOLID, this );
-				idEntity *hit = gameLocal.GetTraceEntity( tr );
-
-				//make the trace a little longer so it passes through and HITS a point on the player
-				//idVec3 trueToPos = dir * 1.5f * magnitude;
-				//MASK_ALL, MASK_PLAYERSOLID, MASK_OPAQUE, MASK_SHOT_BOUNDINGBOX
-				//gameLocal.TracePoint( this, tr, fromPos, toPos, MASK_PLAYERSOLID, this );
-
-				if ( tr.fraction < 1.0f && hit && hit->IsType( idPlayer::GetClassType() ) ) { 
-					idPlayer *player = static_cast<idPlayer*>(hit);
-
-					switch ( player->spell ) {
-
-						case SPELL_NONE: {
-							gameLocal.Printf( "[F] %s SEES %s\nDISTANCE = %f\nTINT = %f\n", 
-								name.c_str(), gameLocal.entities[ tr.c.entityNum ]->GetName(), 
-								tr.c.dist, tr.c.materialType ? tr.c.materialType->GetTint() : 0 );
-							break;
-						}
-						case NECROMANCER: {
-							gameLocal.Printf( "[IDF] %s [ RED GREEN BLUE ] = [ %i %d %f ]\n", 
-								hit->GetName(),	tr.c.materialType ? tr.c.materialType->GetRed(), tr.c.materialType->GetGreen(), tr.c.materialType->GetBlue() : 0, 0, 0 );
-							break;
-						}
-						case TELEKINESIS: {
-							gameLocal.Printf( "[D] %s SEES %s\nDISTANCE = %d\nTINT = %d\n", 
-								name.c_str(), gameLocal.entities[ tr.c.entityNum ]->GetName(), 
-								tr.c.dist, tr.c.materialType ? tr.c.materialType->GetTint() : 0 );
-							break;
-						}
-						case BLACKTHUNDER: {
-							gameLocal.Printf( "[D NO DIST] %s SEES %s\nTINT = %d\n", 
-								name.c_str(), gameLocal.entities[ tr.c.entityNum ]->GetName(), 
-								tr.c.materialType ? tr.c.materialType->GetTint() : 0 );
-							break;
-						}
-						case FIRESPOUT: {
-							gameLocal.Printf( "[D] %s\tTINT = %d\n", 
-								player->GetName(), tr.c.materialType ? tr.c.materialType->GetTint() : 0 );
-							break;
-						}
-					}
-				}
-			}
-			*/
-//TMF7 END PLAYER SHADOWS
-
 			// update enemy position if not dead
 			if ( !aifl.dead && !fl.isBlind ) {		//TMF7 FLASH BANG dont update enemy if blind
 				UpdateEnemy ( );
@@ -1330,22 +1270,6 @@ void idAI::Think( void ) {
 		aiManager.timerThink.Stop ( );
 	}
 }
-
-//TMF7 BEGIN PLAYER SHADOWS
-/*
-=================
-idPlayer::ShadowTests
-=================
-
-void idAI::ShadowTests( void ) {
-	//gameLocal.globalShaderParms
-	//gameLocal.ambientLights;
-	//gameLocal.persistentPlayerInfo[]
-	//perform a groundcontact "trace" and check the color of the contact point...or the shaderparms???
-	//perform a eyeposition trace and....wait...it wouldn't touch anything necessarily
-	//check the contact info on the trace for enemies looking at the player and get the color of the contact surface on the player!?
-}*/
-//TMF7 END PLAYER SHADOWS
 
 /*
 ============
@@ -2227,6 +2151,15 @@ void idAI::UpdateEnemyVisibility ( void ) {
 
 	// Update enemy visibility flag
 	enemy.fl.visible = CanSeeFrom ( GetEyePosition ( ), enemy.ent, false );
+
+//TMF7 BEGIN PLAYER SHADOWS
+	//even if the AI has a line-of-sight on the player, check that the player isn't in shadow
+	if ( enemy.ent.GetEntity()->IsType( idPlayer::GetClassType() ) ) { 
+		idPlayer *player = static_cast<idPlayer*>( enemy.ent.GetEntity() );
+
+		if( player->playerIllumination < 55.0f ){ enemy.fl.visible = false; }
+	}
+//TMF7 END PLAYER SHADOWS
 
 	// IF the enemy isnt visible and not forcing an update we can just early out
 	if ( !enemy.fl.visible ) {

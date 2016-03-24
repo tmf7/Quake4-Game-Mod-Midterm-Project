@@ -1,0 +1,68 @@
+light's are entities (sometimes), so if a light can see the player, get the distance to the player, the brightness of the light and add a weighed value to a float -> then repeat for all entities on the map
+
+->this does not cover .map shadowed areas...but such areas still enshroud the player....which is tracked somehow
+
+
+how dark are the things in the player's fov (and how far away are they) via the calculaterenderview in think.
+
+
+check the shaderparms earilier in think(), they may be reset/cleared/stabilized by the end.
+
+
+TODO:
+-fix the "VISIBLE" text (just a box size thing)
+-change the threshold value
+-more lights seeing the player reduces the average illumination (problem)
+
+
+
+
+EvaluateRegisters
+
+
+
+idAI::ReactionTo( const idEntity *ent ) => use this to check the light levels or a flag set by the ent
+idAI::UpdateEnemyVisibility  => or here
+
+
+
+multiply the direction by 1.5~ times the length PRODUCES a slightly longer trace
+
+
+
+r_showIntensity from console!!!
+"cl_showEntityInfo"
+"g_editEntityMode" meh
+aasStats
+testLight
+testPointLight
+
+IsHidden code nope
+
+call (script function) console command
+
+PVSAreas[MAX_PVS_AREAS];			// numbers of the renderer areas the entity covers
+
+pvs = Potential Visible Set
+aas = Area Awareness System
+idMapFile *				mapFile;	// will be NULL during the game unless in-game editing is used
+idMapFile *				GetLevelMap( void ); ( idGameLocal )
+idAAS *					GetAAS( int num ) const;
+void					SetAASAreaState( const idBounds &bounds, const int areaContents, bool closed);
+
+
+idEntity *				GetTraceEntity( const trace_t &trace ) const;
+
+
+void					CallFrameCommand( idScriptObject* obj, const function_t* frameCommand );
+
+float					globalShaderParms[ MAX_GLOBAL_SHADER_PARMS ];
+
+
+
+in RenderWorld.h
+renderView_t->float			shaderParms[MAX_GLOBAL_SHADER_PARMS];		// can be used in any way by shader
+SHADERPARM_BRIGHTNESS
+
+void idLight::SetLightLevel( void )
+renderView->globalMaterial->GetEditorAlpha();		//TMF7 PLAYER SHADOWS

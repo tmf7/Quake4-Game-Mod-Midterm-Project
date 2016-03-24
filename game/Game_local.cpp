@@ -3477,7 +3477,7 @@ idGameLocal::RunFrame
 		// set the user commands for this frame
 		usercmds = clientCmds;
 
-		if ( player ) {		//TMF7 player always thinks first
+		if ( player ) {
 			// ddynerman: save the current thinking entity for instance-dependent
 			currentThinkingEntity = player;
 			player->Think();
@@ -3630,19 +3630,22 @@ TIME_THIS_SCOPE("idGameLocal::RunFrame - gameDebug.BeginFrame()");
 			} else {
 
 //TMF7 PLAYER SHADOWS
-				float totalIllumination = 0;
+				float maxIllumination = 0;
 
 				for ( int lt = 0; lt < gameLocal.num_entities; lt++ ) {
+
 					if ( gameLocal.entities[ lt ] && gameLocal.entities[ lt ]->IsType( idLight::GetClassType() ) ) {
 						idLight *light = static_cast<idLight*>( gameLocal.entities[lt] );
-						totalIllumination += light->IlluminatePlayer();
+						float newIllumination = light->IlluminatePlayer();
+
+						if ( newIllumination > maxIllumination ) { maxIllumination = newIllumination; }
 					}
 				}
-				
-				//TMF7 0.055f with the current setup looks good enough
-				//somehow account for non-point non-projection light...pure ambient???
-				if ( totalIllumination > 0.055f ) { Printf( "TOTAL_ILLUMINATION = %f\n", totalIllumination ); }
 
+				//ranges from 0 - 100
+				GetLocalPlayer()->playerIllumination = maxIllumination * 100.0f;		
+				//TMF7 0.055f with the current setup looks good enough
+				if ( maxIllumination > 55.0f ) { Printf( "MAX_ILLUMINATION = %f\n", maxIllumination ); }
 //TMF7 PLAYER SHADOWS
 
 

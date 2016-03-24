@@ -354,6 +354,8 @@ public:
 	int								nextChargeTime;
 //TMF7 BEGIN MAGIC USE
 
+	float							playerIllumination;		//TMF7 PLAYER SHADOWS
+
 	rvWeapon*						weapon;
 	idEntityPtr<rvViewWeapon>		weaponViewModel;
 	idEntityPtr<idAnimatedEntity>	weaponWorldModel;
@@ -454,9 +456,6 @@ public:
 
 	void					Spawn( void );
 	void					Think( void );
-
-	void					ShadowTests ( void );		//TMF7 PLAYER SHADOWS
-	int						nextShadowTestTime;			//TMF7 PLAYER SHADOWS
 
 	// save games
 	void					Save( idSaveGame *savefile ) const;					// archives object for save game file
