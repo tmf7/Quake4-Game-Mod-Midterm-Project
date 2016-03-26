@@ -1040,7 +1040,7 @@ float idLight::IlluminatePlayer( void ) {
 			}
 		}
 
-		if ( illumination > 0 ) { gameLocal.Printf( "%s\tILLUMINATION = %f\n", name.c_str(), illumination ); }
+		//if ( illumination > 0 ) { gameLocal.Printf( "%s\tILLUMINATION = %f\n", name.c_str(), illumination ); }
 		
 		return illumination;
 	}

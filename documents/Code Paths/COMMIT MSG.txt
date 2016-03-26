@@ -3,10 +3,11 @@
 	->regardless of whether it's bouncy
 
 -FORCE DMG TO ALWAYS PLAY RELOAD EACH SHOT
--ADD AN ITEM TO THE HUD THAT SHOWS WHEN A PLAYER HAS ACTIVE BOMBS (AND HOW MANY)
 
 -Fix NPC crossair (originally wanted to prevent them from ragdoll using that code)
+
 -make flashbang ai blindness last alot longer
+-un-nerf necromancer
 
 
 ____________________________________________________

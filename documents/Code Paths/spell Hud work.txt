@@ -1,17 +1,26 @@
 
--all spells go through the lightning gun
 -different effects different behavior => but conditionals on the IN-CODE behavior and reference different spawnArgs and damageDef stuff accordingly
 -different FX
 -use gauntlet ANIMATIONS (no mesh) for all equippable spells????
 
 
-fx_spell_%i
-fx_spell_derp_%i
-
 AND CHANGE THE PlayEffect/Sound in the rvWeaponLightningGun.cpp according to spell #
 search TMF7 MAGIC EDIT FX
 
--if spell == SPELL_NONE do damage as normal (and display the mesh)
-
 
 g_perfTest_weaponNoFX(				"g_perfTest_weaponNoFX",			"0",			CVAR_GAME | CVAR_BOOL, "no muzzle flash, brass eject, muzzle fx, tracers, impact fx, blood decals or blood splats (whew!)" );
+
+SPELL_NONE->do damage as normal (and display the mesh)
+
+NECROMANCER->adds heartbeats and eventually spawns a monster
+TELEKINESIS->pulls any object shot towards the player (moves its physics origin towards the player along its muzzle axis)
+		->up to a certain distance, then tosses it at high speed (damaging...give any entity with its improvProj flag set)
+		->or drops it if player hits 'q' (or whatever)
+BLACKTHUNDER->enables notarget, plays fx at player center really short range shot? ) (no hitscan or projectile damage)
+FIRESPOUT->same as regular lightning gun except the trail/whatever is a big gout of flame
+	->and sticks a flame fx/whatever to an enemy for residual damage (like napalm gun?)
+
+
+
+confirmation #
+C1917892097

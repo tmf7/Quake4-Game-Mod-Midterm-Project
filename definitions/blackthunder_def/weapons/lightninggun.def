@@ -57,7 +57,6 @@ entityDef weapon_lightninggun
 	"weaponclass"				"rvWeaponLightningGun"
 	"size"						"32 32 32"
 
-	//TMF7 the models apparently include the player's hands... but they can be removed and force the beam to emanate from the player's eyes/chest
 	"model_view" 				"weapon_lightninggun_view"
 	"model_view_strogg" 		"weapon_lightninggun_view_strogg"
  	"model_world"				"weapon_lightninggun_world"
@@ -88,7 +87,7 @@ entityDef weapon_lightninggun
 	"ammoRequired"				"1"				//TMF7 was 1
 	"clipSize"					"0"				//TMF7 was 0
 
-//TMF7 BEGIN MAGIC USE
+//TMF7 BEGIN MAGIC USE ( balance these values better )
 	
 	"spell_name1"				"Necromancer"
 	"spell_cost1"				"1"
@@ -123,8 +122,14 @@ entityDef weapon_lightninggun
 	"recoilTime"				"145"
 	"recoilAngles"				"-1 0 0"
 
+//TMF7 BEGIN MAGIC USE
 	"def_damage"				"damage_lightninggun"
-	
+	"def_spell1"				"spell_necromancer"
+	"def_spell2"				"spell_telekinesis"
+	"def_spell3"				"spell_blackthunder"
+	"def_spell4"				"spell_firespout"
+//TMF7 END MAGIC USE
+
 	"ammoRegenStep"				"5"
 	"ammoRegenTime"				"1500"
 	
@@ -168,6 +173,35 @@ entityDef weapon_lightninggun
 	"fx_respawn"				"effects/mp/itemrespawn.fx"
 	"crawlTime"					".05"
 //TMF7 END SPELL_NONE
+
+
+//TMF7 BEGIN NECROMANCER
+	"fx_impact_spell1"			"effects/weapons/lightninggun/impact.fx"
+	"fx_trail_spell1"			"effects/weapons/lightninggun/trail.fx"	
+	"fx_trail_world_spell1"		"effects/weapons/lightninggun/trail_world.fx"	
+//TMF7 END NECROMANCER
+
+
+//TMF7 BEGIN TELEKINESIS //no fx? maybe just crawl?
+	"fx_impact_spell2"			"effects/weapons/lightninggun/impact.fx"
+	"fx_trail_spell2"			"effects/weapons/lightninggun/trail.fx"	
+	"fx_trail_world_spell2"		"effects/weapons/lightninggun/trail_world.fx"	
+//TMF7 END TELEKINESIS
+
+
+//TMF7 BEGIN BLACKTHUNDER //reduce the trace to zero, or something
+	"fx_impact_spell3"			"effects/weapons/lightninggun/impact.fx"
+	"fx_trail_spell3"			"effects/weapons/lightninggun/trail.fx"	
+	"fx_trail_world_spell3"		"effects/weapons/lightninggun/trail_world.fx"	
+//TMF7 END BLACKTHUNDER
+
+
+//TMF7 BEGIN FIRESPOUT
+	"fx_impact_spell4"			"effects/weapons/napalmgun/impact.fx"
+	"fx_trail_spell4"			"effects/weapons/napalmgun/flyburn.fx"
+	"fx_trail_world_spell4"		"effects/weapons/napalmgun/flyburn.fx"	
+//TMF7 END FIRESPOUT
+
 
 	
 	// ------------------------ Ammo Tubes ---------------------------------------
@@ -292,7 +326,7 @@ model weapon_lightninggun_world
 }
 
 //--------------------------------------------------------------------------------------------------------------------
-//												HitScan
+//												HitScan		//TMF7 not used in vanilla
 //-------------------------------------------------------------------------------------------------------------------0
 
 entityDef hitscan_lightninggun
@@ -321,11 +355,11 @@ entityDef hitscan_lightninggun_mp
 //													Damage
 //-------------------------------------------------------------------------------------------------------------------0
 
-entityDef damage_lightninggun
+entityDef damage_lightninggun		//SPELL_NONE
 {
-	"damage"					"0"						//TMF7 was "11"
+	"damage"					"11"
 //	"knockback"					"10"
-	"gib"						"0"						//TMF7 was 1
+	"gib"						"1"
 
 	"filter_electricity"		"1"						// can damage all entities with their damage_filter set to "electricity"
 	
@@ -341,10 +375,88 @@ entityDef damage_lightninggun
 	"bleed"						"1"
 	
 	"pain"						"stream"
-
-	"infuse_life"				"1"			//TMF7
-	"add_heartbeats"			"1"			//TMF7 add this much to the monster's heartbeats each attack, at fireRate
 }
+
+//TMF7 BEGIN MAGIC USE
+
+entityDef spell_necromancer
+{
+	"damage"					"0"	
+	"gib"						"0"
+
+	"dv_time"					"100"
+	"dv_scale"					".05"
+
+	"fx_wound"					"effects/wounds/energy.fx"
+
+	"deathPush"					"200"
+	"deathPushMin"				"2000 400"
+	"deathPushMax"				"4000 500"
+	
+	"bleed"						"1"
+	
+	"pain"						"stream"
+
+	"infuse_life"				"1"	
+	"add_heartbeats"			"1"	
+}
+
+entityDef spell_telekinesis
+{
+	"damage"					"0"	
+	"gib"						"0"	
+
+	"dv_time"					"100"
+	"dv_scale"					".05"
+
+	"fx_wound"					"effects/wounds/energy.fx"
+
+//	"deathPush"					"200"
+//	"deathPushMin"				"2000 400"
+//	"deathPushMax"				"4000 500"
+	
+	"pain"						"stream"
+
+	"pull_speed"				"1"
+	"push_speed"				"10"
+}
+
+entityDef spell_blackthunder
+{
+	"damage"					"0"	
+	"gib"						"0"	
+
+	"push"						"10000"		//push enemies away that approach the shrowd
+
+	"dv_time"					"100"
+	"dv_scale"					".05"
+
+}
+
+entityDef spell_firespout
+{
+	"damage"					"50"
+	"knockback"					"10"
+	"gib"						"0"	
+
+	"dv_time"					"100"
+	"dv_scale"					".05"
+
+	"fx_wound"					"effects/wounds/energy.fx"
+
+	"deathPush"					"200"
+	"deathPushMin"				"2000 400"
+	"deathPushMax"				"4000 500"
+	
+	"bleed"						"1"
+	
+	"pain"						"stream"
+
+	//add a second firey impact entity def that binds to the enemy (like the napalm gun)
+
+}
+
+//TMF7 END MAGIC USE
 
 entityDef damage_lightninggun_mp
 {

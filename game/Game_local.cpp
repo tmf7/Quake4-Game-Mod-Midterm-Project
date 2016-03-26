@@ -3631,21 +3631,31 @@ TIME_THIS_SCOPE("idGameLocal::RunFrame - gameDebug.BeginFrame()");
 
 //TMF7 PLAYER SHADOWS
 				float maxIllumination = 0;
+				int numLightsInArea = 0;
 
 				for ( int lt = 0; lt < gameLocal.num_entities; lt++ ) {
 
 					if ( gameLocal.entities[ lt ] && gameLocal.entities[ lt ]->IsType( idLight::GetClassType() ) ) {
 						idLight *light = static_cast<idLight*>( gameLocal.entities[lt] );
-						float newIllumination = light->IlluminatePlayer();
 
-						if ( newIllumination > maxIllumination ) { maxIllumination = newIllumination; }
+						//only check lights in the player's "potential visible set" (PVS)
+						if ( gameLocal.InPlayerPVS( light ) ) {
+							float newIllumination = light->IlluminatePlayer();
+
+							numLightsInArea++;
+
+							if ( newIllumination > maxIllumination ) { maxIllumination = newIllumination; }
+						}
 					}
 				}
 
+				//confirmed this PVS check via "g_editEntityMode 1" and manually counted the lights
+				//if ( numLightsInArea ) { Printf( "NUMBER OF LIGHTS IN PLAYER PVS = %i\n", numLightsInArea ); }
+
 				//ranges from 0 - 100
 				GetLocalPlayer()->playerIllumination = maxIllumination * 100.0f;		
-				//TMF7 0.055f with the current setup looks good enough
-				if ( maxIllumination > 55.0f ) { Printf( "MAX_ILLUMINATION = %f\n", maxIllumination ); }
+
+				//if ( maxIllumination > 55.0f ) { Printf( "MAX_ILLUMINATION = %f\n", maxIllumination ); }
 //TMF7 PLAYER SHADOWS
 
 

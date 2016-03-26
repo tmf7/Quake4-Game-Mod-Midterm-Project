@@ -2423,7 +2423,7 @@ void idActor::Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &dir
 
 //TMF7 BEGIN NECROMANCER
 
-	if ( this->IsType( idAI::GetClassType() ) && damageDef->GetBool( "infuse_life" ) ) {
+	if ( damageDef->GetBool( "infuse_life" ) ) {
 		idAI *monster = static_cast<idAI*>(this);
 		
 		if ( monster->aifl.dead ) {

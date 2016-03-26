@@ -649,7 +649,7 @@ void idAI::Spawn( void ) {
 	aifl.scriptedEndWithIdle	= true;
 
 //TMF7 BEGIN NECROMANCER
-	heartbeats					= 10;	//universal delay before burning away
+	heartbeats					= 20;	//universal delay before burning away
 	darkbeat					= 1000;	//every second is one heartbeat lost //SEC2MS( spawnArgs.GetInt( "health" ) / 10 );
 	nextDarkbeatTime			= gameLocal.time + darkbeat;
 //TMF7 END NECROMANCER

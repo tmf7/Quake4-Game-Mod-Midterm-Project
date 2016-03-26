@@ -20,6 +20,8 @@ public:
 	rvClientEffectPtr		trailEffect;
 	rvClientEffectPtr		impactEffect;
 	
+	int						ownerSpell;		//TMF7 MAGIC EDIT FX
+	
 	void					StopEffects		( void );
 	void					UpdateEffects	( const idVec3& from, const idDict& dict );
 	void					Save			( idSaveGame* savefile ) const;
@@ -305,6 +307,8 @@ void rvWeaponLightningGun::Think ( void ) {
 	currentPath.normal = tr.c.normal;
 	currentPath.target = gameLocal.entities[tr.c.entityNum];
 
+	currentPath.ownerSpell = owner->spell;		//TMF7 MAGIC EDIT FX
+
 	UpdateChainLightning();
 	
 	UpdateEffects( origin );
@@ -351,7 +355,7 @@ void rvWeaponLightningGun::Attack ( idEntity* ent, const idVec3& dir, float powe
 	// Start a lightning crawl effect every so often
 	// we don't synchronize it, so let's not show it in multiplayer for a listen host. also fixes seeing it on the host from other instances
 	if ( !gameLocal.isMultiplayer && gameLocal.time > nextCrawlTime ) {
-		if ( ent->IsType( idActor::GetClassType() ) ) {//TMF7 MAGIC EDIT FX
+		if ( ent->IsType( idActor::GetClassType() ) && owner->spell == SPELL_NONE ) {//TMF7 MAGIC EDIT FX, plays it ON the target
 			rvClientCrawlEffect* effect;
 			effect = new rvClientCrawlEffect( gameLocal.GetEffect( weaponDef->dict, "fx_crawl" ), ent, SEC2MS( spawnArgs.GetFloat ( "crawlTime", ".2" ) ) );
 			effect->Play( gameLocal.time, false );
@@ -364,7 +368,17 @@ void rvWeaponLightningGun::Attack ( idEntity* ent, const idVec3& dir, float powe
 		statManager->WeaponHit( (idActor*)owner, ent, owner->GetCurrentWeapon() );
 	}
 // RAVEN END
-	ent->Damage( owner, owner, dir, spawnArgs.GetString ( "def_damage" ), power * owner->PowerUpModifier( PMOD_PROJECTILE_DAMAGE ), 0 );
+
+//TMF7 BEGIN MAGIC USE
+	const char *damageDefName;
+	
+	//set the "damage" behavior according to which spell is equipped (if none, then do normal lightning gun damage)
+	if ( owner->spell == SPELL_NONE ) { damageDefName = spawnArgs.GetString ( "def_damage" ); }
+	else { damageDefName = spawnArgs.GetString ( va( "def_spell%i", owner->spell ) ); }
+
+//TMF7 END MAGIC USE
+
+	ent->Damage( owner, owner, dir, damageDefName , power * owner->PowerUpModifier( PMOD_PROJECTILE_DAMAGE ), 0 );
 }
 
 /*
@@ -512,8 +526,16 @@ void rvWeaponLightningGun::UpdateEffects( const idVec3& origin ) {
 	// In view trail effect
 	dir = currentPath.origin - origin;
 	dir.Normalize();
-	if ( !trailEffectView ) {//TMF7 MAGIC EDIT FX
-		trailEffectView = gameLocal.PlayEffect ( gameLocal.GetEffect ( weaponDef->dict, "fx_trail" ), origin, dir.ToMat3(), true, currentPath.origin );		
+	if ( !trailEffectView ) {
+
+		//TMF7 BEGIN MAGIC EDIT FX
+		const char *trailName;
+		if ( owner->spell == SPELL_NONE ) { trailName = "fx_trail"; }
+		else { trailName = va( "fx_trail_spell%i", owner->spell ); }
+		//TMF7 END MAGIC EDIT FX
+
+		trailEffectView = gameLocal.PlayEffect ( gameLocal.GetEffect ( weaponDef->dict, trailName ), origin, dir.ToMat3(), true, currentPath.origin );		
+
 	} else {
 		trailEffectView->SetOrigin( origin );
 		trailEffectView->SetAxis( dir.ToMat3() );
@@ -545,8 +567,15 @@ void rvWeaponLightningGun::UpdateTrailEffect( rvClientEffectPtr& effect, const i
 	dir = end - start;
 	dir.Normalize();
 	
-	if ( !effect ) {//TMF7 MAGIC EDIT FX
-		effect = gameLocal.PlayEffect( gameLocal.GetEffect( weaponDef->dict, view ? "fx_trail" : "fx_trail_world" ), start, dir.ToMat3(), true, end );		
+	if ( !effect ) {
+
+		//TMF7 BEGIN MAGIC EDIT FX
+		const char *trailName;
+		if ( owner->spell == SPELL_NONE ) { trailName = view ? "fx_trail" : "fx_trail_world"; }
+		else { trailName = view ? va( "fx_trail_spell%i", owner->spell ) : va( "fx_trail_world_spell%i", owner->spell ); }
+		//TMF7 END MAGIC EDIT FX
+
+		effect = gameLocal.PlayEffect( gameLocal.GetEffect( weaponDef->dict, trailName ), start, dir.ToMat3(), true, end );		
 	} else {
 		effect->SetOrigin( start );
 		effect->SetAxis( dir.ToMat3() );
@@ -656,7 +685,7 @@ void rvWeaponLightningGun::UpdateTubes( void ) {
 		if ( ammo > tubeThreshold * i ) {
 			offset = tubeMaxOffset;
 			
-			if ( !tubeEffects[i] ) {//TMF7 MAGIC EDIT FX
+			if ( !tubeEffects[i] ) {//TMF7 MAGIC EDIT FX, on the gun itself
 				tubeEffects[i] = viewModel->PlayEffect ( gameLocal.GetEffect( spawnArgs, "fx_tube" ), tubeJoints[i], vec3_origin, mat3_identity, true );
 				if( tubeEffects[i] ) {
 					viewModel->StartSound ( "snd_tube", SND_CHANNEL_ANY, 0, false, NULL );
@@ -822,17 +851,17 @@ stateResult_t rvWeaponLightningGun::State_Fire( const stateParms_t& parms ) {
 		STAGE_DONEWAIT
 	};	
 	switch ( parms.stage ) {
-		case STAGE_INIT://TMF7 MAGIC EDIT FX
+		case STAGE_INIT://TMF7 MAGIC EDIT FX, don't change the firing sound (for now)
 			StartSound( "snd_fire", SND_CHANNEL_WEAPON, 0, false, NULL );
 			StartSound( "snd_fire_stereo", SND_CHANNEL_ITEM, 0, false, NULL );
 			StartSound( "snd_fire_loop", SND_CHANNEL_BODY2, 0, false, NULL );
 			
 			viewModel->SetShaderParm( 6, 0 );
-			//TMF7 MAGIC EDIT FX
-			viewModel->PlayEffect( "fx_spire", spireJointView, true );
-			viewModel->PlayEffect( "fx_flash", barrelJointView, true );
+			
+			viewModel->PlayEffect( "fx_spire", spireJointView, true );	//TMF7 MAGIC EDIT FX, may be on the gun itself too
+			viewModel->PlayEffect( "fx_flash", barrelJointView, true );	//TMF7 MAGIC EDIT FX, not used in vanilla def
 
-			if ( worldModel && flashJointWorld != INVALID_JOINT ) {//TMF7 MAGIC EDIT FX
+			if ( worldModel && flashJointWorld != INVALID_JOINT ) {//TMF7 MAGIC EDIT FX, not used in vanilla def
   				worldModel->PlayEffect( gameLocal.GetEffect( weaponDef->dict,"fx_flash_world"), flashJointWorld, vec3_origin, mat3_identity, true );
   			}
 
@@ -855,10 +884,10 @@ stateResult_t rvWeaponLightningGun::State_Fire( const stateParms_t& parms ) {
 		case STAGE_DONE:
 			StopSound( SND_CHANNEL_BODY2, false );
 
-			viewModel->StopEffect( "fx_spire" );//TMF7 MAGIC EDIT FX
-			viewModel->StopEffect( "fx_flash" );//TMF7 MAGIC EDIT FX
+			viewModel->StopEffect( "fx_spire" );//TMF7 MAGIC EDIT FX, may be on the gun itself too
+			viewModel->StopEffect( "fx_flash" );//TMF7 MAGIC EDIT FX, not used in vanilla def
  			if ( worldModel ) {
-  				worldModel->StopEffect( gameLocal.GetEffect( weaponDef->dict, "fx_flash_world" ) );//TMF7 MAGIC EDIT FX
+  				worldModel->StopEffect( gameLocal.GetEffect( weaponDef->dict, "fx_flash_world" ) );//TMF7 MAGIC EDIT FX, not used in vanilla def
   			}
 			viewModel->SetShaderParm( 6, 1 );
 
@@ -927,8 +956,15 @@ void rvLightningPath::UpdateEffects ( const idVec3& from, const idDict& dict ) {
 	dir.Normalize();
 	
 	// Trail effect
-	if ( !trailEffect ) {//TMF7 MAGIC EDIT FX
-		trailEffect = gameLocal.PlayEffect ( gameLocal.GetEffect ( dict, "fx_trail_world" ), from, dir.ToMat3(), true, origin );		
+	if ( !trailEffect ) {
+
+		//TMF7 BEGIN MAGIC EDIT FX
+		const char *trailWorldName;
+		if ( ownerSpell == SPELL_NONE ) { trailWorldName = "fx_trail_world"; }
+		else { trailWorldName = va( "fx_trail_world_spell%i", ownerSpell ); }
+		//TMF7 END MAGIC EDIT FX
+
+		trailEffect = gameLocal.PlayEffect ( gameLocal.GetEffect ( dict, trailWorldName ), from, dir.ToMat3(), true, origin );		
 	} else {
 		trailEffect->SetOrigin ( from );
 		trailEffect->SetAxis ( dir.ToMat3() );
@@ -943,8 +979,15 @@ void rvLightningPath::UpdateEffects ( const idVec3& from, const idDict& dict ) {
 			impactEffect = NULL;
 		}
 	} else { 
-		if ( !impactEffect ) {//TMF7 MAGIC EDIT FX
-			impactEffect = gameLocal.PlayEffect ( gameLocal.GetEffect ( dict, "fx_impact" ), origin, normal.ToMat3(), true );
+		if ( !impactEffect ) {
+
+			//TMF7 BEGIN MAGIC EDIT FX
+			const char *impactName;
+			if ( ownerSpell == SPELL_NONE ) { impactName = "fx_impact"; }
+			else { impactName = va( "fx_impact_spell%i", ownerSpell ); }
+			//TMF7 END MAGIC EDIT FX
+
+			impactEffect = gameLocal.PlayEffect ( gameLocal.GetEffect ( dict, impactName ), origin, normal.ToMat3(), true );
 		} else {
 			impactEffect->SetOrigin ( origin );
 			impactEffect->SetAxis ( normal.ToMat3 ( ) );

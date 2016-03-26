@@ -3433,6 +3433,13 @@ idEntity::Collide
 */
 bool idEntity::Collide( const trace_t &collision, const idVec3 &velocity ) {
 	// this entity collides with collision.c.entityNum
+
+//TMF7 BEGIN TELEKINESIS
+	idEntity *other;
+	other = gameLocal.entities[ collision.c.entityNum ];
+
+	gameLocal.Printf( "BOOM %s\n", other ? other->GetName() : "NULL"); 
+//TMF7 END TELEKINESIS
 	return false;
 }
 
