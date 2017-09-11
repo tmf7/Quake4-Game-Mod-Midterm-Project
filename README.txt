@@ -1,5 +1,3 @@
-# Quake4-Game-Mod-Midterm-Project
-
 All change locations found in "game" and "definitions" directories, and internally labelled with //TMF7
 
 Files Modified by Tom Freehill for the Black Thunder Stealth Mod:
