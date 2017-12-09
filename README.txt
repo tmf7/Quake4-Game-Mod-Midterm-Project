@@ -2,7 +2,7 @@ All change locations found in "game" and "definitions" directories, and internal
 
 Files Modified by Tom Freehill for the Black Thunder Stealth Mod:
 -----------------------------------------------------------------
-// game
+// "game" directory
 AI.h
 Entity.h
 Game_local.h
@@ -24,7 +24,7 @@ Wearpon.cpp
 WeaponDarkMatterGun.cpp
 WeaponLightningGun.cpp
 
-// definitions
+// "definitions" directory
 dmg.def
 grenadelauncher.def
 hyperblaster.def
