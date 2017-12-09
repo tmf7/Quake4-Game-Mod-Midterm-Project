@@ -1,4 +1,8 @@
-All change locations found in "game" and "definitions" directories, and internally labelled with //TMF7
+---------------------------------------
+All change locations found in "game" and "definitions" directories, 
+and internally labelled with //TMF7
+use ctrl+f or cmd+f to search for my changes
+----------------------------------------
 
 Files Modified by Tom Freehill for the Black Thunder Stealth Mod:
 -----------------------------------------------------------------
