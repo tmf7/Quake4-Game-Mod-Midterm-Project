@@ -120,7 +120,7 @@ The keybindings listed here are in addition to Quake 4's vanilla keybindings. Fo
 
 11. Ensure the mod folder structure and naming is as follows (your mod  root folder can be whatever you like, but adhere to the rest):
 
-    ![Quake4Mod_FolderStructure](C:\Users\Tom Freehill\Desktop\Quake4Mod_FolderStructure.png)
+    ![](https://github.com/tmf7/Quake4-Game-Mod-Midterm-Project/blob/BlackThunder/readme_images/Quake4Mod_FolderStructure.png)
 
     * If you have trouble with the folder structure, or are adding other modifications, refer to the folder structure found within q4base/pak001.pk4 and follow that for your mod folder. This will allow Quake 4 to find all your mod files.
 
