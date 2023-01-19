@@ -2,6 +2,9 @@
 
 This is a Quake 4 mod that includes edits to several weapon definitions and gui, as well as gamex86.dll code changes that add new functionality to said-modified weapons. 
 
+## Video Summary
+[Video Summary of BlackThunder](https://www.youtube.com/watch?v=E7onER1Ki-E)
+
 ## Weapon mods:
 
 | Weapon           | Modification                                                 |
@@ -53,15 +56,15 @@ This is a Quake 4 mod that includes edits to several weapon definitions and gui,
 
 4. Once the main menu loads there will be an option called **mods** in the bottom left of the screen, select that option.
 
-   ![](https://github.com/tmf7/Quake4-Game-Mod-Midterm-Project/readme_images/Quake4_ModsOption.png)
+   ![](https://github.com/tmf7/Quake4-Game-Mod-Midterm-Project/blob/BlackThunder/readme_images/Quake4_ModsOption.png)
 
  	5. Select **blackthunder** (Quake sets the mod folder name to lowercase), then **Load Mod**
 
-![](https://github.com/tmf7/Quake4-Game-Mod-Midterm-Project/readme_images/Quake4_ModsList.png)
+![](https://github.com/tmf7/Quake4-Game-Mod-Midterm-Project/blob/BlackThunder/readme_images/Quake4_ModsList.png)
 
 6. You'll know the mod is loaded when you see the main menu again and "New Game" has been replaced with "Snoop Dogg", and "Start Game" has been replaced with "Start Flobble"
 
-​                                                                 ![](https://github.com/tmf7/Quake4-Game-Mod-Midterm-Project/readme_images/BlackThunderLoaded_small.png)             ![](https://github.com/tmf7/Quake4-Game-Mod-Midterm-Project/readme_images/BlackThunderStartGame_small.png) 
+​                                                                 ![](https://github.com/tmf7/Quake4-Game-Mod-Midterm-Project/blob/BlackThunder/readme_images/BlackThunderLoaded_small.png)             ![](https://github.com/tmf7/Quake4-Game-Mod-Midterm-Project/blob/BlackThunder/readme_images/BlackThunderStartGame_small.png) 
 
 
 
@@ -76,8 +79,8 @@ The keybindings listed here are in addition to Quake 4's vanilla keybindings. Fo
 | 7          | Select Paralysis Bomb Launcher (replaces the Rocket Launcher) |
 | 9          | Select Magic Shit (replaces the Lightning Gun)               |
 | 0          | Select Portal Gun (replaces the Dark Matter Gun)             |
-| v          | **<span style="color:red">If Magic Shit (Lightning Gun) is currently selected</span>** swap active spell between *No Spell (normal gun)*, *Necromancer*, *Telekinesis*, *BlackThunder*, and *Firespout* |
-| b          | **<span style="color:red">If the player has launched any sticky bombs</span>**, detonates all sticky bombs simultaneously |
+| v          | **If Magic Shit (Lightning Gun) is currently selected** swap active spell between *No Spell (normal gun)*, *Necromancer*, *Telekinesis*, *BlackThunder*, and *Firespout* |
+| b          | **If the player has launched any sticky bombs**, detonates all sticky bombs simultaneously |
 
 
 
@@ -136,34 +139,39 @@ The keybindings listed here are in addition to Quake 4's vanilla keybindings. Fo
 
 ### Quake 4 source game file changes
 
-AI.h
-Entity.h
-Game_local.h
-Light.h
-Player.h
-Projectile.h
-UsercmdGen.h
-Actor.cpp
-AI.cpp
-AI_events.cpp
-Entity.cpp
-Game_local.cpp
-Light.cpp
-Player.cpp
-PlayerView.cpp
-Projectile.cpp
-SysCvar.cpp
-Wearpon.cpp
-WeaponDarkMatterGun.cpp
-WeaponLightningGun.cpp
+| Filename                |
+|-------------------------|
+| AI.h                    |
+| Entity.h                |
+| Game_local.h            |
+| Light.h                 |
+| Player.h                |
+| Projectile.h            |
+| UsercmdGen.h            |
+| Actor.cpp               |
+| AI.cpp                  |
+| AI_events.cpp           |
+| Entity.cpp              |
+| Game_local.cpp          |
+| Light.cpp               |
+| Player.cpp              |
+| PlayerView.cpp          |
+| Projectile.cpp          |
+| SysCvar.cpp             |
+| Wearpon.cpp             |
+| WeaponDarkMatterGun.cpp |
+| WeaponLightningGun.cpp  |
 
 ### q4base/pak001.pk4 file changes
-dmg.def
-grenadelauncher.def
-hyperblaster.def
-lightninggun.def
-player.def
-rocketlauncher.def
-hud.gui
-english_code.lang
-Quake4Config.cfg
+
+| Filename               |
+|------------------------|
+| dmg.def                |
+| grenadelauncher.def    |
+| hyperblaster.def       |
+| lightninggun.def       |
+| player.def             |
+| rocketlauncher.def     |
+| hud.gui                |
+| english_code.lang      |
+| Quake4Config.cfg       |
