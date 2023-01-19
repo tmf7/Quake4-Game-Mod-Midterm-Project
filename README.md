@@ -53,15 +53,15 @@ This is a Quake 4 mod that includes edits to several weapon definitions and gui,
 
 4. Once the main menu loads there will be an option called **mods** in the bottom left of the screen, select that option.
 
-   ![Quake4_ModsOption](https://github.com/tmf7/Quake4-Game-Mod-Midterm-Project/readme_images/Quake4_ModsOption.png)
+   ![](https://github.com/tmf7/Quake4-Game-Mod-Midterm-Project/readme_images/Quake4_ModsOption.png)
 
  	5. Select **blackthunder** (Quake sets the mod folder name to lowercase), then **Load Mod**
 
-![Quake4_ModsList](https://github.com/tmf7/Quake4-Game-Mod-Midterm-Project/readme_images/Quake4_ModsList.png)
+![](https://github.com/tmf7/Quake4-Game-Mod-Midterm-Project/readme_images/Quake4_ModsList.png)
 
 6. You'll know the mod is loaded when you see the main menu again and "New Game" has been replaced with "Snoop Dogg", and "Start Game" has been replaced with "Start Flobble"
 
-​                                                                 ![BlackThunderLoaded_small](https://github.com/tmf7/Quake4-Game-Mod-Midterm-Project/readme_images/BlackThunderLoaded_small.png)             ![BlackThunderStartGame_small](https://github.com/tmf7/Quake4-Game-Mod-Midterm-Project/readme_images/BlackThunderStartGame_small.png) 
+​                                                                 ![](https://github.com/tmf7/Quake4-Game-Mod-Midterm-Project/readme_images/BlackThunderLoaded_small.png)             ![](https://github.com/tmf7/Quake4-Game-Mod-Midterm-Project/readme_images/BlackThunderStartGame_small.png) 
 
 
 
