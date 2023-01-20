@@ -48,7 +48,7 @@ This is a Quake 4 mod that includes edits to several weapon definitions and gui,
 
 # Run BlackThunder
 
-1. Download and unzip **Freehill_BlackThunder_Quake4_Mod.zip** ![here](https://github.com/tmf7/Quake4-Game-Mod-Midterm-Project/blob/BlackThunder/documents/Freehill_BlackThunder_Quake4_Mod.zip) using the "Download" button, it contains one folder: **BlackThunder**
+1. Download and unzip [**Freehill_BlackThunder_Quake4_Mod.zip**](https://github.com/tmf7/Quake4-Game-Mod-Midterm-Project/blob/BlackThunder/documents/Freehill_BlackThunder_Quake4_Mod.zip) using the "Download" button, it contains one folder: **BlackThunder**
 
 2. Copy and paste the **BlackThunder** folder into your legitimate install of Quake 4 at the root directory.
 
